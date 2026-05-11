@@ -1,0 +1,16 @@
+{
+  "name": "physis",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "docker compose -f docker-compose.dev.yml up",
+    "build": "docker compose build"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

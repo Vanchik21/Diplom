@@ -1,0 +1,34 @@
+# Node
+node_modules/
+dist/
+.angular/
+*.tgz
+npm-debug.log*
+
+# .NET
+apps/backend/bin/
+apps/backend/obj/
+apps/backend/*.user
+apps/backend/*.suo
+apps/backend/.vs/
+*.nupkg
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Test results
+/TestResults/
+/coverage/
+
+# Docker volumes (local dev data)
+pgdata/
