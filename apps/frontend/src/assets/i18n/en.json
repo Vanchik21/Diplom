@@ -55,6 +55,7 @@
     }
   },
   "sim": {
+    "notFound": "Module not found.",
     "predict": "Predict",
     "observe": "Observe",
     "explain": "Explain",

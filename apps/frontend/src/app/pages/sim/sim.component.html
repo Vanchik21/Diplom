@@ -1,0 +1,50 @@
+@if (notFound()) {
+  <div class="sim-not-found">
+    <p>{{ 'sim.notFound' | translate }}</p>
+  </div>
+} @else {
+  <div class="sim">
+    <div class="sim__toolbar">
+      <h2 class="sim__module-name">{{ entry()!.meta.name | localized }}</h2>
+      <div class="sim__toolbar-actions">
+        <button class="btn btn--ghost" (click)="togglePause()">
+          {{ paused() ? '▶' : '⏸' }}
+        </button>
+        <button class="btn btn--ghost" (click)="onResetSim()">{{ 'sim.reset' | translate }}</button>
+      </div>
+    </div>
+
+    <div class="sim__body">
+      <div class="sim__viewport">
+        <app-babylon-adapter
+          [setupFn]="setupFn"
+          [frameFn]="frameFn"
+          [paused]="paused()"
+        />
+      </div>
+
+      <aside class="sim__sidebar">
+        <div class="sim__sidebar-section sim__sidebar-section--params">
+          <app-param-panel
+            [paramSpecs]="entry()!.meta.defaultParams"
+            (apply)="onApplyParams($event)"
+            (resetSim)="onResetSim()"
+          />
+        </div>
+
+        <div class="sim__sidebar-section sim__sidebar-section--formulas">
+          <app-formula-panel [formulas]="entry()!.meta.formulas" />
+        </div>
+      </aside>
+    </div>
+
+    <div class="sim__bottom">
+      <div class="sim__chart">
+        <app-chart-panel [metrics]="metrics()" />
+      </div>
+      <div class="sim__metrics">
+        <app-metrics-panel [metrics]="metrics()" />
+      </div>
+    </div>
+  </div>
+}

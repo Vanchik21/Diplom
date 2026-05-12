@@ -1,0 +1,8 @@
+<div class="formula-panel">
+  @for (formula of formulas(); track formula.id) {
+    <div class="formula-item">
+      <p class="formula-item__label">{{ formula.label | localized }}</p>
+      <div class="formula-item__math" [innerHTML]="renderLatex(formula.latex)"></div>
+    </div>
+  }
+</div>

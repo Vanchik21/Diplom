@@ -1,0 +1,85 @@
+.param-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem;
+  height: 100%;
+  overflow-y: auto;
+
+  &__title {
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-text-muted);
+  }
+
+  &__list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+    flex: 1;
+  }
+
+  &__actions {
+    display: flex;
+    gap: 0.5rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--color-border);
+  }
+}
+
+.param-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+
+  &__label {
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+  }
+
+  &__value {
+    font-size: 0.8rem;
+    font-variant-numeric: tabular-nums;
+    color: var(--color-text);
+  }
+
+  &__unit {
+    font-size: 0.7rem;
+    color: var(--color-text-muted);
+    margin-left: 0.2rem;
+  }
+
+  &__slider {
+    width: 100%;
+    accent-color: var(--color-primary);
+    cursor: pointer;
+  }
+
+  &__select {
+    width: 100%;
+    padding: 0.35rem 0.5rem;
+    border-radius: 5px;
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+    color: var(--color-text);
+    outline: none;
+
+    &:focus { border-color: var(--color-primary); }
+  }
+
+  &__checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    cursor: pointer;
+  }
+}

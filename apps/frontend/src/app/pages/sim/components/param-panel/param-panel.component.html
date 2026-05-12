@@ -1,0 +1,57 @@
+<div class="param-panel">
+  <h3 class="param-panel__title">{{ 'sim.params' | translate }}</h3>
+
+  <div class="param-panel__list">
+    @for (entry of entries; track entry.key) {
+      <div class="param-item">
+        @switch (entry.spec.type) {
+          @case ('number') {
+            <div class="param-item__header">
+              <label class="param-item__label">{{ entry.spec.label | localized }}</label>
+              <span class="param-item__value">
+                {{ asNumber(getValue(entry.key)).toFixed(2) }}
+                @if (entry.spec.unit) { <span class="param-item__unit">{{ entry.spec.unit }}</span> }
+              </span>
+            </div>
+            <input
+              class="param-item__slider"
+              type="range"
+              [min]="entry.spec.min ?? 0"
+              [max]="entry.spec.max ?? 100"
+              [step]="entry.spec.step ?? 1"
+              [ngModel]="asNumber(getValue(entry.key))"
+              (ngModelChange)="setValue(entry.key, +$event)"
+            />
+          }
+          @case ('boolean') {
+            <label class="param-item__checkbox-label">
+              <input
+                type="checkbox"
+                [ngModel]="getValue(entry.key)"
+                (ngModelChange)="setValue(entry.key, $event)"
+              />
+              {{ entry.spec.label | localized }}
+            </label>
+          }
+          @case ('enum') {
+            <label class="param-item__label">{{ entry.spec.label | localized }}</label>
+            <select
+              class="param-item__select"
+              [ngModel]="getValue(entry.key)"
+              (ngModelChange)="setValue(entry.key, $event)"
+            >
+              @for (opt of entry.spec.options; track opt.value) {
+                <option [ngValue]="opt.value">{{ opt.label | localized }}</option>
+              }
+            </select>
+          }
+        }
+      </div>
+    }
+  </div>
+
+  <div class="param-panel__actions">
+    <button class="btn btn--primary" (click)="onApply()">{{ 'common.save' | translate }}</button>
+    <button class="btn btn--ghost" (click)="onReset()">{{ 'sim.reset' | translate }}</button>
+  </div>
+</div>
