@@ -1,0 +1,23 @@
+<div class="card">
+  <div class="card__header">
+    <span class="card__badge card__badge--category">
+      {{ 'modules.category.' + entry().meta.category | translate }}
+    </span>
+    <span class="card__badge card__badge--difficulty card__badge--difficulty-{{ entry().meta.difficulty }}">
+      {{ 'modules.difficulty.' + entry().meta.difficulty | translate }}
+    </span>
+  </div>
+
+  <h3 class="card__title">{{ entry().meta.name | localized }}</h3>
+  <p class="card__description">{{ entry().meta.description | localized }}</p>
+
+  <div class="card__topics">
+    @for (topic of entry().meta.educationalTopics.slice(0, 3); track topic) {
+      <span class="card__topic">{{ topic }}</span>
+    }
+  </div>
+
+  <a class="btn btn--primary card__cta" [routerLink]="['/sim', entry().meta.id]">
+    {{ 'modules.open' | translate }}
+  </a>
+</div>

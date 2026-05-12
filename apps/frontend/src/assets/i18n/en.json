@@ -41,6 +41,7 @@
     "filterByCategory": "Category",
     "filterByDifficulty": "Level",
     "open": "Open",
+    "empty": "No modules found.",
     "difficulty": {
       "school": "School",
       "university": "University"
@@ -90,6 +91,7 @@
     "name": "Scenario name"
   },
   "common": {
+    "all": "All",
     "save": "Save",
     "cancel": "Cancel",
     "reset": "Reset",

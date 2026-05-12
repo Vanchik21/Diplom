@@ -41,6 +41,7 @@
     "filterByCategory": "Категорія",
     "filterByDifficulty": "Рівень",
     "open": "Відкрити",
+    "empty": "Модулів не знайдено.",
     "difficulty": {
       "school": "Школа",
       "university": "Університет"
@@ -90,6 +91,7 @@
     "name": "Назва сценарію"
   },
   "common": {
+    "all": "Усі",
     "save": "Зберегти",
     "cancel": "Скасувати",
     "reset": "Скинути",

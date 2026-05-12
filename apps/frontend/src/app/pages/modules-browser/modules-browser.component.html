@@ -1,0 +1,49 @@
+<div class="browser">
+  <header class="browser__header">
+    <h1 class="browser__title">{{ 'modules.title' | translate }}</h1>
+
+    <div class="browser__filters">
+      <div class="filter-group">
+        <label class="filter-group__label">{{ 'modules.filterByCategory' | translate }}</label>
+        <div class="filter-group__options">
+          @for (cat of categories; track cat) {
+            <button
+              class="filter-btn"
+              [class.filter-btn--active]="categoryFilter() === cat"
+              (click)="setCategoryFilter(cat)"
+            >
+              {{ (cat === 'all' ? 'common.all' : 'modules.category.' + cat) | translate }}
+            </button>
+          }
+        </div>
+      </div>
+
+      <div class="filter-group">
+        <label class="filter-group__label">{{ 'modules.filterByDifficulty' | translate }}</label>
+        <div class="filter-group__options">
+          @for (diff of ['all', 'school', 'university']; track diff) {
+            <button
+              class="filter-btn"
+              [class.filter-btn--active]="difficultyFilter() === diff"
+              (click)="setDifficultyFilter(diff)"
+            >
+              {{ (diff === 'all' ? 'common.all' : 'modules.difficulty.' + diff) | translate }}
+            </button>
+          }
+        </div>
+      </div>
+    </div>
+  </header>
+
+  @if (filteredEntries().length > 0) {
+    <div class="browser__grid">
+      @for (entry of filteredEntries(); track entry.meta.id) {
+        <app-module-card [entry]="entry" />
+      }
+    </div>
+  } @else {
+    <div class="browser__empty">
+      <p>{{ 'modules.empty' | translate }}</p>
+    </div>
+  }
+</div>
