@@ -25,6 +25,9 @@ import { ChartPanelComponent } from './components/chart-panel/chart-panel.compon
 import { FormulaPanelComponent } from './components/formula-panel/formula-panel.component';
 import { MetricsPanelComponent } from './components/metrics-panel/metrics-panel.component';
 import { ParamPanelComponent } from './components/param-panel/param-panel.component';
+import { AuthService } from '../../core/auth/auth.service';
+import { ScenarioService } from '../../core/scenarios/scenario.service';
+import { ScenarioLoadService } from '../../core/scenarios/scenario-load.service';
 
 @Component({
   selector: 'app-sim',
@@ -48,16 +51,26 @@ export class SimComponent implements OnInit, OnDestroy {
 
   private readonly registry = inject(ModuleRegistryService);
   private readonly router = inject(Router);
+  private readonly auth = inject(AuthService);
+  private readonly scenarioService = inject(ScenarioService);
+  private readonly scenarioLoader = inject(ScenarioLoadService);
 
   protected readonly entry = computed(() => this.registry.getById(this.moduleId()));
   protected readonly notFound = computed(() => !this.entry());
+  protected readonly isAuthenticated = this.auth.isAuthenticated;
 
   protected readonly metrics = signal<Metrics>({ scalars: {}, timeSeries: {} });
   protected readonly paused = signal(false);
   protected readonly module = signal<PhysicsModule | null>(null);
 
+  protected readonly savePanelOpen = signal(false);
+  protected readonly saveName = signal('');
+  protected readonly saveStatus = signal<'idle' | 'saving' | 'saved' | 'error'>('idle');
+
   protected setupFn: BabylonSetupFn | undefined;
   protected frameFn: BabylonFrameFn | undefined;
+
+  private currentParams: Record<string, unknown> = {};
 
   ngOnInit(): void {
     const entry = this.entry();
@@ -66,8 +79,14 @@ export class SimComponent implements OnInit, OnDestroy {
       return;
     }
 
+    const pending = this.scenarioLoader.consume();
+    const defaults = this.extractDefaults(entry.meta.defaultParams);
+    const initParams = pending ?? defaults;
+
+    this.currentParams = initParams;
+
     const mod = new entry.factory();
-    mod.init(this.extractDefaults(entry.meta.defaultParams));
+    mod.init(initParams as never);
     this.module.set(mod);
 
     if (isBabylonRenderable(mod)) {
@@ -83,6 +102,7 @@ export class SimComponent implements OnInit, OnDestroy {
   protected onApplyParams(params: Record<string, unknown>): void {
     const mod = this.module();
     if (!mod) return;
+    this.currentParams = params;
     mod.init(params as never);
     this.metrics.set(mod.getMetrics());
   }
@@ -96,6 +116,42 @@ export class SimComponent implements OnInit, OnDestroy {
 
   protected togglePause(): void {
     this.paused.update(v => !v);
+  }
+
+  protected openSavePanel(): void {
+    this.saveName.set('');
+    this.saveStatus.set('idle');
+    this.savePanelOpen.set(true);
+  }
+
+  protected closeSavePanel(): void {
+    this.savePanelOpen.set(false);
+  }
+
+  protected onSaveNameInput(event: Event): void {
+    this.saveName.set((event.target as HTMLInputElement).value);
+  }
+
+  protected saveScenario(): void {
+    const name = this.saveName().trim();
+    if (!name) return;
+    const mod = this.module();
+    if (!mod) return;
+
+    this.saveStatus.set('saving');
+
+    this.scenarioService.create({
+      moduleId: this.moduleId(),
+      name,
+      paramsJson: JSON.stringify(this.currentParams),
+      stateSnapshotJson: JSON.stringify(mod.getMetrics().scalars),
+    }).subscribe({
+      next: () => {
+        this.saveStatus.set('saved');
+        setTimeout(() => this.closeSavePanel(), 1200);
+      },
+      error: () => this.saveStatus.set('error'),
+    });
   }
 
   private extractDefaults(specs: Record<string, ParamSpec>): Record<string, unknown> {

@@ -1,0 +1,37 @@
+<div class="my-scenarios">
+  <h1 class="my-scenarios__title">{{ 'scenarios.title' | translate }}</h1>
+
+  @if (loading()) {
+    <p class="my-scenarios__status">{{ 'common.loading' | translate }}</p>
+  } @else if (error()) {
+    <p class="my-scenarios__status my-scenarios__status--error">{{ 'common.error' | translate }}</p>
+  } @else if (scenarios().length === 0) {
+    <p class="my-scenarios__status my-scenarios__status--empty">{{ 'scenarios.empty' | translate }}</p>
+  } @else {
+    <ul class="scenario-list">
+      @for (scenario of scenarios(); track scenario.id) {
+        <li class="scenario-card">
+          <div class="scenario-card__info">
+            <span class="scenario-card__name">{{ scenario.name }}</span>
+            <span class="scenario-card__date">{{ formatDate(scenario.createdAt) }}</span>
+          </div>
+          <div class="scenario-card__actions">
+            <button
+              class="btn btn--primary btn--sm"
+              (click)="loadScenario(scenario)"
+            >
+              {{ 'scenarios.load' | translate }}
+            </button>
+            <button
+              class="btn btn--danger btn--sm"
+              [disabled]="deletingId() === scenario.id"
+              (click)="deleteScenario(scenario)"
+            >
+              {{ 'scenarios.delete' | translate }}
+            </button>
+          </div>
+        </li>
+      }
+    </ul>
+  }
+</div>

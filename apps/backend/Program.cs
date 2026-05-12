@@ -49,6 +49,7 @@ builder.Services.AddAuthorization();
 builder.Services.AddSignalR();
 builder.Services.AddControllers();
 builder.Services.AddScoped<TokenService>();
+builder.Services.AddScoped<ScenarioService>();
 
 var allowedOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>()
     ?? ["http://localhost:4200"];

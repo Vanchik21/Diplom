@@ -13,6 +13,9 @@
             {{ paused() ? '▶' : '⏸' }}
           </button>
           <button class="btn btn--ghost" (click)="onResetSim()">{{ 'sim.reset' | translate }}</button>
+          @if (isAuthenticated()) {
+            <button class="btn btn--primary" (click)="openSavePanel()">{{ 'sim.save' | translate }}</button>
+          }
         </div>
       </div>
 
@@ -51,4 +54,38 @@
     </div>
 
   </app-poe-workflow>
+
+  @if (savePanelOpen()) {
+    <div class="save-overlay" (click)="closeSavePanel()">
+      <div class="save-dialog" (click)="$event.stopPropagation()">
+        <h3 class="save-dialog__title">{{ 'scenarios.save' | translate }}</h3>
+        <input
+          class="save-dialog__input"
+          type="text"
+          [placeholder]="'scenarios.name' | translate"
+          [value]="saveName()"
+          (input)="onSaveNameInput($event)"
+          (keydown.enter)="saveScenario()"
+          autofocus
+        />
+        <div class="save-dialog__actions">
+          <button class="btn btn--ghost" (click)="closeSavePanel()">{{ 'common.cancel' | translate }}</button>
+          <button
+            class="btn btn--primary"
+            [disabled]="!saveName().trim() || saveStatus() === 'saving'"
+            (click)="saveScenario()"
+          >
+            @switch (saveStatus()) {
+              @case ('saving') { {{ 'common.loading' | translate }} }
+              @case ('saved') { ✓ }
+              @default { {{ 'common.save' | translate }} }
+            }
+          </button>
+        </div>
+        @if (saveStatus() === 'error') {
+          <p class="save-dialog__error">{{ 'common.error' | translate }}</p>
+        }
+      </div>
+    </div>
+  }
 }
