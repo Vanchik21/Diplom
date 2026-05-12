@@ -1,0 +1,29 @@
+<header class="top-bar">
+  <div class="top-bar__left">
+    <button class="top-bar__menu-btn btn btn--ghost" (click)="layout.toggleSidebar()" aria-label="Toggle sidebar">
+      ☰
+    </button>
+    <a class="top-bar__logo" routerLink="/">Physis</a>
+  </div>
+
+  <nav class="top-bar__nav">
+    <a class="btn btn--ghost" routerLink="/modules">{{ 'nav.modules' | translate }}</a>
+    @if (auth.isAuthenticated()) {
+      <a class="btn btn--ghost" routerLink="/my-scenarios">{{ 'nav.myScenarios' | translate }}</a>
+    }
+  </nav>
+
+  <div class="top-bar__actions">
+    <button class="btn btn--ghost top-bar__lang" (click)="toggleLanguage()">
+      {{ currentLang.toUpperCase() }}
+    </button>
+
+    @if (auth.isAuthenticated()) {
+      <a class="btn btn--ghost" routerLink="/profile">{{ auth.currentUserName() }}</a>
+      <button class="btn btn--ghost" (click)="auth.logout()">{{ 'nav.logout' | translate }}</button>
+    } @else {
+      <a class="btn btn--ghost" routerLink="/login">{{ 'nav.login' | translate }}</a>
+      <a class="btn btn--primary" routerLink="/register">{{ 'nav.register' | translate }}</a>
+    }
+  </div>
+</header>

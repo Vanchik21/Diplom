@@ -1,0 +1,37 @@
+<aside class="sidebar" [class.sidebar--collapsed]="layout.sidebarCollapsed()">
+  <nav class="sidebar__nav">
+    <a
+      class="sidebar__item"
+      routerLink="/"
+      routerLinkActive="sidebar__item--active"
+      [routerLinkActiveOptions]="{ exact: true }"
+    >
+      <span class="sidebar__icon">⊙</span>
+      @if (!layout.sidebarCollapsed()) {
+        <span>{{ 'nav.home' | translate }}</span>
+      }
+    </a>
+
+    <a
+      class="sidebar__item"
+      routerLink="/modules"
+      routerLinkActive="sidebar__item--active"
+    >
+      <span class="sidebar__icon">⚛</span>
+      @if (!layout.sidebarCollapsed()) {
+        <span>{{ 'nav.modules' | translate }}</span>
+      }
+    </a>
+
+    <a
+      class="sidebar__item"
+      routerLink="/my-scenarios"
+      routerLinkActive="sidebar__item--active"
+    >
+      <span class="sidebar__icon">◈</span>
+      @if (!layout.sidebarCollapsed()) {
+        <span>{{ 'nav.myScenarios' | translate }}</span>
+      }
+    </a>
+  </nav>
+</aside>

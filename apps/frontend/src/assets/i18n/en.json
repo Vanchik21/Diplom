@@ -1,0 +1,99 @@
+{
+  "nav": {
+    "home": "Home",
+    "modules": "Modules",
+    "myScenarios": "My Scenarios",
+    "profile": "Profile",
+    "login": "Log in",
+    "register": "Sign up",
+    "logout": "Log out"
+  },
+  "home": {
+    "title": "Physis — Physics Simulations",
+    "subtitle": "An interactive platform for learning physics through simulations. Predict, observe, explain.",
+    "startExploring": "Start Exploring"
+  },
+  "auth": {
+    "login": {
+      "title": "Log in",
+      "email": "Email",
+      "password": "Password",
+      "submit": "Log in",
+      "noAccount": "Don't have an account?",
+      "registerLink": "Sign up"
+    },
+    "register": {
+      "title": "Create account",
+      "email": "Email",
+      "userName": "Username",
+      "password": "Password",
+      "submit": "Create account",
+      "hasAccount": "Already have an account?",
+      "loginLink": "Log in"
+    },
+    "errors": {
+      "invalidCredentials": "Invalid email or password.",
+      "registrationFailed": "Registration failed. Please check your details and try again."
+    }
+  },
+  "modules": {
+    "title": "Physics Modules",
+    "filterByCategory": "Category",
+    "filterByDifficulty": "Level",
+    "open": "Open",
+    "difficulty": {
+      "school": "School",
+      "university": "University"
+    },
+    "category": {
+      "mechanics": "Mechanics",
+      "em": "Electromagnetism",
+      "waves": "Waves",
+      "thermo": "Thermodynamics",
+      "gravity": "Gravity"
+    }
+  },
+  "sim": {
+    "predict": "Predict",
+    "observe": "Observe",
+    "explain": "Explain",
+    "save": "Save Scenario",
+    "reset": "Reset",
+    "params": "Parameters",
+    "metrics": "Metrics",
+    "formulas": "Formulas"
+  },
+  "poe": {
+    "predict": {
+      "title": "Step 1 — Predict",
+      "instruction": "Enter your predictions before running the simulation.",
+      "continue": "Continue"
+    },
+    "observe": {
+      "title": "Step 2 — Observe",
+      "instruction": "Run the simulation and observe for at least 5 seconds.",
+      "continue": "Continue"
+    },
+    "explain": {
+      "title": "Step 3 — Explain",
+      "predicted": "Predicted",
+      "actual": "Measured",
+      "error": "Error"
+    }
+  },
+  "scenarios": {
+    "title": "My Scenarios",
+    "empty": "You have no saved scenarios yet.",
+    "save": "Save",
+    "load": "Load",
+    "delete": "Delete",
+    "name": "Scenario name"
+  },
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "reset": "Reset",
+    "loading": "Loading…",
+    "error": "Error"
+  }
+}

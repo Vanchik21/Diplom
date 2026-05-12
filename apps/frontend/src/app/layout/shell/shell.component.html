@@ -1,0 +1,15 @@
+<div class="shell">
+  <app-top-bar />
+
+  <app-sidebar />
+
+  <main class="shell__main">
+    <router-outlet />
+  </main>
+
+  @if (layout.bottomPanelVisible()) {
+    <div class="shell__bottom">
+      <ng-content select="[bottom-panel]" />
+    </div>
+  }
+</div>

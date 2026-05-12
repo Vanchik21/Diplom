@@ -1,0 +1,54 @@
+import { Routes } from '@angular/router';
+import { authGuard } from './core/auth/auth.guard';
+
+export const routes: Routes = [
+  {
+    path: '',
+    loadComponent: () =>
+      import('./layout/shell/shell.component').then(m => m.ShellComponent),
+    children: [
+      {
+        path: '',
+        loadComponent: () =>
+          import('./pages/home/home.component').then(m => m.HomeComponent),
+      },
+      {
+        path: 'modules',
+        loadComponent: () =>
+          import('./pages/modules-browser/modules-browser.component').then(
+            m => m.ModulesBrowserComponent,
+          ),
+      },
+      {
+        path: 'sim/:moduleId',
+        loadComponent: () =>
+          import('./pages/sim/sim.component').then(m => m.SimComponent),
+      },
+      {
+        path: 'profile',
+        canActivate: [authGuard],
+        loadComponent: () =>
+          import('./pages/profile/profile.component').then(m => m.ProfileComponent),
+      },
+      {
+        path: 'my-scenarios',
+        canActivate: [authGuard],
+        loadComponent: () =>
+          import('./pages/my-scenarios/my-scenarios.component').then(
+            m => m.MyScenariosComponent,
+          ),
+      },
+    ],
+  },
+  {
+    path: 'login',
+    loadComponent: () =>
+      import('./pages/login/login.component').then(m => m.LoginComponent),
+  },
+  {
+    path: 'register',
+    loadComponent: () =>
+      import('./pages/register/register.component').then(m => m.RegisterComponent),
+  },
+  { path: '**', redirectTo: '' },
+];
