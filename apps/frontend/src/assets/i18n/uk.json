@@ -78,9 +78,12 @@
     },
     "explain": {
       "title": "Крок 3 — Пояснення",
+      "quantity": "Величина",
       "predicted": "Передбачено",
       "actual": "Виміряно",
-      "error": "Відхилення"
+      "absError": "Абс. похибка",
+      "relError": "Відн. похибка",
+      "tryAgain": "Спробувати ще"
     }
   },
   "scenarios": {

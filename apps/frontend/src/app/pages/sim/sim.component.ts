@@ -10,7 +10,7 @@ import {
 } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import type { Metrics } from '@physis/sdk';
+import type { Metrics, ParamSpec, PhysicsModule } from '@physis/sdk';
 import type { Scene } from '@babylonjs/core';
 import { LocalizedPipe } from '../../core/pipes/localized.pipe';
 import { ModuleRegistryService } from '../../physics-modules/registry.service';
@@ -20,11 +20,11 @@ import {
   type BabylonSetupFn,
 } from '../../rendering/babylon/babylon-adapter.component';
 import { isBabylonRenderable } from '../../rendering/babylon/babylon-renderable';
+import { PoeWorkflowComponent } from '../../components/poe-workflow/poe-workflow.component';
 import { ChartPanelComponent } from './components/chart-panel/chart-panel.component';
 import { FormulaPanelComponent } from './components/formula-panel/formula-panel.component';
 import { MetricsPanelComponent } from './components/metrics-panel/metrics-panel.component';
 import { ParamPanelComponent } from './components/param-panel/param-panel.component';
-import type { PhysicsModule } from '@physis/sdk';
 
 @Component({
   selector: 'app-sim',
@@ -34,6 +34,7 @@ import type { PhysicsModule } from '@physis/sdk';
     TranslateModule,
     LocalizedPipe,
     BabylonAdapterComponent,
+    PoeWorkflowComponent,
     ParamPanelComponent,
     MetricsPanelComponent,
     ChartPanelComponent,
@@ -53,8 +54,7 @@ export class SimComponent implements OnInit, OnDestroy {
 
   protected readonly metrics = signal<Metrics>({ scalars: {}, timeSeries: {} });
   protected readonly paused = signal(false);
-
-  private module: PhysicsModule | null = null;
+  protected readonly module = signal<PhysicsModule | null>(null);
 
   protected setupFn: BabylonSetupFn | undefined;
   protected frameFn: BabylonFrameFn | undefined;
@@ -66,16 +66,12 @@ export class SimComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.module = new entry.factory();
-    this.module.init(this.buildParams(entry.meta.defaultParams));
+    const mod = new entry.factory();
+    mod.init(this.extractDefaults(entry.meta.defaultParams));
+    this.module.set(mod);
 
-    if (isBabylonRenderable(this.module)) {
-      const mod = this.module;
-
-      this.setupFn = (scene: Scene) => {
-        mod.babylonSetup(scene);
-      };
-
+    if (isBabylonRenderable(mod)) {
+      this.setupFn = (scene: Scene) => mod.babylonSetup(scene);
       this.frameFn = (scene: Scene, dt: number) => {
         mod.step(dt);
         mod.babylonFrame(scene);
@@ -85,28 +81,31 @@ export class SimComponent implements OnInit, OnDestroy {
   }
 
   protected onApplyParams(params: Record<string, unknown>): void {
-    if (!this.module) return;
-    this.module.init(params as never);
-    this.metrics.set(this.module.getMetrics());
+    const mod = this.module();
+    if (!mod) return;
+    mod.init(params as never);
+    this.metrics.set(mod.getMetrics());
   }
 
   protected onResetSim(): void {
-    this.module?.reset();
-    this.metrics.set(this.module?.getMetrics() ?? { scalars: {}, timeSeries: {} });
+    const mod = this.module();
+    if (!mod) return;
+    mod.reset();
+    this.metrics.set(mod.getMetrics());
   }
 
   protected togglePause(): void {
     this.paused.update(v => !v);
   }
 
-  private buildParams(defaultParams: Record<string, import('@physis/sdk').ParamSpec>): Record<string, unknown> {
+  private extractDefaults(specs: Record<string, ParamSpec>): Record<string, unknown> {
     return Object.fromEntries(
-      Object.entries(defaultParams).map(([key, spec]) => [key, spec.default]),
+      Object.entries(specs).map(([key, spec]) => [key, spec.default]),
     );
   }
 
   ngOnDestroy(): void {
-    this.module?.dispose();
-    this.module = null;
+    this.module()?.dispose();
+    this.module.set(null);
   }
 }

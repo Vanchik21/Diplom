@@ -78,9 +78,12 @@
     },
     "explain": {
       "title": "Step 3 — Explain",
+      "quantity": "Quantity",
       "predicted": "Predicted",
       "actual": "Measured",
-      "error": "Error"
+      "absError": "Abs. error",
+      "relError": "Rel. error",
+      "tryAgain": "Try again"
     }
   },
   "scenarios": {
