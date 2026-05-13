@@ -9,8 +9,6 @@ import {
   TrailMesh,
 } from '@babylonjs/core';
 import {
-  createCoordinateAxes,
-  createGroundGrid,
   createVectorArrow,
 } from '../../rendering/babylon/babylon-primitives';
 import type { PendulumState } from './rigid-body-pendulum.types';
@@ -61,9 +59,6 @@ export function setupPendulumScene(scene: Scene): PendulumMeshes {
   const trailMat = new StandardMaterial('trailMat', scene);
   trailMat.emissiveColor = new Color3(0.35, 0.45, 0.9);
   trail.material = trailMat;
-
-  createCoordinateAxes(scene, { size: 0.5 });
-  createGroundGrid(scene, { size: 12 });
 
   return { pivot, bob, rod, velocityArrow, trail };
 }

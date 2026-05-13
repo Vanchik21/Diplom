@@ -16,9 +16,9 @@ export class BabylonSceneService implements OnDestroy {
     this._scene = new Scene(this.engine);
     this._scene.clearColor = new Color4(0.06, 0.07, 0.09, 1);
 
-    const camera = new ArcRotateCamera('camera', -Math.PI / 2, Math.PI / 3, 8, Vector3.Zero(), this._scene);
-    camera.lowerRadiusLimit = 1;
-    camera.upperRadiusLimit = 30;
+    const camera = new ArcRotateCamera('camera', -Math.PI / 2, Math.PI * 0.42, 6, new Vector3(0, -1, 0), this._scene);
+    camera.lowerRadiusLimit = 2;
+    camera.upperRadiusLimit = 20;
     camera.attachControl(canvas, true);
 
     const light = new HemisphericLight('light', new Vector3(0, 1, 0), this._scene);

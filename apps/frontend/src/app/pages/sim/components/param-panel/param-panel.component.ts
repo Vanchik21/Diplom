@@ -42,7 +42,13 @@ export class ParamPanelComponent implements OnInit {
     });
   }
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    const initial: Record<string, unknown> = {};
+    for (const [key, spec] of Object.entries(this.paramSpecs())) {
+      initial[key] = spec.default;
+    }
+    this.values.set(initial);
+  }
 
   protected getValue(key: string): unknown {
     return this.values()[key];

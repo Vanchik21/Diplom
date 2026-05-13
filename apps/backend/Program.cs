@@ -66,6 +66,12 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    var connStr = builder.Configuration.GetConnectionString("Default") ?? "";
+    var host = connStr.Split(';')
+        .Select(p => p.Trim())
+        .FirstOrDefault(p => p.StartsWith("Host=", StringComparison.OrdinalIgnoreCase))
+        ?.Split('=', 2).ElementAtOrDefault(1) ?? "unknown";
+    app.Logger.LogInformation("Database host: {Host}", host);
     db.Database.Migrate();
 }
 

@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { DecimalPipe } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import type { Metrics } from '@physis/sdk';
 
@@ -6,7 +7,7 @@ import type { Metrics } from '@physis/sdk';
   selector: 'app-metrics-panel',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [TranslateModule],
+  imports: [DecimalPipe, TranslateModule],
   templateUrl: './metrics-panel.component.html',
   styleUrl: './metrics-panel.component.scss',
 })

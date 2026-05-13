@@ -37,7 +37,7 @@
                 "output": "assets"
               }
             ],
-            "styles": ["src/styles.scss", "node_modules/katex/dist/katex.min.css"],
+            "styles": ["src/styles.scss", "katex/dist/katex.min.css"],
             "scripts": []
           },
           "configurations": {

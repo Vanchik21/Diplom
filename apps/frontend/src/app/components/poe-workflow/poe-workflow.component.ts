@@ -7,6 +7,7 @@ import {
   input,
   signal,
 } from '@angular/core';
+import { DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DomSanitizer, type SafeHtml } from '@angular/platform-browser';
 import { TranslateModule } from '@ngx-translate/core';
@@ -30,7 +31,7 @@ const MIN_OBSERVE_SECONDS = 5;
   selector: 'app-poe-workflow',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [FormsModule, TranslateModule, LocalizedPipe],
+  imports: [DecimalPipe, FormsModule, TranslateModule, LocalizedPipe],
   templateUrl: './poe-workflow.component.html',
   styleUrl: './poe-workflow.component.scss',
 })
