@@ -10,7 +10,7 @@ import {
 import { DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DomSanitizer, type SafeHtml } from '@angular/platform-browser';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import type { PhysicsModule, PredictionTarget } from '@physis/sdk';
 import katex from 'katex';
 import { LocalizedPipe } from '../../core/pipes/localized.pipe';
@@ -39,6 +39,7 @@ export class PoeWorkflowComponent implements OnDestroy {
   readonly module = input.required<PhysicsModule>();
 
   private readonly sanitizer = inject(DomSanitizer);
+  private readonly translate = inject(TranslateService);
 
   protected readonly phase = signal<PoePhase>('predict');
   protected readonly predictions = signal<Record<string, number>>({});
@@ -105,7 +106,7 @@ export class PoeWorkflowComponent implements OnDestroy {
   }
 
   private renderExplanation(preds: Record<string, number>): SafeHtml {
-    const raw = this.module().getExplanation(preds);
+    const raw = this.module().getExplanation(preds, this.translate.currentLang);
     const html = raw.replace(/\$([^$]+)\$/g, (_match, latex: string) => {
       try {
         return katex.renderToString(latex, { throwOnError: false });

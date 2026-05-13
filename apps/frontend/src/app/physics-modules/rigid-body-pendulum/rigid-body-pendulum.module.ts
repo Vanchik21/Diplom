@@ -213,7 +213,7 @@ export class RigidBodyPendulumModule
     ];
   }
 
-  getExplanation(predictions: Record<string, number>): string {
+  getExplanation(predictions: Record<string, number>, locale = 'uk'): string {
     const { length, gravity } = this.params;
     const actualPeriod = 2 * Math.PI * Math.sqrt(length / gravity);
     const predictedPeriod = predictions['period'] ?? 0;
@@ -226,6 +226,20 @@ export class RigidBodyPendulumModule
     const omegaErr = actualOmega > 0
       ? Math.abs(((predictedOmega - actualOmega) / actualOmega) * 100).toFixed(1)
       : '—';
+
+    if (locale === 'uk') {
+      return (
+        `Формула малих кутів $T=2\\pi\\sqrt{L/g}$ дає ` +
+        `$T\\approx${actualPeriod.toFixed(3)}\\,\\text{с}$. ` +
+        `Ваше передбачення: $${predictedPeriod.toFixed(3)}\\,\\text{с}$ — ` +
+        `похибка ${periodErr}%. ` +
+        `Максимальна кутова швидкість: $${actualOmega.toFixed(3)}\\,\\text{рад/с}$ ` +
+        `(передбачено: $${predictedOmega.toFixed(3)}\\,\\text{рад/с}$, похибка: ${omegaErr}%). ` +
+        `При нульовому загасанні механічна енергія зберігається; будь-яке її зменшення ` +
+        `$E=\\tfrac{1}{2}mL^{2}\\dot{\\theta}^{2}+mgL(1-\\cos\\theta)$ ` +
+        `зумовлене доданком загасання $\\frac{b}{m}\\dot{\\theta}$.`
+      );
+    }
 
     return (
       `The small-angle period formula $T=2\\pi\\sqrt{L/g}$ gives ` +

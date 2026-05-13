@@ -9,7 +9,7 @@ export interface PhysicsModule<TParams = unknown, TState = unknown> {
   getState(): TState;
   getMetrics(): Metrics;
   getPredictionTargets(): PredictionTarget[];
-  getExplanation(predictions: Record<string, number>): string;
+  getExplanation(predictions: Record<string, number>, locale?: string): string;
   reset(): void;
   dispose(): void;
 }

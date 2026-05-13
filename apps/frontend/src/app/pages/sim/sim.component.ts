@@ -70,7 +70,7 @@ export class SimComponent implements OnInit, OnDestroy {
   protected setupFn: BabylonSetupFn | undefined;
   protected frameFn: BabylonFrameFn | undefined;
 
-  private currentParams: Record<string, unknown> = {};
+  protected readonly currentParams = signal<Record<string, unknown>>({});
 
   ngOnInit(): void {
     const entry = this.entry();
@@ -83,7 +83,7 @@ export class SimComponent implements OnInit, OnDestroy {
     const defaults = this.extractDefaults(entry.meta.defaultParams);
     const initParams = pending ?? defaults;
 
-    this.currentParams = initParams;
+    this.currentParams.set(initParams);
 
     const mod = new entry.factory();
     mod.init(initParams as never);
@@ -102,7 +102,7 @@ export class SimComponent implements OnInit, OnDestroy {
   protected onApplyParams(params: Record<string, unknown>): void {
     const mod = this.module();
     if (!mod) return;
-    this.currentParams = params;
+    this.currentParams.set(params);
     mod.init(params as never);
     this.metrics.set(mod.getMetrics());
   }
@@ -143,7 +143,7 @@ export class SimComponent implements OnInit, OnDestroy {
     this.scenarioService.create({
       moduleId: this.moduleId(),
       name,
-      paramsJson: JSON.stringify(this.currentParams),
+      paramsJson: JSON.stringify(this.currentParams()),
       stateSnapshotJson: JSON.stringify(mod.getMetrics().scalars),
     }).subscribe({
       next: () => {

@@ -2,7 +2,6 @@ import {
   ChangeDetectionStrategy,
   Component,
   OnInit,
-  effect,
   input,
   output,
   signal,
@@ -22,6 +21,7 @@ import { LocalizedPipe } from '../../../../core/pipes/localized.pipe';
 })
 export class ParamPanelComponent implements OnInit {
   readonly paramSpecs = input.required<Record<string, ParamSpec>>();
+  readonly initialValues = input<Record<string, unknown>>({});
   readonly apply = output<Record<string, unknown>>();
   readonly resetSim = output<void>();
 
@@ -31,21 +31,11 @@ export class ParamPanelComponent implements OnInit {
     return Object.entries(this.paramSpecs()).map(([key, spec]) => ({ key, spec }));
   }
 
-  constructor() {
-    effect(() => {
-      const specs = this.paramSpecs();
-      const initial: Record<string, unknown> = {};
-      for (const [key, spec] of Object.entries(specs)) {
-        initial[key] = spec.default;
-      }
-      this.values.set(initial);
-    });
-  }
-
   ngOnInit(): void {
+    const overrides = this.initialValues();
     const initial: Record<string, unknown> = {};
     for (const [key, spec] of Object.entries(this.paramSpecs())) {
-      initial[key] = spec.default;
+      initial[key] = key in overrides ? overrides[key] : spec.default;
     }
     this.values.set(initial);
   }

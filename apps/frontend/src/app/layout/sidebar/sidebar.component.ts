@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { LayoutService } from '../../core/layout/layout.service';
+import { AuthService } from '../../core/auth/auth.service';
 
 @Component({
   selector: 'app-sidebar',
@@ -13,4 +14,5 @@ import { LayoutService } from '../../core/layout/layout.service';
 })
 export class SidebarComponent {
   protected readonly layout = inject(LayoutService);
+  protected readonly auth = inject(AuthService);
 }

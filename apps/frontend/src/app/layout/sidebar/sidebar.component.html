@@ -23,15 +23,17 @@
       }
     </a>
 
-    <a
-      class="sidebar__item"
-      routerLink="/my-scenarios"
-      routerLinkActive="sidebar__item--active"
-    >
-      <span class="sidebar__icon">◈</span>
-      @if (!layout.sidebarCollapsed()) {
-        <span>{{ 'nav.myScenarios' | translate }}</span>
-      }
-    </a>
+    @if (auth.isAuthenticated()) {
+      <a
+        class="sidebar__item"
+        routerLink="/my-scenarios"
+        routerLinkActive="sidebar__item--active"
+      >
+        <span class="sidebar__icon">◈</span>
+        @if (!layout.sidebarCollapsed()) {
+          <span>{{ 'nav.myScenarios' | translate }}</span>
+        }
+      </a>
+    }
   </nav>
 </aside>

@@ -32,6 +32,7 @@
           <div class="sim__sidebar-section sim__sidebar-section--params">
             <app-param-panel
               [paramSpecs]="entry()!.meta.defaultParams"
+              [initialValues]="currentParams()"
               (apply)="onApplyParams($event)"
               (resetSim)="onResetSim()"
             />
