@@ -6,7 +6,8 @@
     "profile": "Profile",
     "login": "Log in",
     "register": "Sign up",
-    "logout": "Log out"
+    "logout": "Log out",
+    "admin": "Admin"
   },
   "home": {
     "title": "Physis — Physics Simulations",
@@ -126,6 +127,43 @@
       "bioMaxLength": "About me cannot exceed 500 characters.",
       "avatarType": "Only JPEG, PNG or WebP images are allowed.",
       "avatarSize": "File size cannot exceed 5 MB."
+    }
+  },
+  "admin": {
+    "title": "Admin Panel",
+    "loadError": "Failed to load data.",
+    "noResults": "No users found.",
+    "actionError": "Action failed. Please try again.",
+    "stats": {
+      "totalUsers": "Total users",
+      "activeUsers": "Active users",
+      "admins": "Admins",
+      "scenarios": "Scenarios"
+    },
+    "users": {
+      "title": "Users",
+      "search": "Search by name or email…",
+      "columns": {
+        "user": "User",
+        "university": "University",
+        "status": "Status",
+        "role": "Role",
+        "joined": "Joined",
+        "actions": "Actions"
+      },
+      "active": "Active",
+      "inactive": "Inactive",
+      "admin": "Admin",
+      "user": "User",
+      "makeAdmin": "Make admin",
+      "removeAdmin": "Remove admin",
+      "activate": "Activate",
+      "deactivate": "Deactivate"
+    },
+    "pagination": {
+      "prev": "Previous",
+      "next": "Next",
+      "of": "of"
     }
   },
   "common": {

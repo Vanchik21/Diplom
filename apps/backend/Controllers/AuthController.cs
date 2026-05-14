@@ -69,7 +69,7 @@ public class AuthController(
 
     private async Task<AuthResponse> IssueTokens(ApplicationUser user)
     {
-        var accessToken = tokenService.GenerateAccessToken(user);
+        var accessToken = await tokenService.GenerateAccessTokenAsync(user);
         var refreshToken = tokenService.GenerateRefreshToken();
 
         user.RefreshToken = refreshToken;

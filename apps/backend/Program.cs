@@ -8,6 +8,8 @@ using Physis.Api.Endpoints;
 using Physis.Api.Models;
 using Physis.Api.Services;
 
+const string AdminRole = "Admin";
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -83,6 +85,10 @@ using (var scope = app.Services.CreateScope())
         ?.Split('=', 2).ElementAtOrDefault(1) ?? "unknown";
     app.Logger.LogInformation("Database host: {Host}", host);
     db.Database.Migrate();
+
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+    if (!await roleManager.RoleExistsAsync(AdminRole))
+        await roleManager.CreateAsync(new IdentityRole(AdminRole));
 
     var webRoot = app.Environment.WebRootPath
         ?? Path.Combine(app.Environment.ContentRootPath, "wwwroot");

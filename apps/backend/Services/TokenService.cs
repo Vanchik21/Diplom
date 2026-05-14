@@ -2,14 +2,15 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using Physis.Api.Models;
 
 namespace Physis.Api.Services;
 
-public class TokenService(IConfiguration config)
+public class TokenService(IConfiguration config, UserManager<ApplicationUser> userManager)
 {
-    public string GenerateAccessToken(ApplicationUser user)
+    public async Task<string> GenerateAccessTokenAsync(ApplicationUser user)
     {
         var secret = config["Jwt:Secret"]
             ?? throw new InvalidOperationException("Jwt:Secret is not configured.");
@@ -18,13 +19,17 @@ public class TokenService(IConfiguration config)
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
         var expiry = int.Parse(config["Jwt:AccessTokenExpirationMinutes"] ?? "60");
 
-        var claims = new[]
+        var claims = new List<Claim>
         {
-            new Claim(JwtRegisteredClaimNames.Sub, user.Id),
-            new Claim(JwtRegisteredClaimNames.Email, user.Email!),
-            new Claim(JwtRegisteredClaimNames.UniqueName, user.UserName!),
-            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+            new(JwtRegisteredClaimNames.Sub, user.Id),
+            new(JwtRegisteredClaimNames.Email, user.Email!),
+            new(JwtRegisteredClaimNames.UniqueName, user.UserName!),
+            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
         };
+
+        var roles = await userManager.GetRolesAsync(user);
+        foreach (var role in roles)
+            claims.Add(new Claim("role", role));
 
         var token = new JwtSecurityToken(
             issuer: config["Jwt:Issuer"],

@@ -45,6 +45,19 @@
           <span>{{ 'nav.profile' | translate }}</span>
         }
       </a>
+
+      @if (auth.isAdmin()) {
+        <a
+          class="sidebar__item"
+          routerLink="/admin"
+          routerLinkActive="sidebar__item--active"
+        >
+          <span class="sidebar__icon">⚙</span>
+          @if (!layout.sidebarCollapsed()) {
+            <span>{{ 'nav.admin' | translate }}</span>
+          }
+        </a>
+      }
     }
   </nav>
 </aside>

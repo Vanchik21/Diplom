@@ -16,6 +16,18 @@ export class AuthService {
   readonly isAuthenticated = computed(() => this._tokens() !== null);
   readonly currentUserName = computed(() => this._tokens()?.userName ?? null);
   readonly accessToken = computed(() => this._tokens()?.accessToken ?? null);
+  readonly isAdmin = computed(() => {
+    const token = this._tokens()?.accessToken;
+    if (!token) return false;
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
+      const role: unknown = payload['role'];
+      if (!role) return false;
+      return Array.isArray(role) ? role.includes('Admin') : role === 'Admin';
+    } catch {
+      return false;
+    }
+  });
 
   register(email: string, userName: string, password: string) {
     return this.http
