@@ -50,6 +50,16 @@ builder.Services.AddSignalR();
 builder.Services.AddControllers();
 builder.Services.AddScoped<TokenService>();
 builder.Services.AddScoped<ScenarioService>();
+builder.Services.AddScoped<ProfileService>();
+
+if (!builder.Environment.IsDevelopment())
+{
+    builder.Services.AddHsts(options =>
+    {
+        options.MaxAge = TimeSpan.FromDays(365);
+        options.IncludeSubDomains = true;
+    });
+}
 
 var allowedOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>()
     ?? ["http://localhost:4200"];
@@ -73,8 +83,30 @@ using (var scope = app.Services.CreateScope())
         ?.Split('=', 2).ElementAtOrDefault(1) ?? "unknown";
     app.Logger.LogInformation("Database host: {Host}", host);
     db.Database.Migrate();
+
+    var webRoot = app.Environment.WebRootPath
+        ?? Path.Combine(app.Environment.ContentRootPath, "wwwroot");
+    Directory.CreateDirectory(Path.Combine(webRoot, "uploads", "avatars"));
 }
 
+app.Use(async (context, next) =>
+{
+    context.Response.Headers.Append("X-Content-Type-Options", "nosniff");
+    context.Response.Headers.Append("X-Frame-Options", "DENY");
+    context.Response.Headers.Append("Referrer-Policy", "no-referrer");
+    context.Response.Headers.Append(
+        "Content-Security-Policy",
+        "default-src 'none'; img-src 'self'; frame-ancestors 'none'");
+    await next();
+});
+
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+    app.UseHsts();
+}
+
+app.UseStaticFiles();
 app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();

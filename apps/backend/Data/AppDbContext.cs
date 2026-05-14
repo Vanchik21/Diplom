@@ -13,6 +13,17 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
     {
         base.OnModelCreating(builder);
 
+        builder.Entity<ApplicationUser>(e =>
+        {
+            e.Property(u => u.FirstName).HasMaxLength(100).HasDefaultValue(string.Empty);
+            e.Property(u => u.LastName).HasMaxLength(100).HasDefaultValue(string.Empty);
+            e.Property(u => u.University).HasMaxLength(200).HasDefaultValue(string.Empty);
+            e.Property(u => u.Faculty).HasMaxLength(200);
+            e.Property(u => u.Bio).HasMaxLength(500);
+            e.Property(u => u.CreatedAt).HasDefaultValueSql("now()");
+            e.Property(u => u.UpdatedAt).HasDefaultValueSql("now()");
+        });
+
         builder.Entity<SavedScenario>(e =>
         {
             e.HasKey(s => s.Id);

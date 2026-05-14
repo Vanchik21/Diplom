@@ -13,10 +13,18 @@ apps/backend/*.suo
 apps/backend/.vs/
 *.nupkg
 
-# Environment
+# Environment — never commit real secrets
 .env
 .env.local
 .env.*.local
+.env.development
+.env.production
+
+# Backend secrets — Development settings contain real DB/JWT credentials
+apps/backend/appsettings.Development.json
+
+# Uploaded user files — served as static files, not committed to git
+apps/backend/wwwroot/uploads/
 
 # IDE
 .idea/
