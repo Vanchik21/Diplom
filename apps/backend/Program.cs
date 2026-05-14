@@ -90,6 +90,51 @@ using (var scope = app.Services.CreateScope())
     if (!await roleManager.RoleExistsAsync(AdminRole))
         await roleManager.CreateAsync(new IdentityRole(AdminRole));
 
+    if (app.Environment.IsDevelopment())
+    {
+        var seedEmail    = builder.Configuration["AdminSeed:Email"]    ?? string.Empty;
+        var seedUserName = builder.Configuration["AdminSeed:UserName"] ?? string.Empty;
+        var seedPassword = builder.Configuration["AdminSeed:Password"] ?? string.Empty;
+
+        if (!string.IsNullOrWhiteSpace(seedEmail) &&
+            !string.IsNullOrWhiteSpace(seedUserName) &&
+            !string.IsNullOrWhiteSpace(seedPassword))
+        {
+            var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+            var existing = await userManager.FindByEmailAsync(seedEmail);
+            if (existing is null)
+            {
+                var adminUser = new ApplicationUser
+                {
+                    Email    = seedEmail,
+                    UserName = seedUserName,
+                };
+                var createResult = await userManager.CreateAsync(adminUser, seedPassword);
+                if (createResult.Succeeded)
+                {
+                    await userManager.AddToRoleAsync(adminUser, AdminRole);
+                    app.Logger.LogInformation("Dev admin account created: {Email}", seedEmail);
+                }
+                else
+                {
+                    var errors = string.Join(", ", createResult.Errors.Select(e => e.Description));
+                    app.Logger.LogWarning("Dev admin seed failed: {Errors}", errors);
+                }
+            }
+            else if (!await userManager.IsInRoleAsync(existing, AdminRole))
+            {
+                await userManager.AddToRoleAsync(existing, AdminRole);
+                app.Logger.LogInformation("Admin role assigned to existing dev account: {Email}", seedEmail);
+            }
+        }
+        else
+        {
+            app.Logger.LogInformation(
+                "AdminSeed:Password not set — skipping dev admin seed. " +
+                "Set the AdminSeed__Password environment variable to enable it.");
+        }
+    }
+
     var webRoot = app.Environment.WebRootPath
         ?? Path.Combine(app.Environment.ContentRootPath, "wwwroot");
     Directory.CreateDirectory(Path.Combine(webRoot, "uploads", "avatars"));
