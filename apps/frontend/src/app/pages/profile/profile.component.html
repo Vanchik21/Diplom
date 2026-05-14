@@ -1,0 +1,204 @@
+<div class="profile-page">
+  @if (loading()) {
+    <p class="profile-page__status">{{ 'common.loading' | translate }}</p>
+  } @else if (loadError()) {
+    <p class="profile-page__status profile-page__status--error">{{ 'common.error' | translate }}</p>
+  } @else if (profile()) {
+
+    <!-- ── Header ── -->
+    <div class="profile-header">
+      <div
+        class="avatar"
+        [style.background]="(avatarPreviewUrl() || profile()!.avatarUrl) ? 'transparent' : avatarBgColor()"
+      >
+        @if (avatarPreviewUrl()) {
+          <img class="avatar__img" [src]="avatarPreviewUrl()!" alt="preview">
+        } @else if (profile()!.avatarUrl) {
+          <img class="avatar__img" [src]="profile()!.avatarUrl!" alt="avatar">
+        } @else {
+          <span class="avatar__initials">{{ initials() }}</span>
+        }
+
+        @if (editing()) {
+          <label class="avatar__upload-btn" [title]="'profile.changeAvatar' | translate">
+            <span class="avatar__upload-icon">📷</span>
+            <input
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              class="avatar__file-input"
+              (change)="onAvatarSelected($event)"
+            >
+          </label>
+        }
+      </div>
+
+      <div class="profile-header__info">
+        <h1 class="profile-header__name">{{ displayName() }}</h1>
+        <p class="profile-header__meta">{{ profile()!.email }}</p>
+        @if (profile()!.university) {
+          <p class="profile-header__meta">{{ profile()!.university }}</p>
+        }
+      </div>
+
+      @if (!editing()) {
+        <button class="btn btn--ghost profile-header__edit-btn" (click)="startEdit()">
+          {{ 'profile.edit' | translate }}
+        </button>
+      }
+    </div>
+
+    <!-- ── Success banner ── -->
+    @if (successMsg()) {
+      <p class="profile-page__success">{{ successMsg()! | translate }}</p>
+    }
+
+    <!-- ══════════ VIEW MODE ══════════ -->
+    @if (!editing()) {
+      <div class="profile-view">
+        <div class="profile-fields">
+          <div class="profile-field">
+            <span class="profile-field__label">{{ 'profile.firstName' | translate }}</span>
+            <span class="profile-field__value">
+              {{ profile()!.firstName || ('profile.notFilled' | translate) }}
+            </span>
+          </div>
+
+          <div class="profile-field">
+            <span class="profile-field__label">{{ 'profile.lastName' | translate }}</span>
+            <span class="profile-field__value">
+              {{ profile()!.lastName || ('profile.notFilled' | translate) }}
+            </span>
+          </div>
+
+          <div class="profile-field">
+            <span class="profile-field__label">{{ 'profile.university' | translate }}</span>
+            <span class="profile-field__value">
+              {{ profile()!.university || ('profile.notFilled' | translate) }}
+            </span>
+          </div>
+
+          @if (profile()!.faculty) {
+            <div class="profile-field">
+              <span class="profile-field__label">{{ 'profile.faculty' | translate }}</span>
+              <span class="profile-field__value">{{ profile()!.faculty }}</span>
+            </div>
+          }
+
+          @if (profile()!.studyYear) {
+            <div class="profile-field">
+              <span class="profile-field__label">{{ 'profile.studyYear' | translate }}</span>
+              <span class="profile-field__value">{{ profile()!.studyYear }}</span>
+            </div>
+          }
+
+          @if (profile()!.bio) {
+            <div class="profile-field profile-field--full">
+              <span class="profile-field__label">{{ 'profile.bio' | translate }}</span>
+              <p class="profile-field__value profile-field__value--bio">{{ profile()!.bio }}</p>
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- ══════════ EDIT MODE ══════════ -->
+    @if (editing()) {
+      <form class="profile-form" [formGroup]="form" (ngSubmit)="saveProfile()" novalidate>
+
+        <div class="profile-form__grid">
+
+          <!-- First name -->
+          <div class="form-field">
+            <label for="pf-firstName">{{ 'profile.firstName' | translate }}</label>
+            <input id="pf-firstName" type="text" formControlName="firstName" maxlength="100" autocomplete="given-name">
+            @if (form.controls.firstName.touched) {
+              @if (form.controls.firstName.errors?.['required']) {
+                <span class="field-error">{{ 'profile.validation.firstNameRequired' | translate }}</span>
+              } @else if (form.controls.firstName.errors?.['maxlength']) {
+                <span class="field-error">{{ 'profile.validation.firstNameMaxLength' | translate }}</span>
+              }
+            }
+          </div>
+
+          <!-- Last name -->
+          <div class="form-field">
+            <label for="pf-lastName">{{ 'profile.lastName' | translate }}</label>
+            <input id="pf-lastName" type="text" formControlName="lastName" maxlength="100" autocomplete="family-name">
+            @if (form.controls.lastName.touched) {
+              @if (form.controls.lastName.errors?.['required']) {
+                <span class="field-error">{{ 'profile.validation.lastNameRequired' | translate }}</span>
+              } @else if (form.controls.lastName.errors?.['maxlength']) {
+                <span class="field-error">{{ 'profile.validation.lastNameMaxLength' | translate }}</span>
+              }
+            }
+          </div>
+
+          <!-- University -->
+          <div class="form-field profile-form__full">
+            <label for="pf-university">{{ 'profile.university' | translate }}</label>
+            <input id="pf-university" type="text" formControlName="university" maxlength="200" autocomplete="organization">
+            @if (form.controls.university.touched) {
+              @if (form.controls.university.errors?.['required']) {
+                <span class="field-error">{{ 'profile.validation.universityRequired' | translate }}</span>
+              } @else if (form.controls.university.errors?.['maxlength']) {
+                <span class="field-error">{{ 'profile.validation.universityMaxLength' | translate }}</span>
+              }
+            }
+          </div>
+
+          <!-- Faculty -->
+          <div class="form-field">
+            <label for="pf-faculty">{{ 'profile.faculty' | translate }}</label>
+            <input id="pf-faculty" type="text" formControlName="faculty" maxlength="200">
+            @if (form.controls.faculty.touched && form.controls.faculty.errors?.['maxlength']) {
+              <span class="field-error">{{ 'profile.validation.facultyMaxLength' | translate }}</span>
+            }
+          </div>
+
+          <!-- Study year -->
+          <div class="form-field">
+            <label for="pf-studyYear">{{ 'profile.studyYear' | translate }}</label>
+            <input id="pf-studyYear" type="number" formControlName="studyYear" min="1" max="6" placeholder="1–6">
+            @if (form.controls.studyYear.touched && form.controls.studyYear.errors?.['min'] || form.controls.studyYear.errors?.['max']) {
+              <span class="field-error">{{ 'profile.validation.studyYearRange' | translate }}</span>
+            }
+          </div>
+
+          <!-- Bio -->
+          <div class="form-field profile-form__full">
+            <label for="pf-bio">
+              {{ 'profile.bio' | translate }}
+              <span class="form-field__hint">{{ bioCharCount() }}/500</span>
+            </label>
+            <textarea
+              id="pf-bio"
+              formControlName="bio"
+              rows="4"
+              maxlength="500"
+              class="profile-form__textarea"
+            ></textarea>
+            @if (form.controls.bio.touched && form.controls.bio.errors?.['maxlength']) {
+              <span class="field-error">{{ 'profile.validation.bioMaxLength' | translate }}</span>
+            }
+          </div>
+
+        </div>
+
+        @if (errorMsg()) {
+          <p class="error-message">{{ errorMsg()! | translate }}</p>
+        }
+
+        <div class="profile-form__actions">
+          <button type="button" class="btn btn--ghost" (click)="cancelEdit()" [disabled]="saving()">
+            {{ 'profile.cancel' | translate }}
+          </button>
+          <button type="submit" class="btn btn--primary" [disabled]="saving()">
+            {{ saving() ? ('common.loading' | translate) : ('profile.save' | translate) }}
+          </button>
+        </div>
+
+      </form>
+    }
+
+  }
+</div>
