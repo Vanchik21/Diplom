@@ -3,8 +3,10 @@ import {
   Component,
   OnDestroy,
   computed,
+  effect,
   inject,
   input,
+  output,
   signal,
 } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
@@ -37,6 +39,9 @@ const MIN_OBSERVE_SECONDS = 5;
 })
 export class PoeWorkflowComponent implements OnDestroy {
   readonly module = input.required<PhysicsModule>();
+  readonly initialPredictions = input<Record<string, number>>({});
+
+  readonly predictionsChange = output<Record<string, number>>();
 
   private readonly sanitizer = inject(DomSanitizer);
   private readonly translate = inject(TranslateService);
@@ -61,12 +66,22 @@ export class PoeWorkflowComponent implements OnDestroy {
 
   private timer: ReturnType<typeof setInterval> | null = null;
 
+  constructor() {
+    effect(() => {
+      const initial = this.initialPredictions();
+      if (Object.keys(initial).length > 0) {
+        this.predictions.set(initial);
+      }
+    }, { allowSignalWrites: true });
+  }
+
   protected getPrediction(key: string): number {
     return this.predictions()[key] ?? 0;
   }
 
   protected setPrediction(key: string, value: number): void {
     this.predictions.update(prev => ({ ...prev, [key]: Number(value) }));
+    this.predictionsChange.emit({ ...this.predictions() });
   }
 
   protected toObserve(): void {

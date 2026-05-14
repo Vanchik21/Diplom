@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ScenarioService } from '../../core/scenarios/scenario.service';
 import { ScenarioLoadService } from '../../core/scenarios/scenario-load.service';
 import type { Scenario } from '../../core/scenarios/scenario.models';
@@ -17,6 +17,7 @@ export class MyScenariosComponent implements OnInit {
   private readonly scenarioService = inject(ScenarioService);
   private readonly scenarioLoader = inject(ScenarioLoadService);
   private readonly router = inject(Router);
+  private readonly translate = inject(TranslateService);
 
   protected readonly scenarios = signal<Scenario[]>([]);
   protected readonly loading = signal(true);
@@ -45,7 +46,8 @@ export class MyScenariosComponent implements OnInit {
 
   protected loadScenario(scenario: Scenario): void {
     const params = JSON.parse(scenario.paramsJson) as Record<string, unknown>;
-    this.scenarioLoader.schedule(params);
+    const predictions = JSON.parse(scenario.predictionsJson || '{}') as Record<string, number>;
+    this.scenarioLoader.schedule(params, predictions);
     this.router.navigate(['/sim', scenario.moduleId]);
   }
 
@@ -62,9 +64,11 @@ export class MyScenariosComponent implements OnInit {
   }
 
   protected formatDate(iso: string): string {
-    return new Date(iso).toLocaleDateString(undefined, {
+    const lang = this.translate.currentLang ?? this.translate.defaultLang ?? 'uk';
+    const locale = lang === 'uk' ? 'uk-UA' : 'en-GB';
+    return new Date(iso).toLocaleDateString(locale, {
       year: 'numeric',
-      month: 'short',
+      month: 'long',
       day: 'numeric',
     });
   }

@@ -1,16 +1,21 @@
 import { Injectable, signal } from '@angular/core';
 
+interface PendingScenario {
+  params: Record<string, unknown>;
+  predictions: Record<string, number>;
+}
+
 @Injectable({ providedIn: 'root' })
 export class ScenarioLoadService {
-  private readonly _pendingParams = signal<Record<string, unknown> | null>(null);
+  private readonly _pending = signal<PendingScenario | null>(null);
 
-  schedule(params: Record<string, unknown>): void {
-    this._pendingParams.set(params);
+  schedule(params: Record<string, unknown>, predictions: Record<string, number> = {}): void {
+    this._pending.set({ params, predictions });
   }
 
-  consume(): Record<string, unknown> | null {
-    const params = this._pendingParams();
-    this._pendingParams.set(null);
-    return params;
+  consume(): PendingScenario | null {
+    const pending = this._pending();
+    this._pending.set(null);
+    return pending;
   }
 }

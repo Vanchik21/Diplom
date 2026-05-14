@@ -247,6 +247,10 @@ namespace Physis.Api.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("PredictionsJson")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<string>("StateSnapshotJson")
                         .IsRequired()
                         .HasColumnType("text");

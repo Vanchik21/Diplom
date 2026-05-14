@@ -33,6 +33,7 @@ public class ScenarioService(AppDbContext db)
             Name = request.Name,
             ParamsJson = request.ParamsJson,
             StateSnapshotJson = request.StateSnapshotJson,
+            PredictionsJson = request.PredictionsJson,
             CreatedAt = DateTime.UtcNow,
         };
 
@@ -55,5 +56,5 @@ public class ScenarioService(AppDbContext db)
     }
 
     private static ScenarioResponse ToResponse(SavedScenario s) =>
-        new(s.Id, s.ModuleId, s.Name, s.ParamsJson, s.StateSnapshotJson, s.CreatedAt);
+        new(s.Id, s.ModuleId, s.Name, s.ParamsJson, s.StateSnapshotJson, s.PredictionsJson, s.CreatedAt);
 }

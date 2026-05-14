@@ -1,7 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  OnInit,
+  effect,
   input,
   output,
   signal,
@@ -19,25 +19,29 @@ import { LocalizedPipe } from '../../../../core/pipes/localized.pipe';
   templateUrl: './param-panel.component.html',
   styleUrl: './param-panel.component.scss',
 })
-export class ParamPanelComponent implements OnInit {
+export class ParamPanelComponent {
   readonly paramSpecs = input.required<Record<string, ParamSpec>>();
   readonly initialValues = input<Record<string, unknown>>({});
   readonly apply = output<Record<string, unknown>>();
+  readonly valuesChange = output<Record<string, unknown>>();
   readonly resetSim = output<void>();
 
   protected readonly values = signal<Record<string, unknown>>({});
 
-  protected get entries(): Array<{ key: string; spec: ParamSpec }> {
-    return Object.entries(this.paramSpecs()).map(([key, spec]) => ({ key, spec }));
+  constructor() {
+    effect(() => {
+      const overrides = this.initialValues();
+      const specs = this.paramSpecs();
+      const initial: Record<string, unknown> = {};
+      for (const [key, spec] of Object.entries(specs)) {
+        initial[key] = key in overrides ? overrides[key] : spec.default;
+      }
+      this.values.set(initial);
+    }, { allowSignalWrites: true });
   }
 
-  ngOnInit(): void {
-    const overrides = this.initialValues();
-    const initial: Record<string, unknown> = {};
-    for (const [key, spec] of Object.entries(this.paramSpecs())) {
-      initial[key] = key in overrides ? overrides[key] : spec.default;
-    }
-    this.values.set(initial);
+  protected get entries(): Array<{ key: string; spec: ParamSpec }> {
+    return Object.entries(this.paramSpecs()).map(([key, spec]) => ({ key, spec }));
   }
 
   protected getValue(key: string): unknown {
@@ -46,6 +50,7 @@ export class ParamPanelComponent implements OnInit {
 
   protected setValue(key: string, value: unknown): void {
     this.values.update(prev => ({ ...prev, [key]: value }));
+    this.valuesChange.emit({ ...this.values() });
   }
 
   protected onApply(): void {

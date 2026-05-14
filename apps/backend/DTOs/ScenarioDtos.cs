@@ -4,7 +4,8 @@ public record CreateScenarioRequest(
     string ModuleId,
     string Name,
     string ParamsJson,
-    string StateSnapshotJson);
+    string StateSnapshotJson,
+    string PredictionsJson = "{}");
 
 public record ScenarioResponse(
     Guid Id,
@@ -12,4 +13,5 @@ public record ScenarioResponse(
     string Name,
     string ParamsJson,
     string StateSnapshotJson,
+    string PredictionsJson,
     DateTime CreatedAt);

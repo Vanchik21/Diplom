@@ -70,7 +70,10 @@ export class SimComponent implements OnInit, OnDestroy {
   protected setupFn: BabylonSetupFn | undefined;
   protected frameFn: BabylonFrameFn | undefined;
 
+  protected readonly loadedParams = signal<Record<string, unknown>>({});
   protected readonly currentParams = signal<Record<string, unknown>>({});
+  protected readonly loadedPredictions = signal<Record<string, number>>({});
+  protected readonly currentPredictions = signal<Record<string, number>>({});
 
   ngOnInit(): void {
     const entry = this.entry();
@@ -81,9 +84,13 @@ export class SimComponent implements OnInit, OnDestroy {
 
     const pending = this.scenarioLoader.consume();
     const defaults = this.extractDefaults(entry.meta.defaultParams);
-    const initParams = pending ?? defaults;
+    const initParams = pending?.params ?? defaults;
+    const initPredictions = pending?.predictions ?? {};
 
+    this.loadedParams.set(initParams);
     this.currentParams.set(initParams);
+    this.loadedPredictions.set(initPredictions);
+    this.currentPredictions.set(initPredictions);
 
     const mod = new entry.factory();
     mod.init(initParams as never);
@@ -97,6 +104,14 @@ export class SimComponent implements OnInit, OnDestroy {
         this.metrics.set(mod.getMetrics());
       };
     }
+  }
+
+  protected onParamsChange(params: Record<string, unknown>): void {
+    this.currentParams.set(params);
+  }
+
+  protected onPredictionsChange(predictions: Record<string, number>): void {
+    this.currentPredictions.set(predictions);
   }
 
   protected onApplyParams(params: Record<string, unknown>): void {
@@ -145,6 +160,7 @@ export class SimComponent implements OnInit, OnDestroy {
       name,
       paramsJson: JSON.stringify(this.currentParams()),
       stateSnapshotJson: JSON.stringify(mod.getMetrics().scalars),
+      predictionsJson: JSON.stringify(this.currentPredictions()),
     }).subscribe({
       next: () => {
         this.saveStatus.set('saved');

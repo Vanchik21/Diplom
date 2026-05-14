@@ -4,6 +4,7 @@ export interface Scenario {
   name: string;
   paramsJson: string;
   stateSnapshotJson: string;
+  predictionsJson: string;
   createdAt: string;
 }
 
@@ -12,4 +13,5 @@ export interface CreateScenarioRequest {
   name: string;
   paramsJson: string;
   stateSnapshotJson: string;
+  predictionsJson: string;
 }

@@ -9,5 +9,6 @@ public class SavedScenario
     public string Name { get; set; } = null!;
     public string ParamsJson { get; set; } = null!;
     public string StateSnapshotJson { get; set; } = null!;
+    public string PredictionsJson { get; set; } = "{}";
     public DateTime CreatedAt { get; set; }
 }

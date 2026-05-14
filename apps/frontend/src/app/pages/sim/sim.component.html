@@ -3,7 +3,11 @@
     <p>{{ 'sim.notFound' | translate }}</p>
   </div>
 } @else if (module()) {
-  <app-poe-workflow [module]="module()!">
+  <app-poe-workflow
+    [module]="module()!"
+    [initialPredictions]="loadedPredictions()"
+    (predictionsChange)="onPredictionsChange($event)"
+  >
 
     <div class="sim">
       <div class="sim__toolbar">
@@ -32,8 +36,9 @@
           <div class="sim__sidebar-section sim__sidebar-section--params">
             <app-param-panel
               [paramSpecs]="entry()!.meta.defaultParams"
-              [initialValues]="currentParams()"
+              [initialValues]="loadedParams()"
               (apply)="onApplyParams($event)"
+              (valuesChange)="onParamsChange($event)"
               (resetSim)="onResetSim()"
             />
           </div>
