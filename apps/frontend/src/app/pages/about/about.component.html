@@ -1,0 +1,69 @@
+<div class="about-page">
+
+  <header class="about-hero">
+    <h1 class="about-hero__title">Physis&#8482;</h1>
+    <p class="about-hero__tagline">{{ 'about.tagline' | translate }}</p>
+  </header>
+
+  <section class="about-section">
+    <h2>{{ 'about.whatIsTitle' | translate }}</h2>
+    <p [innerHTML]="'about.whatIs' | translate"></p>
+  </section>
+
+  <section class="about-section">
+    <h2>{{ 'about.featuresTitle' | translate }}</h2>
+    <ul class="about-features">
+      <li>
+        <span class="about-features__icon">⚛</span>
+        <div>
+          <strong>{{ 'about.feature1Title' | translate }}</strong>
+          <p>{{ 'about.feature1Desc' | translate }}</p>
+        </div>
+      </li>
+      <li>
+        <span class="about-features__icon">◎</span>
+        <div>
+          <strong>{{ 'about.feature2Title' | translate }}</strong>
+          <p>{{ 'about.feature2Desc' | translate }}</p>
+        </div>
+      </li>
+      <li>
+        <span class="about-features__icon">◈</span>
+        <div>
+          <strong>{{ 'about.feature3Title' | translate }}</strong>
+          <p>{{ 'about.feature3Desc' | translate }}</p>
+        </div>
+      </li>
+      <li>
+        <span class="about-features__icon">👤</span>
+        <div>
+          <strong>{{ 'about.feature4Title' | translate }}</strong>
+          <p>{{ 'about.feature4Desc' | translate }}</p>
+        </div>
+      </li>
+    </ul>
+  </section>
+
+  <section class="about-section">
+    <h2>{{ 'about.techTitle' | translate }}</h2>
+    <div class="about-tech">
+      <span class="about-tech__badge">Angular 18</span>
+      <span class="about-tech__badge">ASP.NET Core 9</span>
+      <span class="about-tech__badge">PostgreSQL</span>
+      <span class="about-tech__badge">Babylon.js</span>
+      <span class="about-tech__badge">Entity Framework Core</span>
+      <span class="about-tech__badge">JWT Auth</span>
+    </div>
+  </section>
+
+  <section class="about-section">
+    <h2>{{ 'about.contextTitle' | translate }}</h2>
+    <p>{{ 'about.context' | translate }}</p>
+  </section>
+
+  <div class="about-cta">
+    <a class="btn btn--primary" routerLink="/modules">{{ 'home.startExploring' | translate }}</a>
+    <a class="btn btn--ghost" routerLink="/privacy">{{ 'gdpr.privacyLink' | translate }}</a>
+  </div>
+
+</div>

@@ -10,7 +10,7 @@
     "admin": "Admin"
   },
   "home": {
-    "title": "Physis — Physics Simulations",
+    "title": "Physis™ — Physics Simulations",
     "subtitle": "An interactive platform for learning physics through simulations. Predict, observe, explain.",
     "startExploring": "Start Exploring"
   },
@@ -128,6 +128,48 @@
       "avatarType": "Only JPEG, PNG or WebP images are allowed.",
       "avatarSize": "File size cannot exceed 5 MB."
     }
+  },
+  "footer": {
+    "rights": "All rights reserved.",
+    "about": "About",
+    "privacy": "Privacy Policy"
+  },
+  "about": {
+    "tagline": "Interactive physics simulations based on the Predict–Observe–Explain methodology",
+    "whatIsTitle": "What is Physis™?",
+    "whatIs": "Physis™ is an interactive platform for learning physics through three-dimensional simulations. It implements the <strong>Predict–Observe–Explain (POE)</strong> methodology, which encourages students to actively build knowledge rather than passively consume information.",
+    "featuresTitle": "Key features",
+    "feature1Title": "Physics Modules",
+    "feature1Desc": "Interactive 3D simulations covering mechanics, electromagnetism, waves, thermodynamics, and gravity.",
+    "feature2Title": "POE Methodology",
+    "feature2Desc": "A three-stage cycle: forming a hypothesis, observing the simulation, and analysing the prediction error.",
+    "feature3Title": "Scenario Library",
+    "feature3Desc": "Save and replay any simulation parameter configuration at any time.",
+    "feature4Title": "Student Profile",
+    "feature4Desc": "A personal page with university, faculty, study year, and profile photo.",
+    "techTitle": "Technology stack",
+    "contextTitle": "About the project",
+    "context": "Physis™ was developed as a diploma thesis. The platform is available for educational use and has no commercial purpose."
+  },
+  "gdpr": {
+    "title": "Data & Privacy",
+    "description": "Download a copy of your data or permanently delete your account.",
+    "exportData": "Download my data",
+    "deleteAccount": "Delete account",
+    "deleteConfirm": "This will permanently delete your account, profile, and all saved scenarios. This action cannot be undone.",
+    "deleteConfirmBtn": "Yes, delete permanently",
+    "exportError": "Could not export data. Please try again.",
+    "deleteError": "Could not delete account. Please try again.",
+    "privacyLink": "Privacy Policy"
+  },
+  "cookie": {
+    "message": "We use your browser's local storage to keep you signed in and save preferences. No tracking cookies are used. See our",
+    "accept": "Accept",
+    "decline": "Decline"
+  },
+  "privacy": {
+    "title": "Privacy Policy",
+    "lastUpdated": "Last updated"
   },
   "admin": {
     "title": "Admin Panel",

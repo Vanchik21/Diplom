@@ -33,10 +33,3 @@ apps/backend/wwwroot/uploads/
 *.swo
 .DS_Store
 Thumbs.db
-
-# Test results
-/TestResults/
-/coverage/
-
-# Docker volumes (local dev data)
-pgdata/

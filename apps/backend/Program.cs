@@ -84,7 +84,10 @@ using (var scope = app.Services.CreateScope())
         .FirstOrDefault(p => p.StartsWith("Host=", StringComparison.OrdinalIgnoreCase))
         ?.Split('=', 2).ElementAtOrDefault(1) ?? "unknown";
     app.Logger.LogInformation("Database host: {Host}", host);
-    db.Database.Migrate();
+    if (db.Database.IsRelational())
+        db.Database.Migrate();
+    else
+        db.Database.EnsureCreated();
 
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
     if (!await roleManager.RoleExistsAsync(AdminRole))
@@ -165,3 +168,5 @@ app.MapControllers();
 app.MapHealthEndpoints();
 
 app.Run();
+
+public partial class Program { }

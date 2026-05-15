@@ -3,7 +3,7 @@
     <button class="top-bar__menu-btn btn btn--ghost" (click)="layout.toggleSidebar()" aria-label="Toggle sidebar">
       ☰
     </button>
-    <a class="top-bar__logo" routerLink="/">Physis</a>
+    <a class="top-bar__logo" routerLink="/">Physis&#8482;</a>
   </div>
 
   <nav class="top-bar__nav">
@@ -14,9 +14,11 @@
   </nav>
 
   <div class="top-bar__actions">
-    <button class="btn btn--ghost top-bar__lang" (click)="toggleLanguage()">
-      {{ currentLang.toUpperCase() }}
-    </button>
+    <button
+      class="btn btn--ghost top-bar__lang"
+      (click)="toggleLanguage()"
+      [attr.aria-label]="currentLang === 'uk' ? 'Switch to English' : 'Перейти на українську'"
+    >{{ langLabel }}</button>
 
     @if (auth.isAuthenticated()) {
       <a class="btn btn--ghost" routerLink="/profile">{{ auth.currentUserName() }}</a>

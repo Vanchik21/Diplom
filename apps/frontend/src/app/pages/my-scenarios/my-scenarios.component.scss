@@ -12,7 +12,7 @@
   &__status {
     color: var(--color-text-muted);
 
-    &--error { color: var(--color-danger, #e74c3c); }
+    &--error { color: var(--color-error); }
     &--empty { font-style: italic; }
   }
 }
@@ -63,23 +63,3 @@
   }
 }
 
-.btn--sm {
-  padding: 0.35rem 0.75rem;
-  font-size: 0.8125rem;
-}
-
-.btn--danger {
-  background: transparent;
-  color: var(--color-danger, #e74c3c);
-  border: 1px solid var(--color-danger, #e74c3c);
-
-  &:hover:not(:disabled) {
-    background: var(--color-danger, #e74c3c);
-    color: #fff;
-  }
-
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-}

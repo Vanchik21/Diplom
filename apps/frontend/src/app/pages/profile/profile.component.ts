@@ -8,9 +8,12 @@ import {
   signal,
 } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
+import { DatePipe } from '@angular/common';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Observable, switchMap, of } from 'rxjs';
 import { ProfileService } from '../../core/profile/profile.service';
+import { GdprService } from '../../core/gdpr/gdpr.service';
+import { AuthService } from '../../core/auth/auth.service';
 import type { UpdateProfileRequest, UserProfile } from '../../core/profile/profile.models';
 
 const AVATAR_COLORS = [
@@ -30,12 +33,15 @@ function hashStr(s: string): number {
   selector: 'app-profile',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [TranslateModule, ReactiveFormsModule],
+  imports: [TranslateModule, ReactiveFormsModule, DatePipe],
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.scss',
 })
 export class ProfileComponent implements OnInit, OnDestroy {
   private readonly profileService = inject(ProfileService);
+  private readonly gdprService = inject(GdprService);
+  private readonly authService = inject(AuthService);
+  private readonly translate = inject(TranslateService);
   private readonly fb = inject(FormBuilder);
 
   protected readonly profile = signal<UserProfile | null>(null);
@@ -47,6 +53,8 @@ export class ProfileComponent implements OnInit, OnDestroy {
   protected readonly successMsg = signal<string | null>(null);
   protected readonly pendingAvatarFile = signal<File | null>(null);
   protected readonly avatarPreviewUrl = signal<string | null>(null);
+  protected readonly deletingAccount = signal(false);
+  protected readonly confirmDelete = signal(false);
 
   protected readonly initials = computed(() => {
     const p = this.profile();
@@ -184,6 +192,42 @@ export class ProfileComponent implements OnInit, OnDestroy {
           this.saving.set(false);
         },
       });
+  }
+
+  protected exportData(): void {
+    this.gdprService.exportData().subscribe({
+      next: data => {
+        const json = JSON.stringify(data, null, 2);
+        const blob = new Blob([json], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'physis-my-data.json';
+        a.click();
+        URL.revokeObjectURL(url);
+      },
+      error: () => this.errorMsg.set('gdpr.exportError'),
+    });
+  }
+
+  protected requestDeleteAccount(): void {
+    this.confirmDelete.set(true);
+  }
+
+  protected cancelDelete(): void {
+    this.confirmDelete.set(false);
+  }
+
+  protected confirmDeleteAccount(): void {
+    this.deletingAccount.set(true);
+    this.gdprService.deleteAccount().subscribe({
+      next: () => this.authService.logout(),
+      error: () => {
+        this.deletingAccount.set(false);
+        this.confirmDelete.set(false);
+        this.errorMsg.set('gdpr.deleteError');
+      },
+    });
   }
 
   private revokePreviewUrl(): void {

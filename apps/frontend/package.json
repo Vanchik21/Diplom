@@ -33,8 +33,6 @@
     "@angular/cli": "^18.0.0",
     "@angular/compiler-cli": "^18.0.0",
     "@types/katex": "^0.16.0",
-    "@vitest/coverage-v8": "^1.6.0",
-    "typescript": "~5.4.0",
-    "vitest": "^1.6.0"
+    "typescript": "~5.4.0"
   }
 }

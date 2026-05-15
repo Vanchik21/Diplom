@@ -1,0 +1,74 @@
+<article class="privacy-page">
+  <h1 class="privacy-page__title">{{ 'privacy.title' | translate }}</h1>
+  <p class="privacy-page__updated">{{ 'privacy.lastUpdated' | translate }}: 2026-05-15</p>
+
+  @if (currentLang() === 'uk') {
+    <section>
+      <h2>1. Загальні положення</h2>
+      <p>Physis — навчальна платформа для інтерактивного вивчення фізики через симуляції, розроблена як дипломна робота. Ця політика конфіденційності пояснює, які дані ми зберігаємо та як вони використовуються.</p>
+    </section>
+    <section>
+      <h2>2. Які дані ми зберігаємо</h2>
+      <ul>
+        <li><strong>Дані акаунту:</strong> email, ім'я користувача, ім'я, прізвище, університет, факультет, курс, біографія, фото профілю.</li>
+        <li><strong>Дані сценаріїв:</strong> параметри та результати збережених фізичних симуляцій.</li>
+        <li><strong>Токени автентифікації:</strong> JWT-токени зберігаються локально у вашому браузері (localStorage) виключно для підтримки сесії. Вони не передаються третім особам.</li>
+      </ul>
+    </section>
+    <section>
+      <h2>3. Як ми використовуємо дані</h2>
+      <p>Ваші дані використовуються виключно для роботи платформи: автентифікації, відображення профілю та збереження результатів симуляцій. Ми не передаємо, не продаємо та не аналізуємо ваші персональні дані в комерційних цілях.</p>
+    </section>
+    <section>
+      <h2>4. Ваші права</h2>
+      <p>Відповідно до GDPR ви маєте право на:</p>
+      <ul>
+        <li><strong>Доступ до даних:</strong> завантажте всі свої дані у форматі JSON через сторінку профілю.</li>
+        <li><strong>Видалення акаунту:</strong> назавжди видаліть свій акаунт і всі пов'язані дані через сторінку профілю.</li>
+        <li><strong>Виправлення даних:</strong> відредагуйте профіль у будь-який момент.</li>
+      </ul>
+    </section>
+    <section>
+      <h2>5. Файли cookie</h2>
+      <p>Physis не використовує стороннє відстеження або рекламні cookie. Ми зберігаємо дані лише в localStorage вашого браузера для забезпечення роботи сесії.</p>
+    </section>
+    <section>
+      <h2>6. Контакти</h2>
+      <p>З питань конфіденційності зверніться до адміністратора платформи за адресою <a href="mailto:admin&#64;physis.local">admin&#64;physis.local</a>.</p>
+    </section>
+  } @else {
+    <section>
+      <h2>1. General</h2>
+      <p>Physis is an educational platform for interactive physics learning through simulations, developed as a diploma thesis. This privacy policy explains what data we store and how it is used.</p>
+    </section>
+    <section>
+      <h2>2. Data we collect</h2>
+      <ul>
+        <li><strong>Account data:</strong> email, username, first name, last name, university, faculty, study year, biography, profile photo.</li>
+        <li><strong>Scenario data:</strong> parameters and results of saved physics simulations.</li>
+        <li><strong>Authentication tokens:</strong> JWT tokens are stored locally in your browser (localStorage) solely to maintain your session. They are not shared with third parties.</li>
+      </ul>
+    </section>
+    <section>
+      <h2>3. How we use your data</h2>
+      <p>Your data is used exclusively to operate the platform: authentication, profile display, and saving simulation results. We do not share, sell, or analyse your personal data for commercial purposes.</p>
+    </section>
+    <section>
+      <h2>4. Your rights</h2>
+      <p>Under GDPR you have the right to:</p>
+      <ul>
+        <li><strong>Data access:</strong> download all your data as JSON from the profile page.</li>
+        <li><strong>Account deletion:</strong> permanently delete your account and all associated data from the profile page.</li>
+        <li><strong>Data correction:</strong> edit your profile at any time.</li>
+      </ul>
+    </section>
+    <section>
+      <h2>5. Cookies</h2>
+      <p>Physis does not use third-party tracking or advertising cookies. We only store data in your browser's localStorage to maintain your session.</p>
+    </section>
+    <section>
+      <h2>6. Contact</h2>
+      <p>For privacy-related enquiries contact the platform administrator at <a href="mailto:admin&#64;physis.local">admin&#64;physis.local</a>.</p>
+    </section>
+  }
+</article>

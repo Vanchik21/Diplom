@@ -1,0 +1,16 @@
+@if (gdpr.consent() === null) {
+  <div class="cookie-banner" role="region" aria-label="Cookie consent">
+    <p class="cookie-banner__text">
+      {{ 'cookie.message' | translate }}
+      <a class="cookie-banner__link" routerLink="/privacy">{{ 'gdpr.privacyLink' | translate }}</a>.
+    </p>
+    <div class="cookie-banner__actions">
+      <button class="btn btn--ghost btn--sm" (click)="gdpr.decline()">
+        {{ 'cookie.decline' | translate }}
+      </button>
+      <button class="btn btn--primary btn--sm" (click)="gdpr.accept()">
+        {{ 'cookie.accept' | translate }}
+      </button>
+    </div>
+  </div>
+}

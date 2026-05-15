@@ -1,4 +1,6 @@
 <div class="profile-page">
+  <h1 class="profile-page__title">{{ 'profile.title' | translate }}</h1>
+
   @if (loading()) {
     <p class="profile-page__status">{{ 'common.loading' | translate }}</p>
   } @else if (loadError()) {
@@ -12,9 +14,9 @@
         [style.background]="(avatarPreviewUrl() || profile()!.avatarUrl) ? 'transparent' : avatarBgColor()"
       >
         @if (avatarPreviewUrl()) {
-          <img class="avatar__img" [src]="avatarPreviewUrl()!" alt="preview">
+          <img class="avatar__img" [src]="avatarPreviewUrl()!" [attr.alt]="'profile.avatar' | translate">
         } @else if (profile()!.avatarUrl) {
-          <img class="avatar__img" [src]="profile()!.avatarUrl!" alt="avatar">
+          <img class="avatar__img" [src]="profile()!.avatarUrl!" [attr.alt]="'profile.avatar' | translate">
         } @else {
           <span class="avatar__initials">{{ initials() }}</span>
         }
@@ -33,11 +35,14 @@
       </div>
 
       <div class="profile-header__info">
-        <h1 class="profile-header__name">{{ displayName() }}</h1>
+        <h2 class="profile-header__name">{{ displayName() }}</h2>
         <p class="profile-header__meta">{{ profile()!.email }}</p>
         @if (profile()!.university) {
           <p class="profile-header__meta">{{ profile()!.university }}</p>
         }
+        <p class="profile-header__meta">
+          {{ 'profile.memberSince' | translate }}: {{ profile()!.createdAt | date:'dd.MM.yyyy' }}
+        </p>
       </div>
 
       @if (!editing()) {
@@ -97,6 +102,16 @@
               <p class="profile-field__value profile-field__value--bio">{{ profile()!.bio }}</p>
             </div>
           }
+
+          <div class="profile-field">
+            <span class="profile-field__label">{{ 'profile.userName' | translate }}</span>
+            <span class="profile-field__value">{{ profile()!.userName }}</span>
+          </div>
+
+          <div class="profile-field">
+            <span class="profile-field__label">{{ 'profile.email' | translate }}</span>
+            <span class="profile-field__value">{{ profile()!.email }}</span>
+          </div>
         </div>
       </div>
     }
@@ -198,6 +213,36 @@
         </div>
 
       </form>
+    }
+
+    <!-- ══════════ DATA & PRIVACY ══════════ -->
+    @if (!editing()) {
+      <div class="privacy-zone">
+        <h2 class="privacy-zone__title">{{ 'gdpr.title' | translate }}</h2>
+        <p class="privacy-zone__desc">{{ 'gdpr.description' | translate }}</p>
+        <div class="privacy-zone__actions">
+          <button class="btn btn--ghost" (click)="exportData()">
+            {{ 'gdpr.exportData' | translate }}
+          </button>
+          <button class="btn btn--danger" (click)="requestDeleteAccount()">
+            {{ 'gdpr.deleteAccount' | translate }}
+          </button>
+        </div>
+
+        @if (confirmDelete()) {
+          <div class="delete-confirm">
+            <p class="delete-confirm__text">{{ 'gdpr.deleteConfirm' | translate }}</p>
+            <div class="delete-confirm__actions">
+              <button class="btn btn--ghost" (click)="cancelDelete()" [disabled]="deletingAccount()">
+                {{ 'profile.cancel' | translate }}
+              </button>
+              <button class="btn btn--danger" (click)="confirmDeleteAccount()" [disabled]="deletingAccount()">
+                {{ deletingAccount() ? ('common.loading' | translate) : ('gdpr.deleteConfirmBtn' | translate) }}
+              </button>
+            </div>
+          </div>
+        }
+      </div>
     }
 
   }

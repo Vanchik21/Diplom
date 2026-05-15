@@ -45,6 +45,16 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./pages/admin/admin.component').then(m => m.AdminComponent),
       },
+      {
+        path: 'privacy',
+        loadComponent: () =>
+          import('./pages/privacy/privacy.component').then(m => m.PrivacyComponent),
+      },
+      {
+        path: 'about',
+        loadComponent: () =>
+          import('./pages/about/about.component').then(m => m.AboutComponent),
+      },
     ],
   },
   {

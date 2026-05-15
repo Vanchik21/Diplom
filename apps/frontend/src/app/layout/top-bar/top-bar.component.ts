@@ -20,9 +20,14 @@ export class TopBarComponent {
   protected toggleLanguage(): void {
     const next = this.translate.currentLang === 'uk' ? 'en' : 'uk';
     this.translate.use(next);
+    localStorage.setItem('physis_lang', next);
   }
 
   protected get currentLang(): string {
     return this.translate.currentLang ?? 'uk';
+  }
+
+  protected get langLabel(): string {
+    return this.currentLang === 'uk' ? 'UA' : 'EN';
   }
 }

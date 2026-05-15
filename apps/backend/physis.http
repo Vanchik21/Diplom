@@ -1,0 +1,99 @@
+@baseUrl = http://localhost:5000
+
+### ── 1. Register a new user ──────────────────────────────────────────────────
+
+# @name register
+POST {{baseUrl}}/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "userName": "testuser",
+  "password": "TestPassword1"
+}
+
+### ── 2. Login and capture token ──────────────────────────────────────────────
+
+# @name login
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "password": "TestPassword1"
+}
+
+### ── 3. Use the captured token ───────────────────────────────────────────────
+
+@token = {{login.response.body.$.accessToken}}
+
+GET {{baseUrl}}/api/auth/me
+Authorization: Bearer {{token}}
+
+### ── 4. Get profile ──────────────────────────────────────────────────────────
+
+GET {{baseUrl}}/api/profile
+Authorization: Bearer {{token}}
+
+### ── 5. Update profile ───────────────────────────────────────────────────────
+
+PUT {{baseUrl}}/api/profile
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "firstName": "Test",
+  "lastName": "User",
+  "university": "KPI",
+  "faculty": "FICT",
+  "studyYear": 3,
+  "bio": "Physics student"
+}
+
+### ── 6. GDPR — export my data ────────────────────────────────────────────────
+
+GET {{baseUrl}}/api/gdpr/export
+Authorization: Bearer {{token}}
+
+### ── 7. Admin login (requires AdminSeed in appsettings.Development.json) ─────
+
+# @name adminLogin
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@physis.local",
+  "password": "YourAdminPassword1"
+}
+
+### ── 8. Admin — platform stats ───────────────────────────────────────────────
+
+@adminToken = {{adminLogin.response.body.$.accessToken}}
+
+GET {{baseUrl}}/api/admin/stats
+Authorization: Bearer {{adminToken}}
+
+### ── 9. Admin — list users ───────────────────────────────────────────────────
+
+GET {{baseUrl}}/api/admin/users?page=1&pageSize=20
+Authorization: Bearer {{adminToken}}
+
+### ── 10. Admin — search users ───────────────────────────────────────────────
+
+GET {{baseUrl}}/api/admin/users?search=test&page=1&pageSize=10
+Authorization: Bearer {{adminToken}}
+
+### ── 11. Refresh token ───────────────────────────────────────────────────────
+
+@refreshToken = {{login.response.body.$.refreshToken}}
+
+POST {{baseUrl}}/api/auth/refresh
+Content-Type: application/json
+
+{
+  "refreshToken": "{{refreshToken}}"
+}
+
+### ── 12. Health check (no auth) ──────────────────────────────────────────────
+
+GET {{baseUrl}}/health
