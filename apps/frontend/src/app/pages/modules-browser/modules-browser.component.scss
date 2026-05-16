@@ -12,14 +12,6 @@
     gap: 1rem;
   }
 
-  &__header-top {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    flex-wrap: wrap;
-  }
-
   &__title {
     font-size: 1.5rem;
     font-weight: 600;
@@ -27,7 +19,6 @@
 
   &__search {
     position: relative;
-    flex-shrink: 0;
 
     &-icon {
       position: absolute;
@@ -41,14 +32,15 @@
     }
 
     &-input {
-      width: 260px;
-      padding: 0.4rem 0.85rem 0.4rem 2rem;
+      width: 100%;
+      padding: 0.45rem 0.85rem 0.45rem 2rem;
       border: 1px solid var(--color-border);
       border-radius: 6px;
       background: var(--color-surface-raised);
       color: var(--color-text);
-      font-size: 0.85rem;
+      font-size: 0.875rem;
       transition: border-color 0.15s;
+      box-sizing: border-box;
 
       &:focus {
         outline: none;
