@@ -1,111 +1,152 @@
 <div class="poe">
-  @switch (phase()) {
 
-    @case ('predict') {
-      <div class="poe__screen">
-        <div class="poe__card">
-          <div class="poe__step-badge">1 / 3</div>
-          <h2 class="poe__card-title">{{ 'poe.predict.title' | translate }}</h2>
-          <p class="poe__card-instruction">{{ 'poe.predict.instruction' | translate }}</p>
+  @if (phase() === 'explain') {
 
-          <div class="poe__fields">
-            @for (target of targets(); track target.metricKey) {
-              <div class="form-field">
-                <label>
-                  {{ target.label | localized }}
-                  @if (target.unit) { <span class="poe__unit">({{ target.unit }})</span> }
-                </label>
-                <input
-                  type="number"
-                  [ngModel]="getPrediction(target.metricKey)"
-                  (ngModelChange)="setPrediction(target.metricKey, $event)"
-                  min="0"
-                  step="0.001"
-                />
+    <div class="poe__screen">
+      <div class="poe__card poe__card--wide">
+        <div class="poe__step-badge">3 / 3</div>
+        <h2 class="poe__card-title">{{ 'poe.explain.title' | translate }}</h2>
+
+        <div class="poe__compare-list">
+          @for (row of comparisonRows(); track row.target.metricKey) {
+            @if (row.target.slider && row.predictedPos !== null && row.actualPos !== null) {
+              <div class="poe__compare-card">
+                <div class="poe__compare-card-header">
+                  <span class="poe__compare-card-label">{{ row.target.label | localized }}</span>
+                  @if (row.relativeError !== null) {
+                    <span
+                      class="poe__compare-badge"
+                      [class.poe__compare-badge--good]="row.relativeError < 20"
+                      [class.poe__compare-badge--ok]="row.relativeError >= 20 && row.relativeError < 50"
+                      [class.poe__compare-badge--bad]="row.relativeError >= 50"
+                    >{{ row.relativeError | number: '1.0-0' }}%</span>
+                  } @else {
+                    <span class="poe__compare-badge poe__compare-badge--good">~0</span>
+                  }
+                </div>
+
+                <div class="poe__compare-track-wrap">
+                  <span class="poe__compare-extreme">{{ row.target.slider.labelLow | localized }}</span>
+                  <div class="poe__compare-rail">
+                    <div
+                      class="poe__compare-marker poe__compare-marker--pred"
+                      [style.left.%]="row.predictedPos"
+                    >
+                      <div class="poe__marker-dot"></div>
+                      <div class="poe__marker-label poe__marker-label--top">
+                        {{ 'poe.explain.yourPred' | translate }}
+                      </div>
+                    </div>
+                    <div
+                      class="poe__compare-marker poe__compare-marker--actual"
+                      [style.left.%]="row.actualPos"
+                    >
+                      <div class="poe__marker-dot"></div>
+                      <div class="poe__marker-label poe__marker-label--bottom">
+                        {{ 'poe.explain.actual' | translate }}
+                        @if (row.target.unit) {
+                          ({{ row.actual | number: '1.2-3' }}&nbsp;{{ row.target.unit }})
+                        } @else {
+                          ({{ row.actual | number: '1.3-3' }})
+                        }
+                      </div>
+                    </div>
+                  </div>
+                  <span class="poe__compare-extreme">{{ row.target.slider.labelHigh | localized }}</span>
+                </div>
+              </div>
+            } @else {
+              <div class="poe__compare-row">
+                <span class="poe__compare-row-label">
+                  {{ row.target.label | localized }}
+                  @if (row.target.unit) { <span class="poe__unit">({{ row.target.unit }})</span> }
+                </span>
+                <span>{{ row.predicted | number: '1.3-3' }}</span>
+                <span>{{ row.actual | number: '1.3-3' }}</span>
+                <span>
+                  @if (row.relativeError !== null) {
+                    {{ row.relativeError | number: '1.1-1' }}%
+                  } @else { — }
+                </span>
               </div>
             }
+          }
+        </div>
+
+        <div class="poe__explanation" [innerHTML]="explanationHtml()"></div>
+
+        <button class="btn btn--ghost poe__action" (click)="tryAgain()">
+          {{ 'poe.explain.tryAgain' | translate }}
+        </button>
+      </div>
+    </div>
+
+  } @else {
+
+    <!-- predict bar OR observe bar + simulation visible in both -->
+
+    @if (phase() === 'predict') {
+      <div class="poe__predict-bar">
+        <div class="poe__predict-meta">
+          <span class="poe__step-badge">1 / 3</span>
+          <span class="poe__predict-title">{{ 'poe.predict.title' | translate }}</span>
+          <span class="poe__predict-hint">{{ 'poe.predict.instruction' | translate }}</span>
+        </div>
+
+        <div class="poe__sliders-row">
+          @for (target of targets(); track target.metricKey) {
+            @if (target.slider) {
+              <div class="poe__slider-group">
+                <span class="poe__slider-label">{{ target.label | localized }}</span>
+                <div class="poe__slider-track-wrap">
+                  <span class="poe__slider-extreme">{{ target.slider.labelLow | localized }}</span>
+                  <input
+                    class="poe__slider"
+                    type="range"
+                    min="0"
+                    max="100"
+                    step="1"
+                    [ngModel]="getSliderPos(target)"
+                    (ngModelChange)="setSliderPrediction(target, $event)"
+                  />
+                  <span class="poe__slider-extreme">{{ target.slider.labelHigh | localized }}</span>
+                </div>
+              </div>
+            }
+          }
+        </div>
+
+        <button class="btn btn--primary poe__predict-btn" (click)="toObserve()">
+          {{ 'poe.predict.continue' | translate }}
+        </button>
+      </div>
+    }
+
+    @if (phase() === 'observe') {
+      <div class="poe__observe-bar">
+        <span class="poe__observe-instruction">{{ 'poe.observe.instruction' | translate }}</span>
+        <div class="poe__timer">
+          <div class="poe__timer-track">
+            <div class="poe__timer-fill" [style.width.%]="observeProgress()"></div>
           </div>
-
-          <button class="btn btn--primary poe__action" (click)="toObserve()">
-            {{ 'poe.predict.continue' | translate }}
-          </button>
+          <span class="poe__timer-label">
+            {{ observedSeconds() > 5 ? 5 : observedSeconds() }}s / 5s
+          </span>
         </div>
+        <button
+          class="btn btn--primary"
+          [disabled]="!canContinueObserve()"
+          (click)="toExplain()"
+        >
+          {{ 'poe.observe.continue' | translate }}
+        </button>
       </div>
     }
 
-    @case ('observe') {
-      <div class="poe__observe">
-        <div class="poe__observe-bar">
-          <span class="poe__observe-instruction">{{ 'poe.observe.instruction' | translate }}</span>
-
-          <div class="poe__timer">
-            <div class="poe__timer-track">
-              <div class="poe__timer-fill" [style.width.%]="observeProgress()"></div>
-            </div>
-            <span class="poe__timer-label">{{ observedSeconds() }}s / 5s</span>
-          </div>
-
-          <button
-            class="btn btn--primary"
-            [disabled]="!canContinueObserve()"
-            (click)="toExplain()"
-          >
-            {{ 'poe.observe.continue' | translate }}
-          </button>
-        </div>
-
-        <div class="poe__observe-content">
-          <ng-content />
-        </div>
-      </div>
-    }
-
-    @case ('explain') {
-      <div class="poe__screen">
-        <div class="poe__card poe__card--wide">
-          <div class="poe__step-badge">3 / 3</div>
-          <h2 class="poe__card-title">{{ 'poe.explain.title' | translate }}</h2>
-
-          <table class="poe__comparison">
-            <thead>
-              <tr>
-                <th>{{ 'poe.explain.quantity' | translate }}</th>
-                <th>{{ 'poe.explain.predicted' | translate }}</th>
-                <th>{{ 'poe.explain.actual' | translate }}</th>
-                <th>{{ 'poe.explain.absError' | translate }}</th>
-                <th>{{ 'poe.explain.relError' | translate }}</th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (row of comparisonRows(); track row.target.metricKey) {
-                <tr>
-                  <td>
-                    {{ row.target.label | localized }}
-                    @if (row.target.unit) { <span class="poe__unit">({{ row.target.unit }})</span> }
-                  </td>
-                  <td>{{ row.predicted | number: '1.3-3' }}</td>
-                  <td>{{ row.actual | number: '1.3-3' }}</td>
-                  <td>{{ row.absoluteError | number: '1.3-3' }}</td>
-                  <td>
-                    @if (row.relativeError !== null) {
-                      {{ row.relativeError | number: '1.1-1' }}%
-                    } @else {
-                      —
-                    }
-                  </td>
-                </tr>
-              }
-            </tbody>
-          </table>
-
-          <div class="poe__explanation" [innerHTML]="explanationHtml()"></div>
-
-          <button class="btn btn--ghost poe__action" (click)="tryAgain()">
-            {{ 'poe.explain.tryAgain' | translate }}
-          </button>
-        </div>
-      </div>
-    }
+    <div class="poe__sim-area">
+      <ng-content />
+    </div>
 
   }
+
 </div>

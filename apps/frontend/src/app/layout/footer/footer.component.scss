@@ -1,15 +1,58 @@
 .footer {
   grid-area: footer;
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 1.25rem;
+  padding: 0 1.5rem;
   height: 40px;
   background: var(--color-surface);
-  border-top: 1px solid var(--color-border);
-  font-size: 0.8rem;
+  font-size: 0.775rem;
   color: var(--color-text-muted);
   flex-shrink: 0;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      var(--color-border) 15%,
+      var(--color-primary) 50%,
+      var(--color-border) 85%,
+      transparent 100%
+    );
+    opacity: 0.6;
+  }
+
+  &__brand {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+  }
+
+  &__atom {
+    font-size: 0.95rem;
+    color: var(--color-primary);
+    opacity: 0.85;
+    line-height: 1;
+  }
+
+  &__name {
+    font-weight: 600;
+    font-size: 0.8rem;
+    color: var(--color-text);
+    letter-spacing: 0.03em;
+  }
+
+  &__sep {
+    color: var(--color-border);
+    font-size: 0.85rem;
+  }
 
   &__copy {
     white-space: nowrap;
@@ -17,7 +60,16 @@
 
   &__links {
     display: flex;
-    gap: 1.25rem;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  &__dot {
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background: var(--color-border);
+    flex-shrink: 0;
   }
 
   &__link {
@@ -25,6 +77,8 @@
     text-decoration: none;
     transition: color 0.15s;
 
-    &:hover { color: var(--color-primary); }
+    &:hover {
+      color: var(--color-primary);
+    }
   }
 }

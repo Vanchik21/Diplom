@@ -37,6 +37,20 @@ export class ChartPanelComponent implements AfterViewInit, OnDestroy {
     });
   }
 
+  private primaryKey = 'theta';
+  private primaryLabel = 'θ (°)';
+
+  private resolveSeries(m: Metrics): void {
+    const keys = Object.keys(m.timeSeries).filter(k => k !== 'time' && k !== 'totalEnergy');
+    const key = keys[0] ?? 'theta';
+    const labelMap: Record<string, string> = {
+      theta: 'θ (°)',
+      r: 'r (AU)',
+    };
+    this.primaryKey = key;
+    this.primaryLabel = labelMap[key] ?? key;
+  }
+
   ngAfterViewInit(): void {
     this.chart = new Chart(this.canvasRef().nativeElement, {
       type: 'line',
@@ -44,16 +58,16 @@ export class ChartPanelComponent implements AfterViewInit, OnDestroy {
         labels: [],
         datasets: [
           {
-            label: 'θ (°)',
+            label: this.primaryLabel,
             data: [],
             borderColor: 'rgb(92, 110, 248)',
             backgroundColor: 'rgba(92, 110, 248, 0.1)',
             borderWidth: 1.5,
             pointRadius: 0,
-            yAxisID: 'yTheta',
+            yAxisID: 'yPrimary',
           },
           {
-            label: 'E (J)',
+            label: 'E',
             data: [],
             borderColor: 'rgb(74, 222, 128)',
             backgroundColor: 'rgba(74, 222, 128, 0.1)',
@@ -75,21 +89,21 @@ export class ChartPanelComponent implements AfterViewInit, OnDestroy {
           x: {
             ticks: { color: '#8b91b5', font: { size: 10 }, maxTicksLimit: 6 },
             grid: { color: 'rgba(46, 49, 72, 0.8)' },
-            title: { display: true, text: 't (s)', color: '#8b91b5', font: { size: 10 } },
+            title: { display: true, text: 't', color: '#8b91b5', font: { size: 10 } },
           },
-          yTheta: {
+          yPrimary: {
             type: 'linear',
             position: 'left',
             ticks: { color: 'rgb(92, 110, 248)', font: { size: 10 } },
             grid: { color: 'rgba(46, 49, 72, 0.8)' },
-            title: { display: true, text: 'θ (°)', color: 'rgb(92, 110, 248)', font: { size: 10 } },
+            title: { display: true, text: this.primaryLabel, color: 'rgb(92, 110, 248)', font: { size: 10 } },
           },
           yEnergy: {
             type: 'linear',
             position: 'right',
             ticks: { color: 'rgb(74, 222, 128)', font: { size: 10 } },
             grid: { drawOnChartArea: false },
-            title: { display: true, text: 'E (J)', color: 'rgb(74, 222, 128)', font: { size: 10 } },
+            title: { display: true, text: 'E', color: 'rgb(74, 222, 128)', font: { size: 10 } },
           },
         },
       },
@@ -97,27 +111,39 @@ export class ChartPanelComponent implements AfterViewInit, OnDestroy {
   }
 
   private updateChart(m: Metrics): void {
+    if (!this.chart) return;
+
+    this.resolveSeries(m);
+
     const time = m.timeSeries['time'] ?? [];
-    const theta = m.timeSeries['theta'] ?? [];
+    const primary = m.timeSeries[this.primaryKey] ?? [];
     const energy = m.timeSeries['totalEnergy'] ?? [];
 
-    const len = Math.min(time.length, MAX_POINTS);
     const step = Math.max(1, Math.floor(time.length / MAX_POINTS));
+    const start = Math.max(0, time.length - MAX_POINTS * step);
 
     const labels: string[] = [];
-    const thetaData: number[] = [];
+    const primaryData: number[] = [];
     const energyData: number[] = [];
 
-    for (let i = time.length - len * step; i < time.length; i += step) {
-      const idx = Math.max(0, i);
-      labels.push((time[idx] ?? 0).toFixed(1));
-      thetaData.push(theta[idx] ?? 0);
-      energyData.push(energy[idx] ?? 0);
+    for (let i = start; i < time.length; i += step) {
+      labels.push((time[i] ?? 0).toFixed(1));
+      primaryData.push(primary[i] ?? 0);
+      energyData.push(energy[i] ?? 0);
+    }
+
+    const d0 = this.chart.data.datasets[0]!;
+    const d1 = this.chart.data.datasets[1]!;
+
+    if (d0.label !== this.primaryLabel) {
+      d0.label = this.primaryLabel;
+      const scaleY = (this.chart.options.scales as Record<string, unknown>)['yPrimary'] as { title?: { text?: string } } | undefined;
+      if (scaleY?.title) scaleY.title.text = this.primaryLabel;
     }
 
     this.chart.data.labels = labels;
-    this.chart.data.datasets[0]!.data = thetaData;
-    this.chart.data.datasets[1]!.data = energyData;
+    d0.data = primaryData;
+    d1.data = energyData;
     this.chart.update('none');
   }
 

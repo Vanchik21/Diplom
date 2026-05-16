@@ -18,6 +18,6 @@ export type {
   RendererKind,
 } from './metadata.js';
 
-export type { PredictionTarget } from './poe.js';
+export type { PredictionTarget, SliderConfig } from './poe.js';
 
 export type { PhysicsModule } from './module.js';

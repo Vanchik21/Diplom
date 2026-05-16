@@ -1,7 +1,13 @@
 <footer class="footer">
-  <span class="footer__copy">&copy; {{ year }} Physis&#8482;. {{ 'footer.rights' | translate }}</span>
+  <div class="footer__brand">
+    <span class="footer__atom">⚛</span>
+    <span class="footer__name">Physis™</span>
+    <span class="footer__sep">·</span>
+    <span class="footer__copy">&copy; {{ year }}&nbsp;{{ 'footer.rights' | translate }}</span>
+  </div>
   <nav class="footer__links">
     <a class="footer__link" routerLink="/about">{{ 'footer.about' | translate }}</a>
+    <span class="footer__dot"></span>
     <a class="footer__link" routerLink="/privacy">{{ 'footer.privacy' | translate }}</a>
   </nav>
 </footer>

@@ -13,7 +13,7 @@ import { DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DomSanitizer, type SafeHtml } from '@angular/platform-browser';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import type { PhysicsModule, PredictionTarget } from '@physis/sdk';
+import type { PhysicsModule, PredictionTarget, SliderConfig } from '@physis/sdk';
 import katex from 'katex';
 import { LocalizedPipe } from '../../core/pipes/localized.pipe';
 
@@ -25,6 +25,8 @@ interface ComparisonRow {
   actual: number;
   absoluteError: number;
   relativeError: number | null;
+  predictedPos: number | null;
+  actualPos: number | null;
 }
 
 const MIN_OBSERVE_SECONDS = 5;
@@ -84,6 +86,19 @@ export class PoeWorkflowComponent implements OnDestroy {
     this.predictionsChange.emit({ ...this.predictions() });
   }
 
+  protected getSliderPos(target: PredictionTarget): number {
+    const slider = target.slider!;
+    const val = this.predictions()[target.metricKey];
+    if (val === undefined) return 50;
+    return Math.round(this.toSliderPos(slider, val));
+  }
+
+  protected setSliderPrediction(target: PredictionTarget, pos: number | string): void {
+    const slider = target.slider!;
+    const val = slider.min + (Number(pos) / 100) * (slider.max - slider.min);
+    this.setPrediction(target.metricKey, val);
+  }
+
   protected toObserve(): void {
     this.observedSeconds.set(0);
     this.phase.set('observe');
@@ -98,13 +113,17 @@ export class PoeWorkflowComponent implements OnDestroy {
     const preds = this.predictions();
 
     const rows: ComparisonRow[] = this.targets().map(target => {
-      const predicted = preds[target.metricKey] ?? 0;
+      const slider = target.slider;
+      const predicted = preds[target.metricKey]
+        ?? (slider ? slider.min + 0.5 * (slider.max - slider.min) : 0);
       const actual = metrics.scalars[target.metricKey] ?? 0;
       const absoluteError = Math.abs(actual - predicted);
       const relativeError = Math.abs(actual) > 1e-9
         ? (absoluteError / Math.abs(actual)) * 100
         : null;
-      return { target, predicted, actual, absoluteError, relativeError };
+      const predictedPos = slider ? this.toSliderPos(slider, predicted) : null;
+      const actualPos = slider ? this.toSliderPos(slider, actual) : null;
+      return { target, predicted, actual, absoluteError, relativeError, predictedPos, actualPos };
     });
 
     this.comparisonRows.set(rows);
@@ -118,6 +137,10 @@ export class PoeWorkflowComponent implements OnDestroy {
     this.observedSeconds.set(0);
     this.module().reset();
     this.phase.set('predict');
+  }
+
+  private toSliderPos(slider: SliderConfig, value: number): number {
+    return Math.max(0, Math.min(100, ((value - slider.min) / (slider.max - slider.min)) * 100));
   }
 
   private renderExplanation(preds: Record<string, number>): SafeHtml {

@@ -202,13 +202,25 @@ export class RigidBodyPendulumModule
     return [
       {
         metricKey: 'period',
-        label: { uk: 'Період T', en: 'Period T' },
+        label: { uk: 'Період коливання', en: 'Oscillation period' },
         unit: 's',
+        slider: {
+          min: 0,
+          max: 10,
+          labelLow: { uk: 'Дуже швидкі коливання', en: 'Very fast swings' },
+          labelHigh: { uk: 'Дуже повільні коливання', en: 'Very slow swings' },
+        },
       },
       {
         metricKey: 'maxAngularVelocity',
-        label: { uk: 'Макс. кутова швидкість', en: 'Max angular velocity' },
+        label: { uk: 'Максимальна швидкість маятника', en: 'Peak angular speed' },
         unit: 'rad/s',
+        slider: {
+          min: 0,
+          max: 15,
+          labelLow: { uk: 'Майже нерухомий', en: 'Nearly still' },
+          labelHigh: { uk: 'Дуже швидко', en: 'Very fast' },
+        },
       },
     ];
   }

@@ -69,7 +69,7 @@
   "poe": {
     "predict": {
       "title": "Step 1 — Predict",
-      "instruction": "Enter your predictions before running the simulation.",
+      "instruction": "Drag the sliders to express your qualitative expectations before running the simulation.",
       "continue": "Continue"
     },
     "observe": {
@@ -81,10 +81,11 @@
       "title": "Step 3 — Explain",
       "quantity": "Quantity",
       "predicted": "Predicted",
-      "actual": "Measured",
+      "actual": "Actual",
       "absError": "Abs. error",
       "relError": "Rel. error",
-      "tryAgain": "Try again"
+      "tryAgain": "Try again",
+      "yourPred": "Your prediction"
     }
   },
   "scenarios": {
