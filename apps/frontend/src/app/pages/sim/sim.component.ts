@@ -1,6 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  HostListener,
   OnDestroy,
   OnInit,
   computed,
@@ -8,7 +9,7 @@ import {
   input,
   signal,
 } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import type { Metrics, ParamSpec, PhysicsModule } from '@physis/sdk';
 import type { Scene } from '@babylonjs/core';
@@ -51,6 +52,7 @@ export class SimComponent implements OnInit, OnDestroy {
 
   private readonly registry = inject(ModuleRegistryService);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
   private readonly auth = inject(AuthService);
   private readonly scenarioService = inject(ScenarioService);
   private readonly scenarioLoader = inject(ScenarioLoadService);
@@ -66,6 +68,7 @@ export class SimComponent implements OnInit, OnDestroy {
   protected readonly savePanelOpen = signal(false);
   protected readonly saveName = signal('');
   protected readonly saveStatus = signal<'idle' | 'saving' | 'saved' | 'error'>('idle');
+  protected readonly shareCopied = signal(false);
 
   protected setupFn: BabylonSetupFn | undefined;
   protected frameFn: BabylonFrameFn | undefined;
@@ -84,7 +87,18 @@ export class SimComponent implements OnInit, OnDestroy {
 
     const pending = this.scenarioLoader.consume();
     const defaults = this.extractDefaults(entry.meta.defaultParams);
-    const initParams = pending?.params ?? defaults;
+
+    const queryParams = this.route.snapshot.queryParams;
+    const urlParams = { ...defaults };
+    if (!pending && Object.keys(queryParams).length > 0) {
+      for (const [key, spec] of Object.entries(entry.meta.defaultParams)) {
+        if (queryParams[key] !== undefined) {
+          urlParams[key] = this.parseParamValue(spec, String(queryParams[key]));
+        }
+      }
+    }
+
+    const initParams = pending?.params ?? urlParams;
     const initPredictions = pending?.predictions ?? {};
 
     this.loadedParams.set(initParams);
@@ -170,10 +184,49 @@ export class SimComponent implements OnInit, OnDestroy {
     });
   }
 
+  protected shareSimulation(): void {
+    const params = this.currentParams();
+    const qs = Object.entries(params)
+      .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(String(v))}`)
+      .join('&');
+    const url = `${window.location.origin}/sim/${this.moduleId()}?${qs}`;
+    navigator.clipboard.writeText(url).then(() => {
+      this.shareCopied.set(true);
+      setTimeout(() => this.shareCopied.set(false), 2000);
+    });
+  }
+
+  @HostListener('document:keydown', ['$event'])
+  onKeyDown(event: KeyboardEvent): void {
+    if (event.key === 'Escape' && this.savePanelOpen()) {
+      this.closeSavePanel();
+      return;
+    }
+
+    const tag = (event.target as HTMLElement).tagName;
+    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+
+    if (event.key === ' ') {
+      event.preventDefault();
+      this.togglePause();
+    } else if ((event.key === 'r' || event.key === 'R') && !event.ctrlKey && !event.metaKey) {
+      this.onResetSim();
+    } else if ((event.key === 's' || event.key === 'S') && (event.ctrlKey || event.metaKey)) {
+      event.preventDefault();
+      if (this.isAuthenticated()) this.openSavePanel();
+    }
+  }
+
   private extractDefaults(specs: Record<string, ParamSpec>): Record<string, unknown> {
     return Object.fromEntries(
       Object.entries(specs).map(([key, spec]) => [key, spec.default]),
     );
+  }
+
+  private parseParamValue(spec: ParamSpec, raw: string): unknown {
+    if (spec.type === 'number') return Number(raw);
+    if (spec.type === 'boolean') return raw === 'true';
+    return raw;
   }
 
   ngOnDestroy(): void {

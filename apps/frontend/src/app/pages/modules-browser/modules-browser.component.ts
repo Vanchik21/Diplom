@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import type { PhysicsCategory } from '@physis/sdk';
 import { ModuleRegistryService, type RegistryEntry } from '../../physics-modules/registry.service';
@@ -11,13 +12,14 @@ type CategoryFilter = PhysicsCategory | 'all';
   selector: 'app-modules-browser',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [TranslateModule, ModuleCardComponent],
+  imports: [FormsModule, TranslateModule, ModuleCardComponent],
   templateUrl: './modules-browser.component.html',
   styleUrl: './modules-browser.component.scss',
 })
 export class ModulesBrowserComponent {
   private readonly registry = inject(ModuleRegistryService);
 
+  protected readonly searchQuery = signal('');
   protected readonly categoryFilter = signal<CategoryFilter>('all');
   protected readonly difficultyFilter = signal<DifficultyFilter>('all');
 
@@ -28,11 +30,18 @@ export class ModulesBrowserComponent {
   protected readonly filteredEntries = computed<RegistryEntry[]>(() => {
     const category = this.categoryFilter();
     const difficulty = this.difficultyFilter();
+    const q = this.searchQuery().toLowerCase().trim();
 
     return this.registry.getAll().filter(entry => {
       const categoryMatch = category === 'all' || entry.meta.category === category;
       const difficultyMatch = difficulty === 'all' || entry.meta.difficulty === difficulty;
-      return categoryMatch && difficultyMatch;
+      const searchMatch = !q ||
+        entry.meta.name.uk.toLowerCase().includes(q) ||
+        entry.meta.name.en.toLowerCase().includes(q) ||
+        entry.meta.description.uk.toLowerCase().includes(q) ||
+        entry.meta.description.en.toLowerCase().includes(q) ||
+        entry.meta.educationalTopics.some(t => t.toLowerCase().includes(q));
+      return categoryMatch && difficultyMatch && searchMatch;
     });
   });
 

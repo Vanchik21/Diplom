@@ -31,6 +31,12 @@
   &__toolbar-actions {
     display: flex;
     gap: 0.5rem;
+    align-items: center;
+  }
+
+  &__share-btn {
+    transition: color 0.15s;
+    &:has(✓) { color: var(--color-success); }
   }
 
   &__body {

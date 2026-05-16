@@ -39,6 +39,7 @@
   },
   "modules": {
     "title": "Фізичні модулі",
+    "searchPlaceholder": "Пошук за назвою або темою...",
     "filterByCategory": "Категорія",
     "filterByDifficulty": "Рівень",
     "open": "Відкрити",
@@ -62,6 +63,8 @@
     "explain": "Пояснити",
     "save": "Зберегти сценарій",
     "reset": "Скинути",
+    "share": "Поділитися",
+    "shareCopied": "Скопійовано!",
     "params": "Параметри",
     "metrics": "Показники",
     "formulas": "Формули"

@@ -39,6 +39,7 @@
   },
   "modules": {
     "title": "Physics Modules",
+    "searchPlaceholder": "Search by name or topic...",
     "filterByCategory": "Category",
     "filterByDifficulty": "Level",
     "open": "Open",
@@ -62,6 +63,8 @@
     "explain": "Explain",
     "save": "Save Scenario",
     "reset": "Reset",
+    "share": "Share",
+    "shareCopied": "Copied!",
     "params": "Parameters",
     "metrics": "Metrics",
     "formulas": "Formulas"

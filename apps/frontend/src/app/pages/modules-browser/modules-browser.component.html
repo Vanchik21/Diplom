@@ -1,6 +1,18 @@
 <div class="browser">
   <header class="browser__header">
-    <h1 class="browser__title">{{ 'modules.title' | translate }}</h1>
+    <div class="browser__header-top">
+      <h1 class="browser__title">{{ 'modules.title' | translate }}</h1>
+      <div class="browser__search">
+        <span class="browser__search-icon">⌕</span>
+        <input
+          class="browser__search-input"
+          type="search"
+          [placeholder]="'modules.searchPlaceholder' | translate"
+          [ngModel]="searchQuery()"
+          (ngModelChange)="searchQuery.set($event)"
+        />
+      </div>
+    </div>
 
     <div class="browser__filters">
       <div class="filter-group">

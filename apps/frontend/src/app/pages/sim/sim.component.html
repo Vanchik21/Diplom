@@ -13,12 +13,19 @@
       <div class="sim__toolbar">
         <h2 class="sim__module-name">{{ entry()!.meta.name | localized }}</h2>
         <div class="sim__toolbar-actions">
-          <button class="btn btn--ghost" (click)="togglePause()">
+          <button class="btn btn--ghost" (click)="togglePause()" title="Space">
             {{ paused() ? '▶' : '⏸' }}
           </button>
-          <button class="btn btn--ghost" (click)="onResetSim()">{{ 'sim.reset' | translate }}</button>
+          <button class="btn btn--ghost" (click)="onResetSim()" title="R">{{ 'sim.reset' | translate }}</button>
+          <button class="btn btn--ghost sim__share-btn" (click)="shareSimulation()">
+            @if (shareCopied()) {
+              ✓ {{ 'sim.shareCopied' | translate }}
+            } @else {
+              {{ 'sim.share' | translate }}
+            }
+          </button>
           @if (isAuthenticated()) {
-            <button class="btn btn--primary" (click)="openSavePanel()">{{ 'sim.save' | translate }}</button>
+            <button class="btn btn--primary" (click)="openSavePanel()" title="Ctrl+S">{{ 'sim.save' | translate }}</button>
           }
         </div>
       </div>
