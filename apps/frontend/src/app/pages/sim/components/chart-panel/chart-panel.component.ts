@@ -37,18 +37,37 @@ export class ChartPanelComponent implements AfterViewInit, OnDestroy {
     });
   }
 
-  private primaryKey = 'theta';
-  private primaryLabel = 'θ (°)';
+  private primaryKey = '';
+  private primaryLabel = '—';
+
+  private static readonly LABEL_MAP: Record<string, string> = {
+    theta:        'θ (°)',
+    r:            'r (AU)',
+    energy:       'E (Дж)',
+    kineticEnergy:'Ek (Дж)',
+    separation:   'r₁₂',
+    blueLeft:     'Сині вліво',
+    redRight:     'Червоні вправо',
+    entropy:      'S',
+    pressure:     'P',
+    displacement: 'y (см)',
+    voltage:      'U (В)',
+    speed:        '|v|',
+    speed1:       'v₁',
+    speed2:       'v₂',
+  };
+
+  private static fmtTick(v: number | string): string {
+    const n = Number(v);
+    if (!isFinite(n)) return String(v);
+    return parseFloat(n.toPrecision(5)).toString();
+  }
 
   private resolveSeries(m: Metrics): void {
     const keys = Object.keys(m.timeSeries).filter(k => k !== 'time' && k !== 'totalEnergy');
-    const key = keys[0] ?? 'theta';
-    const labelMap: Record<string, string> = {
-      theta: 'θ (°)',
-      r: 'r (AU)',
-    };
+    const key = keys[0] ?? '';
     this.primaryKey = key;
-    this.primaryLabel = labelMap[key] ?? key;
+    this.primaryLabel = key ? (ChartPanelComponent.LABEL_MAP[key] ?? key) : '—';
   }
 
   ngAfterViewInit(): void {
@@ -94,14 +113,22 @@ export class ChartPanelComponent implements AfterViewInit, OnDestroy {
           yPrimary: {
             type: 'linear',
             position: 'left',
-            ticks: { color: 'rgb(92, 110, 248)', font: { size: 10 } },
+            ticks: {
+              color: 'rgb(92, 110, 248)',
+              font: { size: 10 },
+              callback: ChartPanelComponent.fmtTick,
+            },
             grid: { color: 'rgba(46, 49, 72, 0.8)' },
             title: { display: true, text: this.primaryLabel, color: 'rgb(92, 110, 248)', font: { size: 10 } },
           },
           yEnergy: {
             type: 'linear',
             position: 'right',
-            ticks: { color: 'rgb(74, 222, 128)', font: { size: 10 } },
+            ticks: {
+              color: 'rgb(74, 222, 128)',
+              font: { size: 10 },
+              callback: ChartPanelComponent.fmtTick,
+            },
             grid: { drawOnChartArea: false },
             title: { display: true, text: 'E', color: 'rgb(74, 222, 128)', font: { size: 10 } },
           },
@@ -116,7 +143,7 @@ export class ChartPanelComponent implements AfterViewInit, OnDestroy {
     this.resolveSeries(m);
 
     const time = m.timeSeries['time'] ?? [];
-    const primary = m.timeSeries[this.primaryKey] ?? [];
+    const primary = this.primaryKey ? (m.timeSeries[this.primaryKey] ?? []) : [];
     const energy = m.timeSeries['totalEnergy'] ?? [];
 
     const step = Math.max(1, Math.floor(time.length / MAX_POINTS));
@@ -137,7 +164,8 @@ export class ChartPanelComponent implements AfterViewInit, OnDestroy {
 
     if (d0.label !== this.primaryLabel) {
       d0.label = this.primaryLabel;
-      const scaleY = (this.chart.options.scales as Record<string, unknown>)['yPrimary'] as { title?: { text?: string } } | undefined;
+      const scales = this.chart.options.scales as Record<string, { title?: { text?: string } } | undefined>;
+      const scaleY = scales['yPrimary'];
       if (scaleY?.title) scaleY.title.text = this.primaryLabel;
     }
 

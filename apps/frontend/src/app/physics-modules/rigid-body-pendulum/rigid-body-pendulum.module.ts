@@ -181,14 +181,14 @@ export class RigidBodyPendulumModule
 
     return {
       scalars: {
-        theta: this.theta * (180 / Math.PI),
-        thetaDot: this.thetaDot,
-        kineticEnergy: ke,
-        potentialEnergy: pe,
-        totalEnergy: ke + pe,
-        period,
-        maxAngularVelocity: this.maxThetaDot,
-        time: this.time,
+        'θ (°)': this.theta * (180 / Math.PI),
+        'θ̇ (рад/с)': this.thetaDot,
+        'Ek (Дж)': ke,
+        'Ep (Дж)': pe,
+        'E (Дж)': ke + pe,
+        'T (с)': period,
+        'θ̇ макс': this.maxThetaDot,
+        't (с)': this.time,
       },
       timeSeries: {
         theta: this.history.theta,

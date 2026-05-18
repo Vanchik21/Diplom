@@ -28,8 +28,11 @@ export class BabylonSceneService implements OnDestroy {
   }
 
   runRenderLoop(frameFn: (deltaSeconds: number) => void): void {
+    let lastTime = performance.now();
     this.engine.runRenderLoop(() => {
-      const dt = this.engine.getDeltaTime() / 1000;
+      const now = performance.now();
+      const dt = Math.min((now - lastTime) / 1000, 0.05);
+      lastTime = now;
       frameFn(dt);
       this._scene.render();
     });

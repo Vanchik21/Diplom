@@ -3,7 +3,7 @@
 // Integration: Euler (linear uniform motion between collisions).
 // Collision response: impulse-based, single contact point.
 
-import type { Scene } from '@babylonjs/core';
+import { type Scene, ArcRotateCamera, Vector3 } from '@babylonjs/core';
 import type { Metrics, ModuleMetadata, PhysicsModule, PredictionTarget } from '@physis/sdk';
 import type { BabylonRenderable } from '../../rendering/babylon/babylon-renderable';
 import {
@@ -122,6 +122,9 @@ export class Collision2DModule
   private vel1: [number, number] = [4, 0];
   private vel2: [number, number] = [0, 0];
   private collided = false;
+  private postCollisionTime = 0;
+  private frozen = false;
+  private frozenTimer = 0;
   private time = 0;
 
   // Snapshot of pre-collision values for metrics display
@@ -155,12 +158,22 @@ export class Collision2DModule
     this.keBefore = 0.5 * mass1 * velocity1 ** 2 + 0.5 * mass2 * velocity2 ** 2;
     this.pAfter = null;
     this.keAfter = null;
+    this.postCollisionTime = 0;
+    this.frozen = false;
+    this.frozenTimer = 0;
 
     this.history.ke = [this.keBefore];
     this.history.time = [0];
   }
 
   step(dt: number): void {
+    if (this.frozen) {
+      this.frozenTimer += dt;
+      if (this.frozenTimer >= 1.5) {
+        this.init(this.params);
+      }
+      return;
+    }
     if (!this.collided) {
       this.pos1[0] += this.vel1[0] * dt;
       this.pos1[1] += this.vel1[1] * dt;
@@ -209,7 +222,12 @@ export class Collision2DModule
         }
       }
     } else {
-      // Post-collision free motion
+      // Post-collision free motion — freeze after 2 s so balls stay visible
+      this.postCollisionTime += dt;
+      if (this.postCollisionTime >= 0.8) {
+        this.frozen = true;
+        return;
+      }
       this.pos1[0] += this.vel1[0] * dt;
       this.pos1[1] += this.vel1[1] * dt;
       this.pos2[0] += this.vel2[0] * dt;
@@ -324,6 +342,12 @@ export class Collision2DModule
   }
 
   babylonSetup(scene: Scene): void {
+    const camera = scene.activeCamera as ArcRotateCamera | null;
+    if (camera) {
+      camera.target = new Vector3(0, 0, 0);
+      camera.radius = 24;
+      camera.beta = Math.PI * 0.35;
+    }
     this.meshes = setupCollisionScene(scene);
     updateCollisionScene(this.getState(), this.meshes);
   }

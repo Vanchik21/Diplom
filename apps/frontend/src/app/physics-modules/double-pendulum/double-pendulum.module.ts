@@ -1,7 +1,7 @@
 // Physics: Lagrangian equations of motion for a double pendulum.
 // Numerical integration: RK4 with fixed sub-step dt=0.002 s.
 
-import type { Scene } from '@babylonjs/core';
+import { type Scene, ArcRotateCamera, Vector3 } from '@babylonjs/core';
 import type { Metrics, ModuleMetadata, PhysicsModule, PredictionTarget } from '@physis/sdk';
 import type { BabylonRenderable } from '../../rendering/babylon/babylon-renderable';
 import {
@@ -303,6 +303,12 @@ export class DoublePendulumModule
   }
 
   babylonSetup(scene: Scene): void {
+    const camera = scene.activeCamera as ArcRotateCamera | null;
+    if (camera) {
+      camera.target = new Vector3(0, 0, 0);
+      camera.radius = 7;
+      camera.beta = Math.PI * 0.38;
+    }
     this.meshes = setupDoublePendulumScene(scene);
     updateDoublePendulumScene(this.getState(), this.meshes);
   }
