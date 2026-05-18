@@ -53,7 +53,8 @@
       "em": "Electromagnetism",
       "waves": "Waves",
       "thermo": "Thermodynamics",
-      "gravity": "Gravity"
+      "gravity": "Gravity",
+      "quantum": "Quantum Physics"
     }
   },
   "sim": {

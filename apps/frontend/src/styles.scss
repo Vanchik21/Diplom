@@ -5,6 +5,7 @@
 }
 
 :root {
+  /* Dark theme (default) */
   --color-bg: #0f1117;
   --color-surface: #1a1d27;
   --color-surface-raised: #232637;
@@ -16,6 +17,10 @@
   --color-error: #f87171;
   --color-success: #4ade80;
 
+  /* Shadows */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.5);
+
   --sidebar-width: 240px;
   --topbar-height: 56px;
   --bottom-panel-height: 220px;
@@ -24,6 +29,23 @@
   font-size: 14px;
   color: var(--color-text);
   background: var(--color-bg);
+}
+
+/* Light theme */
+html.light {
+  --color-bg: #f0f2f9;
+  --color-surface: #ffffff;
+  --color-surface-raised: #e8ebf5;
+  --color-border: #cdd1e8;
+  --color-primary: #4a5cf5;
+  --color-primary-hover: #3a4be0;
+  --color-text: #1a1d2e;
+  --color-text-muted: #545878;
+  --color-error: #dc2626;
+  --color-success: #15803d;
+
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.12);
 }
 
 html, body {

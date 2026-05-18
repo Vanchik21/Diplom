@@ -24,7 +24,7 @@ export class ModulesBrowserComponent {
   protected readonly difficultyFilter = signal<DifficultyFilter>('all');
 
   protected readonly categories: CategoryFilter[] = [
-    'all', 'mechanics', 'em', 'waves', 'thermo', 'gravity',
+    'all', 'mechanics', 'em', 'waves', 'thermo', 'gravity', 'quantum',
   ];
 
   protected readonly filteredEntries = computed<RegistryEntry[]>(() => {

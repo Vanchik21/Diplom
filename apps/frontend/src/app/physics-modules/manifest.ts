@@ -10,6 +10,7 @@ import { WaveInterferenceModule } from './wave-interference/wave-interference.mo
 import { IdealGasModule } from './ideal-gas/ideal-gas.module';
 import { GasDiffusionModule } from './gas-diffusion/gas-diffusion.module';
 import { ThreeBodyModule } from './three-body/three-body.module';
+import { BuildAtomModule } from './build-atom/build-atom.module';
 
 export type ModuleFactory = new () => PhysicsModule;
 
@@ -25,4 +26,5 @@ export const MODULES: readonly ModuleFactory[] = [
   GasDiffusionModule,
   PlanetOrbitModule,
   ThreeBodyModule,
+  BuildAtomModule,
 ];
