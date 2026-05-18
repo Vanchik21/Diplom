@@ -53,6 +53,7 @@ builder.Services.AddControllers();
 builder.Services.AddScoped<TokenService>();
 builder.Services.AddScoped<ScenarioService>();
 builder.Services.AddScoped<ProfileService>();
+builder.Services.AddScoped<ClassroomService>();
 
 if (!builder.Environment.IsDevelopment())
 {

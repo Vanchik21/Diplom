@@ -7,7 +7,8 @@
     "login": "Log in",
     "register": "Sign up",
     "logout": "Log out",
-    "admin": "Admin"
+    "admin": "Admin",
+    "myClasses": "My Classes"
   },
   "home": {
     "title": "Physis™ — Physics Simulations",
@@ -212,6 +213,43 @@
       "next": "Next",
       "of": "of"
     }
+  },
+  "cls": {
+    "myClasses": "My Classes",
+    "createTitle": "Create Class",
+    "name": "Class name",
+    "namePlaceholder": "e.g. Physics 10-A",
+    "description": "Description",
+    "descriptionPlaceholder": "Optional",
+    "create": "Create",
+    "createError": "Could not create class. Please try again.",
+    "joinTitle": "Join a Class",
+    "joinHint": "Enter the invite code provided by your teacher.",
+    "inviteCode": "Invite code",
+    "inviteCodePlaceholder": "e.g. ABC12345",
+    "join": "Join",
+    "joinError": "Invalid code or class not found.",
+    "createClass": "Create class",
+    "joinByCode": "Join by code",
+    "teaching": "I teach",
+    "studying": "I study",
+    "noTeaching": "You have not created any classes yet.",
+    "noStudying": "You have not joined any classes yet.",
+    "members": "Members",
+    "teacher": "Teacher",
+    "roleTeacher": "Teacher",
+    "roleStudent": "Student",
+    "archived": "Archived",
+    "notFound": "Class not found.",
+    "createdAt": "Created",
+    "inviteCodeLabel": "Invite code",
+    "copyCode": "Copy",
+    "rotateCode": "Regenerate code",
+    "students": "Students",
+    "noStudents": "No students yet.",
+    "remove": "Remove",
+    "assignments": "Assignments",
+    "assignmentsComing": "Assignments will be available in a future version."
   },
   "common": {
     "all": "All",

@@ -1,0 +1,45 @@
+<div class="dialog-backdrop" (click)="cancel()"></div>
+
+<div class="dialog" (click)="$event.stopPropagation()">
+  <h2 class="dialog__title">{{ 'cls.createTitle' | translate }}</h2>
+
+  <div class="form-field">
+    <label>{{ 'cls.name' | translate }}</label>
+    <input
+      type="text"
+      [placeholder]="'cls.namePlaceholder' | translate"
+      [value]="name()"
+      (input)="name.set($any($event.target).value)"
+      maxlength="100"
+      autofocus
+    />
+  </div>
+
+  <div class="form-field">
+    <label>{{ 'cls.description' | translate }}</label>
+    <textarea
+      [placeholder]="'cls.descriptionPlaceholder' | translate"
+      [value]="description()"
+      (input)="description.set($any($event.target).value)"
+      rows="3"
+      maxlength="500"
+    ></textarea>
+  </div>
+
+  @if (error()) {
+    <p class="error-message">{{ error() | translate }}</p>
+  }
+
+  <div class="dialog__actions">
+    <button class="btn btn--ghost" (click)="cancel()" [disabled]="saving()">
+      {{ 'common.cancel' | translate }}
+    </button>
+    <button
+      class="btn btn--primary"
+      (click)="submit()"
+      [disabled]="!name().trim() || saving()"
+    >
+      {{ saving() ? ('common.loading' | translate) : ('cls.create' | translate) }}
+    </button>
+  </div>
+</div>

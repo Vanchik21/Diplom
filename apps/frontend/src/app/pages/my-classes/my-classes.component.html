@@ -1,0 +1,79 @@
+<div class="my-classes">
+  <header class="my-classes__header">
+    <h1 class="my-classes__title">{{ 'cls.myClasses' | translate }}</h1>
+    <div class="my-classes__actions">
+      <button class="btn btn--ghost" (click)="showJoin.set(true)">
+        + {{ 'cls.joinByCode' | translate }}
+      </button>
+      <button class="btn btn--primary" (click)="showCreate.set(true)">
+        + {{ 'cls.createClass' | translate }}
+      </button>
+    </div>
+  </header>
+
+  @if (loading()) {
+    <p class="my-classes__state">{{ 'common.loading' | translate }}</p>
+  } @else {
+
+    <section class="my-classes__section">
+      <h2 class="my-classes__section-title">{{ 'cls.teaching' | translate }}</h2>
+      @if (teaching().length === 0) {
+        <p class="my-classes__empty">{{ 'cls.noTeaching' | translate }}</p>
+      } @else {
+        <div class="class-grid">
+          @for (cls of teaching(); track cls.id) {
+            <a class="class-card" [routerLink]="['/classes', cls.id]">
+              <div class="class-card__name">{{ cls.name }}</div>
+              @if (cls.description) {
+                <div class="class-card__desc">{{ cls.description }}</div>
+              }
+              <div class="class-card__meta">
+                <span class="class-card__badge class-card__badge--teacher">{{ 'cls.roleTeacher' | translate }}</span>
+                <span>{{ cls.memberCount }} {{ 'cls.members' | translate }}</span>
+                @if (cls.isArchived) {
+                  <span class="class-card__badge class-card__badge--archived">{{ 'cls.archived' | translate }}</span>
+                }
+              </div>
+            </a>
+          }
+        </div>
+      }
+    </section>
+
+    <section class="my-classes__section">
+      <h2 class="my-classes__section-title">{{ 'cls.studying' | translate }}</h2>
+      @if (studying().length === 0) {
+        <p class="my-classes__empty">{{ 'cls.noStudying' | translate }}</p>
+      } @else {
+        <div class="class-grid">
+          @for (cls of studying(); track cls.id) {
+            <a class="class-card" [routerLink]="['/classes', cls.id]">
+              <div class="class-card__name">{{ cls.name }}</div>
+              @if (cls.description) {
+                <div class="class-card__desc">{{ cls.description }}</div>
+              }
+              <div class="class-card__meta">
+                <span class="class-card__badge class-card__badge--student">{{ 'cls.roleStudent' | translate }}</span>
+                <span>{{ 'cls.teacher' | translate }}: {{ cls.ownerName }}</span>
+              </div>
+            </a>
+          }
+        </div>
+      }
+    </section>
+  }
+</div>
+
+@if (showCreate()) {
+  <app-create-classroom-dialog
+    (created)="onCreated($event)"
+    (cancelled)="showCreate.set(false)"
+  />
+}
+
+@if (showJoin()) {
+  <app-join-classroom-dialog
+    (joined)="onJoined($event)"
+    (cancelled)="showJoin.set(false)"
+  />
+}

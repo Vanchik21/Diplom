@@ -40,6 +40,20 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'classes',
+        canActivate: [authGuard],
+        loadComponent: () =>
+          import('./pages/my-classes/my-classes.component').then(m => m.MyClassesComponent),
+      },
+      {
+        path: 'classes/:classroomId',
+        canActivate: [authGuard],
+        loadComponent: () =>
+          import('./pages/classroom-detail/classroom-detail.component').then(
+            m => m.ClassroomDetailComponent,
+          ),
+      },
+      {
         path: 'admin',
         canActivate: [adminGuard],
         loadComponent: () =>

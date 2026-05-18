@@ -1,0 +1,80 @@
+@if (loading()) {
+  <div class="cls-detail cls-detail--loading">
+    <p>{{ 'common.loading' | translate }}</p>
+  </div>
+} @else if (!classroom()) {
+  <div class="cls-detail cls-detail--loading">
+    <p>{{ 'cls.notFound' | translate }}</p>
+  </div>
+} @else {
+  <div class="cls-detail">
+    <header class="cls-detail__header">
+      <div>
+        <h1 class="cls-detail__title">{{ classroom()!.name }}</h1>
+        @if (classroom()!.description) {
+          <p class="cls-detail__desc">{{ classroom()!.description }}</p>
+        }
+        <p class="cls-detail__meta">
+          {{ 'cls.teacher' | translate }}: {{ classroom()!.ownerName }}
+          · {{ 'cls.createdAt' | translate }}: {{ formatDate(classroom()!.createdAt) }}
+        </p>
+      </div>
+
+      @if (classroom()!.isArchived) {
+        <span class="cls-detail__badge cls-detail__badge--archived">{{ 'cls.archived' | translate }}</span>
+      }
+    </header>
+
+    @if (isTeacher()) {
+      <section class="cls-detail__invite">
+        <h2 class="cls-detail__section-title">{{ 'cls.inviteCode' | translate }}</h2>
+        <div class="invite-row">
+          <span class="invite-code">{{ classroom()!.inviteCode }}</span>
+          <button class="btn btn--ghost" (click)="copyCode()">
+            {{ codeCopied() ? ('sim.shareCopied' | translate) : ('cls.copyCode' | translate) }}
+          </button>
+          <button class="btn btn--ghost btn--sm" (click)="rotateCode()" [disabled]="rotating()">
+            {{ rotating() ? ('common.loading' | translate) : ('cls.rotateCode' | translate) }}
+          </button>
+        </div>
+      </section>
+    }
+
+    <section class="cls-detail__members">
+      <h2 class="cls-detail__section-title">
+        {{ 'cls.students' | translate }} ({{ students().length }})
+      </h2>
+
+      @if (students().length === 0) {
+        <p class="cls-detail__empty">{{ 'cls.noStudents' | translate }}</p>
+      } @else {
+        <div class="member-list">
+          @for (member of students(); track member.userId) {
+            <div class="member-row">
+              <span class="member-row__name">
+                {{ member.displayName || member.userName }}
+              </span>
+              <span class="member-row__username">&#64;{{ member.userName }}</span>
+              <span class="member-row__date">{{ formatDate(member.joinedAt) }}</span>
+
+              @if (isTeacher()) {
+                <button
+                  class="btn btn--ghost btn--sm member-row__remove"
+                  (click)="removeMember(member)"
+                  [disabled]="removingId() === member.userId"
+                >
+                  {{ 'cls.remove' | translate }}
+                </button>
+              }
+            </div>
+          }
+        </div>
+      }
+    </section>
+
+    <section class="cls-detail__placeholder">
+      <h2 class="cls-detail__section-title">{{ 'cls.assignments' | translate }}</h2>
+      <p class="cls-detail__empty cls-detail__empty--coming">{{ 'cls.assignmentsComing' | translate }}</p>
+    </section>
+  </div>
+}

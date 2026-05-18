@@ -1,0 +1,132 @@
+.cls-detail {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  overflow-y: auto;
+  height: 100%;
+  box-sizing: border-box;
+
+  &--loading {
+    align-items: center;
+    justify-content: center;
+    color: var(--color-text-muted);
+  }
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  &__title {
+    font-size: 1.5rem;
+    font-weight: 700;
+  }
+
+  &__desc {
+    font-size: 0.875rem;
+    color: var(--color-text-muted);
+    margin-top: 0.25rem;
+  }
+
+  &__meta {
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+    margin-top: 0.4rem;
+  }
+
+  &__badge {
+    padding: 0.25rem 0.65rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    white-space: nowrap;
+
+    &--archived {
+      background: var(--color-surface-raised);
+      color: var(--color-text-muted);
+    }
+  }
+
+  &__section-title {
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-text-muted);
+    margin-bottom: 0.75rem;
+  }
+
+  &__invite,
+  &__members,
+  &__placeholder {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+    padding: 1.25rem;
+  }
+
+  &__empty {
+    font-size: 0.875rem;
+    color: var(--color-text-muted);
+
+    &--coming {
+      font-style: italic;
+    }
+  }
+}
+
+.invite-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.invite-code {
+  font-size: 1.6rem;
+  font-weight: 700;
+  letter-spacing: 0.25em;
+  font-family: monospace;
+  color: var(--color-primary);
+  padding: 0.4rem 0.8rem;
+  background: var(--color-surface-raised);
+  border-radius: 6px;
+}
+
+.member-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.member-row {
+  display: grid;
+  grid-template-columns: 1fr 140px 120px auto;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.55rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  transition: background 0.1s;
+
+  &:hover { background: var(--color-surface-raised); }
+
+  &__name { font-weight: 500; }
+
+  &__username,
+  &__date {
+    color: var(--color-text-muted);
+    font-size: 0.78rem;
+  }
+
+  &__remove {
+    color: var(--color-error);
+    opacity: 0.7;
+    &:hover { opacity: 1; }
+  }
+}

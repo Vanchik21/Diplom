@@ -7,7 +7,8 @@
     "login": "Увійти",
     "register": "Реєстрація",
     "logout": "Вийти",
-    "admin": "Адмін"
+    "admin": "Адмін",
+    "myClasses": "Мої класи"
   },
   "home": {
     "title": "Physis™ — Симуляції фізики",
@@ -212,6 +213,43 @@
       "next": "Вперед",
       "of": "з"
     }
+  },
+  "cls": {
+    "myClasses": "Мої класи",
+    "createTitle": "Створити клас",
+    "name": "Назва класу",
+    "namePlaceholder": "Наприклад: Фізика 10-А",
+    "description": "Опис",
+    "descriptionPlaceholder": "Необов'язково",
+    "create": "Створити",
+    "createError": "Не вдалося створити клас. Спробуйте ще раз.",
+    "joinTitle": "Приєднатися до класу",
+    "joinHint": "Введіть код запрошення, який надав вчитель.",
+    "inviteCode": "Код запрошення",
+    "inviteCodePlaceholder": "Наприклад: ABC12345",
+    "join": "Приєднатися",
+    "joinError": "Невірний код або клас не знайдено.",
+    "createClass": "Створити клас",
+    "joinByCode": "Приєднатися за кодом",
+    "teaching": "Я викладаю",
+    "studying": "Я навчаюсь",
+    "noTeaching": "Ви ще не створили жодного класу.",
+    "noStudying": "Ви ще не приєднались до жодного класу.",
+    "members": "Учасники",
+    "teacher": "Вчитель",
+    "roleTeacher": "Вчитель",
+    "roleStudent": "Студент",
+    "archived": "Архів",
+    "notFound": "Клас не знайдено.",
+    "createdAt": "Створено",
+    "inviteCodeLabel": "Код запрошення",
+    "copyCode": "Скопіювати",
+    "rotateCode": "Оновити код",
+    "students": "Студенти",
+    "noStudents": "Студентів ще немає.",
+    "remove": "Видалити",
+    "assignments": "Завдання",
+    "assignmentsComing": "Завдання з'являться у наступних версіях."
   },
   "common": {
     "all": "Усі",

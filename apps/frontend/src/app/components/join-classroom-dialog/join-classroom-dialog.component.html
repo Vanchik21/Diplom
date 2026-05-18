@@ -1,0 +1,36 @@
+<div class="dialog-backdrop" (click)="cancel()"></div>
+
+<div class="dialog" (click)="$event.stopPropagation()">
+  <h2 class="dialog__title">{{ 'cls.joinTitle' | translate }}</h2>
+  <p class="dialog__hint">{{ 'cls.joinHint' | translate }}</p>
+
+  <div class="form-field">
+    <label>{{ 'cls.inviteCode' | translate }}</label>
+    <input
+      type="text"
+      [placeholder]="'cls.inviteCodePlaceholder' | translate"
+      [value]="code()"
+      (input)="code.set($any($event.target).value)"
+      maxlength="8"
+      style="text-transform: uppercase; letter-spacing: 0.2em; font-size: 1.1rem;"
+      autofocus
+    />
+  </div>
+
+  @if (error()) {
+    <p class="error-message">{{ error() | translate }}</p>
+  }
+
+  <div class="dialog__actions">
+    <button class="btn btn--ghost" (click)="cancel()" [disabled]="saving()">
+      {{ 'common.cancel' | translate }}
+    </button>
+    <button
+      class="btn btn--primary"
+      (click)="submit()"
+      [disabled]="code().trim().length !== 8 || saving()"
+    >
+      {{ saving() ? ('common.loading' | translate) : ('cls.join' | translate) }}
+    </button>
+  </div>
+</div>
