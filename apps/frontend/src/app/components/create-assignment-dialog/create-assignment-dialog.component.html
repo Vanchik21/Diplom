@@ -1,0 +1,97 @@
+<div class="dialog-backdrop" (click)="cancelled.emit()"></div>
+<div class="dialog">
+  <h2 class="dialog__title">{{ 'asgn.createTitle' | translate }}</h2>
+
+  <div class="dialog__field">
+    <label class="dialog__label">{{ 'asgn.module' | translate }}</label>
+    <select class="dialog__input" [ngModel]="moduleId()" (ngModelChange)="moduleId.set($event)">
+      @for (m of modules(); track m.meta.id) {
+        <option [value]="m.meta.id">{{ m.meta.name.uk }}</option>
+      }
+    </select>
+  </div>
+
+  <div class="dialog__field">
+    <label class="dialog__label">{{ 'asgn.title' | translate }}</label>
+    <input
+      class="dialog__input"
+      type="text"
+      [ngModel]="title()"
+      (ngModelChange)="title.set($event)"
+      [placeholder]="'asgn.titlePlaceholder' | translate"
+      maxlength="200"
+    />
+  </div>
+
+  <div class="dialog__field">
+    <label class="dialog__label">{{ 'asgn.description' | translate }}</label>
+    <textarea
+      class="dialog__input dialog__input--textarea"
+      [ngModel]="description()"
+      (ngModelChange)="description.set($event)"
+      [placeholder]="'asgn.descriptionPlaceholder' | translate"
+      maxlength="1000"
+      rows="3"
+    ></textarea>
+  </div>
+
+  <div class="dialog__field">
+    <label class="dialog__label">{{ 'asgn.dueAt' | translate }}</label>
+    <input
+      class="dialog__input"
+      type="datetime-local"
+      [ngModel]="dueAt()"
+      (ngModelChange)="dueAt.set($event)"
+    />
+  </div>
+
+  <div class="dialog__metrics">
+    <div class="dialog__metrics-header">
+      <span class="dialog__label">{{ 'asgn.expectedMetrics' | translate }}</span>
+      <button class="btn btn--ghost btn--sm" type="button" (click)="addMetric()">
+        + {{ 'asgn.addMetric' | translate }}
+      </button>
+    </div>
+
+    @for (metric of metrics(); track $index) {
+      <div class="metric-row">
+        <input
+          class="dialog__input metric-row__key"
+          type="text"
+          [ngModel]="metric.key"
+          (ngModelChange)="updateMetricKey($index, $event)"
+          [placeholder]="'asgn.metricKey' | translate"
+        />
+        <input
+          class="dialog__input metric-row__val"
+          type="number"
+          [ngModel]="metric.value"
+          (ngModelChange)="updateMetricValue($index, +$event)"
+          [placeholder]="'asgn.metricValue' | translate"
+        />
+        <button class="btn btn--ghost btn--sm metric-row__remove" type="button" (click)="removeMetric($index)">✕</button>
+      </div>
+    }
+    @if (metrics().length === 0) {
+      <p class="dialog__hint">{{ 'asgn.metricsHint' | translate }}</p>
+    }
+  </div>
+
+  @if (error()) {
+    <p class="dialog__error">{{ error() | translate }}</p>
+  }
+
+  <div class="dialog__actions">
+    <button class="btn btn--ghost" type="button" (click)="cancelled.emit()">
+      {{ 'common.cancel' | translate }}
+    </button>
+    <button
+      class="btn btn--primary"
+      type="button"
+      [disabled]="saving() || !title().trim()"
+      (click)="submit()"
+    >
+      {{ saving() ? ('common.loading' | translate) : ('asgn.create' | translate) }}
+    </button>
+  </div>
+</div>

@@ -1,0 +1,148 @@
+<div class="analytics">
+  <h1 class="analytics__title">{{ 'analytics.title' | translate }}</h1>
+
+  <div class="analytics__tabs">
+    <button
+      class="tab-btn"
+      [class.tab-btn--active]="mode() === 'personal'"
+      (click)="mode.set('personal')"
+    >
+      {{ 'analytics.personal' | translate }}
+    </button>
+
+    @if (isTeacher()) {
+      <button
+        class="tab-btn"
+        [class.tab-btn--active]="mode() === 'classrooms'"
+        (click)="mode.set('classrooms')"
+      >
+        {{ 'analytics.classrooms' | translate }}
+      </button>
+    }
+  </div>
+
+  @if (mode() === 'personal') {
+    <section class="analytics__section">
+      <h2 class="analytics__section-title">{{ 'analytics.masteryTitle' | translate }}</h2>
+
+      @if (!personalData()) {
+        <p class="analytics__loading">{{ 'common.loading' | translate }}</p>
+      } @else {
+        <div class="heatmap">
+          @for (cat of categories; track cat.key) {
+            <div
+              class="heatmap__cell"
+              [style.background-color]="masteryColor(personalData()?.categoryMastery?.[cat.key])"
+            >
+              <span class="heatmap__cat">{{ cat.labelKey | translate }}</span>
+              <span class="heatmap__val">
+                {{ masteryLabel(personalData()?.categoryMastery?.[cat.key]) }}
+              </span>
+            </div>
+          }
+        </div>
+        <p class="analytics__hint">{{ 'analytics.masteryHint' | translate }}</p>
+      }
+    </section>
+  }
+
+  @if (mode() === 'classrooms') {
+    <section class="analytics__section">
+      <div class="cls-pills">
+        @for (cls of teacherClassrooms(); track cls.id) {
+          <button
+            class="cls-pill"
+            [class.cls-pill--active]="selectedClassroomId() === cls.id"
+            (click)="selectClassroom(cls.id)"
+          >
+            {{ cls.name }}
+          </button>
+        }
+      </div>
+
+      @if (!selectedClassroomId()) {
+        <p class="analytics__hint">{{ 'analytics.selectClassroom' | translate }}</p>
+      }
+
+      @if (overviewLoading()) {
+        <p class="analytics__loading">{{ 'common.loading' | translate }}</p>
+      }
+
+      @if (overviewData(); as overview) {
+        <div class="overview">
+          @if (overview.assignments.length > 0) {
+            <h3 class="overview__subtitle">{{ 'analytics.avgScoreChart' | translate }}</h3>
+            <div class="chart-wrap">
+              <canvas #scoreBarCanvas></canvas>
+            </div>
+          } @else {
+            <p class="analytics__hint">{{ 'analytics.noAssignments' | translate }}</p>
+          }
+
+          <h3 class="overview__subtitle">{{ 'analytics.studentsTable' | translate }}</h3>
+
+          @if (overview.students.length === 0) {
+            <p class="analytics__hint">{{ 'analytics.noStudents' | translate }}</p>
+          } @else {
+            <table class="students-table">
+              <thead>
+                <tr>
+                  <th>{{ 'analytics.colStudent' | translate }}</th>
+                  <th>{{ 'analytics.colSubmissions' | translate }}</th>
+                  <th>{{ 'analytics.colAvgScore' | translate }}</th>
+                  <th>{{ 'analytics.colPassRate' | translate }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (s of overview.students; track s.userId) {
+                  <tr
+                    class="students-table__row"
+                    [class.students-table__row--selected]="selectedStudentId() === s.userId"
+                    (click)="selectStudent(s.userId)"
+                  >
+                    <td>{{ s.studentName }}</td>
+                    <td>{{ s.submissionCount }}</td>
+                    <td>{{ s.averageScore * 100 | number: '1.0-0' }}%</td>
+                    <td>{{ s.passRate * 100 | number: '1.0-0' }}%</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          }
+        </div>
+
+        @if (studentLoading()) {
+          <p class="analytics__loading">{{ 'common.loading' | translate }}</p>
+        }
+
+        @if (studentTimeline(); as timeline) {
+          <div class="student-detail">
+            <h3 class="overview__subtitle">{{ timeline.studentName }}</h3>
+
+            @if (timeline.scoreOverTime.length > 0) {
+              <div class="chart-wrap">
+                <canvas #studentLineCanvas></canvas>
+              </div>
+            } @else {
+              <p class="analytics__hint">{{ 'analytics.noSubmissions' | translate }}</p>
+            }
+
+            <div class="heatmap heatmap--sm">
+              @for (cat of categories; track cat.key) {
+                <div
+                  class="heatmap__cell"
+                  [style.background-color]="masteryColor(timeline.categoryMastery[cat.key])"
+                >
+                  <span class="heatmap__cat">{{ cat.labelKey | translate }}</span>
+                  <span class="heatmap__val">
+                    {{ masteryLabel(timeline.categoryMastery[cat.key]) }}
+                  </span>
+                </div>
+              }
+            </div>
+          </div>
+        }
+      }
+    </section>
+  }
+</div>

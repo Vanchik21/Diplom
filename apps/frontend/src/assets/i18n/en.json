@@ -8,7 +8,8 @@
     "register": "Sign up",
     "logout": "Log out",
     "admin": "Admin",
-    "myClasses": "My Classes"
+    "myClasses": "My Classes",
+    "analytics": "Analytics"
   },
   "home": {
     "title": "Physis™ — Physics Simulations",
@@ -250,6 +251,31 @@
     "remove": "Remove",
     "assignments": "Assignments",
     "assignmentsComing": "Assignments will be available in a future version."
+  },
+  "analytics": {
+    "title": "Analytics",
+    "personal": "My Progress",
+    "classrooms": "Classrooms",
+    "masteryTitle": "Mastery by Category",
+    "masteryHint": "Calculated from the relative prediction error across all your submissions.",
+    "selectClassroom": "Select a classroom above.",
+    "avgScoreChart": "Average Score per Assignment",
+    "studentsTable": "Students",
+    "noAssignments": "No assignments yet.",
+    "noStudents": "No students yet.",
+    "noSubmissions": "This student has not submitted any assignments in this class.",
+    "colStudent": "Student",
+    "colSubmissions": "Submissions",
+    "colAvgScore": "Avg. Score",
+    "colPassRate": "Pass Rate",
+    "cat": {
+      "mechanics": "Mechanics",
+      "em": "Electromagnetism",
+      "waves": "Waves",
+      "thermo": "Thermodynamics",
+      "gravity": "Gravity",
+      "quantum": "Quantum Physics"
+    }
   },
   "common": {
     "all": "All",

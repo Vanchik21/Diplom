@@ -8,7 +8,8 @@
     "register": "Реєстрація",
     "logout": "Вийти",
     "admin": "Адмін",
-    "myClasses": "Мої класи"
+    "myClasses": "Мої класи",
+    "analytics": "Аналітика"
   },
   "home": {
     "title": "Physis™ — Симуляції фізики",
@@ -250,6 +251,31 @@
     "remove": "Видалити",
     "assignments": "Завдання",
     "assignmentsComing": "Завдання з'являться у наступних версіях."
+  },
+  "analytics": {
+    "title": "Аналітика",
+    "personal": "Мої досягнення",
+    "classrooms": "Класи",
+    "masteryTitle": "Рівень майстерності за категоріями",
+    "masteryHint": "Показник розраховується на основі відносної похибки ваших передбачень у всіх здачах.",
+    "selectClassroom": "Оберіть клас зі списку вище.",
+    "avgScoreChart": "Середній бал за завданнями",
+    "studentsTable": "Студенти",
+    "noAssignments": "Завдань ще немає.",
+    "noStudents": "Студентів ще немає.",
+    "noSubmissions": "Студент ще не здавав завдань у цьому класі.",
+    "colStudent": "Студент",
+    "colSubmissions": "Здач",
+    "colAvgScore": "Середній бал",
+    "colPassRate": "% виконання",
+    "cat": {
+      "mechanics": "Механіка",
+      "em": "Електромагнетизм",
+      "waves": "Хвилі",
+      "thermo": "Термодинаміка",
+      "gravity": "Гравітація",
+      "quantum": "Квантова фізика"
+    }
   },
   "common": {
     "all": "Усі",

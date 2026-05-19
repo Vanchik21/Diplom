@@ -48,6 +48,17 @@
 
       <a
         class="sidebar__item"
+        routerLink="/analytics"
+        routerLinkActive="sidebar__item--active"
+      >
+        <span class="sidebar__icon">📊</span>
+        @if (!layout.sidebarCollapsed()) {
+          <span>{{ 'nav.analytics' | translate }}</span>
+        }
+      </a>
+
+      <a
+        class="sidebar__item"
         routerLink="/profile"
         routerLinkActive="sidebar__item--active"
       >

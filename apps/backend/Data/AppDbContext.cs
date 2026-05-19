@@ -10,6 +10,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
     public DbSet<SavedScenario>        SavedScenarios        => Set<SavedScenario>();
     public DbSet<Classroom>            Classrooms            => Set<Classroom>();
     public DbSet<ClassroomMembership>  ClassroomMemberships  => Set<ClassroomMembership>();
+    public DbSet<Assignment>           Assignments           => Set<Assignment>();
+    public DbSet<Submission>           Submissions           => Set<Submission>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -65,6 +67,43 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
             e.HasOne(m => m.User)
              .WithMany()
              .HasForeignKey(m => m.UserId)
+             .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        builder.Entity<Assignment>(e =>
+        {
+            e.HasKey(a => a.Id);
+            e.Property(a => a.Id).ValueGeneratedOnAdd();
+            e.Property(a => a.ModuleId).HasMaxLength(50).IsRequired();
+            e.Property(a => a.Title).HasMaxLength(200).IsRequired();
+            e.Property(a => a.Description).HasMaxLength(1000);
+            e.Property(a => a.ExpectedMetrics).HasColumnType("text").HasDefaultValue("{}");
+            e.Property(a => a.CreatedAt).HasDefaultValueSql("now()");
+            e.HasOne(a => a.Classroom)
+             .WithMany()
+             .HasForeignKey(a => a.ClassroomId)
+             .OnDelete(DeleteBehavior.Cascade);
+            e.HasOne(a => a.CreatedBy)
+             .WithMany()
+             .HasForeignKey(a => a.CreatedById)
+             .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        builder.Entity<Submission>(e =>
+        {
+            e.HasKey(s => s.Id);
+            e.Property(s => s.Id).ValueGeneratedOnAdd();
+            e.Property(s => s.ObservedMetrics).HasColumnType("text").HasDefaultValue("{}");
+            e.Property(s => s.GradingRows).HasColumnType("text").HasDefaultValue("[]");
+            e.Property(s => s.SubmittedAt).HasDefaultValueSql("now()");
+            e.HasIndex(s => new { s.AssignmentId, s.StudentId }).IsUnique();
+            e.HasOne(s => s.Assignment)
+             .WithMany(a => a.Submissions)
+             .HasForeignKey(s => s.AssignmentId)
+             .OnDelete(DeleteBehavior.Cascade);
+            e.HasOne(s => s.Student)
+             .WithMany()
+             .HasForeignKey(s => s.StudentId)
              .OnDelete(DeleteBehavior.Cascade);
         });
     }

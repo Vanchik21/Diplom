@@ -54,6 +54,12 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'analytics',
+        canActivate: [authGuard],
+        loadComponent: () =>
+          import('./pages/analytics/analytics.component').then(m => m.AnalyticsComponent),
+      },
+      {
         path: 'admin',
         canActivate: [adminGuard],
         loadComponent: () =>

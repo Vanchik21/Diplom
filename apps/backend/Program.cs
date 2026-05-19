@@ -54,6 +54,8 @@ builder.Services.AddScoped<TokenService>();
 builder.Services.AddScoped<ScenarioService>();
 builder.Services.AddScoped<ProfileService>();
 builder.Services.AddScoped<ClassroomService>();
+builder.Services.AddScoped<AssignmentService>();
+builder.Services.AddScoped<AnalyticsService>();
 
 if (!builder.Environment.IsDevelopment())
 {
