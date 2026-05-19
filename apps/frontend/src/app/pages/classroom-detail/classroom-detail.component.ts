@@ -7,28 +7,39 @@ import {
   input,
   signal,
 } from '@angular/core';
+import { DecimalPipe } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { ClassroomsService } from '../../core/classrooms/classrooms.service';
 import type { ClassroomDetailDto, ClassroomMemberDto } from '../../core/classrooms/classroom.models';
+import { AssignmentsService } from '../../core/assignments/assignments.service';
+import type { AssignmentSummaryDto } from '../../core/assignments/assignment.models';
+import { CreateAssignmentDialogComponent } from '../../components/create-assignment-dialog/create-assignment-dialog.component';
 
 @Component({
   selector: 'app-classroom-detail',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [TranslateModule],
+  imports: [TranslateModule, RouterLink, DecimalPipe, CreateAssignmentDialogComponent],
   templateUrl: './classroom-detail.component.html',
   styleUrl: './classroom-detail.component.scss',
 })
 export class ClassroomDetailComponent implements OnInit {
   readonly classroomId = input.required<string>();
 
-  private readonly service = inject(ClassroomsService);
+  private readonly service            = inject(ClassroomsService);
+  protected readonly assignmentsService = inject(AssignmentsService);
 
   protected readonly classroom   = signal<ClassroomDetailDto | null>(null);
   protected readonly loading     = signal(true);
   protected readonly codeCopied  = signal(false);
   protected readonly rotating    = signal(false);
   protected readonly removingId  = signal<string | null>(null);
+
+  protected readonly tab                 = signal<'members' | 'assignments'>('members');
+  protected readonly assignments         = signal<AssignmentSummaryDto[]>([]);
+  protected readonly assignmentsLoading  = signal(false);
+  protected readonly showCreateDialog    = signal(false);
 
   protected readonly isTeacher = computed(() => this.classroom()?.myRole === 1);
   protected readonly teachers  = computed(() =>
@@ -83,6 +94,26 @@ export class ClassroomDetailComponent implements OnInit {
       },
       error: () => this.removingId.set(null),
     });
+  }
+
+  protected selectTab(t: 'members' | 'assignments'): void {
+    this.tab.set(t);
+    if (t === 'assignments' && this.assignments().length === 0 && !this.assignmentsLoading()) {
+      this.loadAssignments();
+    }
+  }
+
+  private loadAssignments(): void {
+    this.assignmentsLoading.set(true);
+    this.assignmentsService.getForClassroom(this.classroomId()).subscribe({
+      next: list => { this.assignments.set(list); this.assignmentsLoading.set(false); },
+      error: ()   => this.assignmentsLoading.set(false),
+    });
+  }
+
+  protected onAssignmentCreated(a: AssignmentSummaryDto): void {
+    this.assignments.update(list => [a, ...list]);
+    this.showCreateDialog.set(false);
   }
 
   protected formatDate(iso: string): string {

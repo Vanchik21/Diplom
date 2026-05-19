@@ -12,6 +12,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
     public DbSet<ClassroomMembership>  ClassroomMemberships  => Set<ClassroomMembership>();
     public DbSet<Assignment>           Assignments           => Set<Assignment>();
     public DbSet<Submission>           Submissions           => Set<Submission>();
+    public DbSet<SubmissionArtifact>   SubmissionArtifacts   => Set<SubmissionArtifact>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -95,6 +96,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
             e.Property(s => s.Id).ValueGeneratedOnAdd();
             e.Property(s => s.ObservedMetrics).HasColumnType("text").HasDefaultValue("{}");
             e.Property(s => s.GradingRows).HasColumnType("text").HasDefaultValue("[]");
+            e.Property(s => s.ConclusionText).HasMaxLength(2000);
             e.Property(s => s.SubmittedAt).HasDefaultValueSql("now()");
             e.HasIndex(s => new { s.AssignmentId, s.StudentId }).IsUnique();
             e.HasOne(s => s.Assignment)
@@ -105,6 +107,19 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
              .WithMany()
              .HasForeignKey(s => s.StudentId)
              .OnDelete(DeleteBehavior.Cascade);
+            e.HasOne(s => s.Artifact)
+             .WithOne(a => a.Submission)
+             .HasForeignKey<SubmissionArtifact>(a => a.SubmissionId)
+             .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        builder.Entity<SubmissionArtifact>(e =>
+        {
+            e.HasKey(a => a.Id);
+            e.Property(a => a.Id).ValueGeneratedOnAdd();
+            e.Property(a => a.Kind).HasMaxLength(50).IsRequired();
+            e.Property(a => a.ContentType).HasMaxLength(100).IsRequired();
+            e.HasIndex(a => a.SubmissionId).IsUnique();
         });
     }
 }

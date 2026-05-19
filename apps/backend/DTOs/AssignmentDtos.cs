@@ -12,7 +12,9 @@ public record AssignmentCreateDto(
 );
 
 public record SubmitAssignmentDto(
-    [Required] Dictionary<string, double> ObservedMetrics
+    [Required] Dictionary<string, double> ObservedMetrics,
+    [StringLength(2000)] string? ConclusionText,
+    string? ScreenshotBase64
 );
 
 public record ComparisonRowDto(
@@ -24,10 +26,11 @@ public record ComparisonRowDto(
 );
 
 public record SubmissionResultDto(
-    Guid Id,
+    Guid   Id,
     string StudentId,
     string StudentName,
     double Score,
+    bool   HasConclusion,
     DateTime SubmittedAt,
     List<ComparisonRowDto> GradingRows
 );

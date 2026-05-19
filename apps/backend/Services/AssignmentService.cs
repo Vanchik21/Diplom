@@ -146,11 +146,29 @@ public class AssignmentService(AppDbContext db)
             ObservedMetrics = JsonSerializer.Serialize(dto.ObservedMetrics),
             GradingRows     = JsonSerializer.Serialize(rows),
             Score           = score,
+            ConclusionText  = dto.ConclusionText?.Trim(),
             SubmittedAt     = DateTime.UtcNow,
         };
 
         db.Submissions.Add(submission);
         await db.SaveChangesAsync();
+
+        if (!string.IsNullOrWhiteSpace(dto.ScreenshotBase64))
+        {
+            try
+            {
+                var imageData = Convert.FromBase64String(dto.ScreenshotBase64);
+                db.SubmissionArtifacts.Add(new Models.SubmissionArtifact
+                {
+                    SubmissionId = submission.Id,
+                    Kind         = "screenshot",
+                    Data         = imageData,
+                    ContentType  = "image/png",
+                });
+                await db.SaveChangesAsync();
+            }
+            catch (FormatException) { }
+        }
 
         var student = await db.Users.FindAsync(userId);
         return ToResult(submission, student!);
@@ -174,6 +192,7 @@ public class AssignmentService(AppDbContext db)
             $"{student.FirstName} {student.LastName}".Trim() is { Length: > 0 } n
                 ? n : student.UserName ?? s.StudentId,
             s.Score,
+            !string.IsNullOrWhiteSpace(s.ConclusionText),
             s.SubmittedAt,
             DeserializeRows(s.GradingRows));
 

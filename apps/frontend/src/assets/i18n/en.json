@@ -252,6 +252,25 @@
     "assignments": "Assignments",
     "assignmentsComing": "Assignments will be available in a future version."
   },
+  "asgn": {
+    "create": "Create assignment",
+    "empty": "No assignments yet.",
+    "submissions": "submissions",
+    "notFound": "Assignment not found.",
+    "due": "Due",
+    "simHint": "Open the simulation in a new tab, observe the results, then come back and enter values below.",
+    "expectedMetrics": "Expected values (reference)",
+    "observedMetrics": "Enter observed values",
+    "conclusionLabel": "Conclusion",
+    "conclusionHint": "optional but recommended",
+    "conclusionPlaceholder": "Describe what you observed and why the results are what they are…",
+    "submit": "Submit",
+    "alreadySubmitted": "Already submitted.",
+    "resultTitle": "Result",
+    "expected": "Expected",
+    "downloadPdf": "Download PDF report",
+    "createError": "Failed to create assignment."
+  },
   "analytics": {
     "title": "Analytics",
     "personal": "My Progress",

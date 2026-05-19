@@ -40,41 +40,93 @@
       </section>
     }
 
-    <section class="cls-detail__members">
-      <h2 class="cls-detail__section-title">
-        {{ 'cls.students' | translate }} ({{ students().length }})
-      </h2>
+    <div class="cls-detail__tabs">
+      <button
+        class="cls-tab"
+        [class.cls-tab--active]="tab() === 'members'"
+        (click)="selectTab('members')"
+      >{{ 'cls.students' | translate }} ({{ students().length }})</button>
+      <button
+        class="cls-tab"
+        [class.cls-tab--active]="tab() === 'assignments'"
+        (click)="selectTab('assignments')"
+      >{{ 'cls.assignments' | translate }}</button>
+    </div>
 
-      @if (students().length === 0) {
-        <p class="cls-detail__empty">{{ 'cls.noStudents' | translate }}</p>
-      } @else {
-        <div class="member-list">
-          @for (member of students(); track member.userId) {
-            <div class="member-row">
-              <span class="member-row__name">
-                {{ member.displayName || member.userName }}
-              </span>
-              <span class="member-row__username">&#64;{{ member.userName }}</span>
-              <span class="member-row__date">{{ formatDate(member.joinedAt) }}</span>
+    @if (tab() === 'members') {
+      <section class="cls-detail__members">
+        @if (students().length === 0) {
+          <p class="cls-detail__empty">{{ 'cls.noStudents' | translate }}</p>
+        } @else {
+          <div class="member-list">
+            @for (member of students(); track member.userId) {
+              <div class="member-row">
+                <span class="member-row__name">{{ member.displayName || member.userName }}</span>
+                <span class="member-row__username">&#64;{{ member.userName }}</span>
+                <span class="member-row__date">{{ formatDate(member.joinedAt) }}</span>
+                @if (isTeacher()) {
+                  <button
+                    class="btn btn--ghost btn--sm member-row__remove"
+                    (click)="removeMember(member)"
+                    [disabled]="removingId() === member.userId"
+                  >{{ 'cls.remove' | translate }}</button>
+                }
+              </div>
+            }
+          </div>
+        }
+      </section>
+    }
 
-              @if (isTeacher()) {
-                <button
-                  class="btn btn--ghost btn--sm member-row__remove"
-                  (click)="removeMember(member)"
-                  [disabled]="removingId() === member.userId"
-                >
-                  {{ 'cls.remove' | translate }}
-                </button>
-              }
-            </div>
+    @if (tab() === 'assignments') {
+      <section class="cls-detail__assignments">
+        @if (isTeacher()) {
+          <button class="btn btn--primary btn--sm" (click)="showCreateDialog.set(true)">
+            + {{ 'asgn.create' | translate }}
+          </button>
+        }
+
+        @if (assignmentsLoading()) {
+          <p class="cls-detail__empty">{{ 'common.loading' | translate }}</p>
+        }
+
+        @if (!assignmentsLoading() && assignments().length === 0) {
+          <p class="cls-detail__empty">{{ 'asgn.empty' | translate }}</p>
+        }
+
+        <div class="asgn-list">
+          @for (a of assignments(); track a.id) {
+            <a class="asgn-row" routerLink="/assignments/{{ a.id }}">
+              <div class="asgn-row__main">
+                <span class="asgn-row__title">{{ a.title }}</span>
+                @if (a.dueAt) {
+                  <span class="asgn-row__due">{{ formatDate(a.dueAt) }}</span>
+                }
+              </div>
+              <div class="asgn-row__meta">
+                <span>{{ a.submissionCount }} {{ 'asgn.submissions' | translate }}</span>
+                @if (a.mySubmission) {
+                  <span class="asgn-row__score">
+                    ✓ {{ (a.mySubmission.score * 100) | number: '1.0-0' }}%
+                  </span>
+                  <button
+                    class="btn btn--ghost btn--xs"
+                    (click)="$event.preventDefault(); assignmentsService.downloadReport(a.mySubmission!.id)"
+                  >PDF</button>
+                }
+              </div>
+            </a>
           }
         </div>
-      }
-    </section>
 
-    <section class="cls-detail__placeholder">
-      <h2 class="cls-detail__section-title">{{ 'cls.assignments' | translate }}</h2>
-      <p class="cls-detail__empty cls-detail__empty--coming">{{ 'cls.assignmentsComing' | translate }}</p>
-    </section>
+        @if (showCreateDialog()) {
+          <app-create-assignment-dialog
+            [classroomId]="classroomId()"
+            (created)="onAssignmentCreated($event)"
+            (cancelled)="showCreateDialog.set(false)"
+          />
+        }
+      </section>
+    }
   </div>
 }

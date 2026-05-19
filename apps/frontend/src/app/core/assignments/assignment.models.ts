@@ -11,6 +11,7 @@ export interface SubmissionResultDto {
   studentId: string;
   studentName: string;
   score: number;
+  hasConclusion: boolean;
   submittedAt: string;
   gradingRows: ComparisonRowDto[];
 }
@@ -52,4 +53,6 @@ export interface AssignmentCreateDto {
 
 export interface SubmitAssignmentDto {
   observedMetrics: Record<string, number>;
+  conclusionText: string | null;
+  screenshotBase64: string | null;
 }

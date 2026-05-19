@@ -8,6 +8,9 @@ using Physis.Api.Endpoints;
 using Physis.Api.Models;
 using Physis.Api.Services;
 
+using QuestPDF.Infrastructure;
+QuestPDF.Settings.License = LicenseType.Community;
+
 const string AdminRole = "Admin";
 
 var builder = WebApplication.CreateBuilder(args);
@@ -56,6 +59,7 @@ builder.Services.AddScoped<ProfileService>();
 builder.Services.AddScoped<ClassroomService>();
 builder.Services.AddScoped<AssignmentService>();
 builder.Services.AddScoped<AnalyticsService>();
+builder.Services.AddScoped<LabReportService>();
 
 if (!builder.Environment.IsDevelopment())
 {

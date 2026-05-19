@@ -1,0 +1,139 @@
+@if (loading()) {
+  <div class="at-page at-page--loading">
+    <p>{{ 'common.loading' | translate }}</p>
+  </div>
+} @else if (!assignment()) {
+  <div class="at-page at-page--loading">
+    <p>{{ 'asgn.notFound' | translate }}</p>
+  </div>
+} @else {
+  <div class="at-page">
+    <header class="at-header">
+      <div class="at-header__breadcrumb">
+        <a class="at-link" routerLink="/classes/{{ assignment()!.classroomId }}">
+          ← {{ 'cls.assignments' | translate }}
+        </a>
+      </div>
+      <h1 class="at-header__title">{{ assignment()!.title }}</h1>
+      @if (assignment()!.description) {
+        <p class="at-header__desc">{{ assignment()!.description }}</p>
+      }
+      <div class="at-header__meta">
+        <span class="at-badge">{{ moduleName() }}</span>
+        @if (assignment()!.dueAt) {
+          <span class="at-badge at-badge--due">
+            {{ 'asgn.due' | translate }}: {{ assignment()!.dueAt | date: 'dd.MM.yyyy' }}
+          </span>
+        }
+      </div>
+    </header>
+
+    @if (moduleEntry()) {
+      <section class="at-section">
+        <p class="at-hint">
+          {{ 'asgn.simHint' | translate }}
+          <a class="at-link" routerLink="/sim/{{ assignment()!.moduleId }}" target="_blank">
+            {{ moduleName() }} ↗
+          </a>
+        </p>
+      </section>
+    }
+
+    @if (!alreadySubmitted() && !result()) {
+      <section class="at-section">
+        <h2 class="at-section__title">{{ 'asgn.expectedMetrics' | translate }}</h2>
+        <div class="at-metrics-ref">
+          @for (entry of assignment()!.expectedMetrics | keyvalue; track entry.key) {
+            <div class="metric-ref">
+              <span class="metric-ref__key">{{ entry.key }}</span>
+              <span class="metric-ref__val">{{ entry.value }}</span>
+            </div>
+          }
+        </div>
+
+        <h2 class="at-section__title">{{ 'asgn.observedMetrics' | translate }}</h2>
+        <form class="at-form" (ngSubmit)="submit()">
+          <div class="at-inputs">
+            @for (m of metricInputs(); track m.key) {
+              <div class="at-field">
+                <label class="at-label">{{ m.key }}</label>
+                <input
+                  class="at-input"
+                  type="number"
+                  step="any"
+                  [value]="m.value"
+                  (input)="updateMetric(m.key, $any($event.target).value)"
+                />
+              </div>
+            }
+          </div>
+
+          <div class="at-field at-field--full">
+            <label class="at-label">
+              {{ 'asgn.conclusionLabel' | translate }}
+              <span class="at-label__hint">{{ 'asgn.conclusionHint' | translate }}</span>
+            </label>
+            <textarea
+              class="at-textarea"
+              rows="5"
+              [value]="conclusionText()"
+              (input)="conclusionText.set($any($event.target).value)"
+              [placeholder]="'asgn.conclusionPlaceholder' | translate"
+            ></textarea>
+          </div>
+
+          @if (error()) {
+            <p class="at-error">{{ error() | translate }}</p>
+          }
+
+          <button
+            type="submit"
+            class="btn btn--primary"
+            [disabled]="submitting()"
+          >
+            {{ submitting() ? ('common.loading' | translate) : ('asgn.submit' | translate) }}
+          </button>
+        </form>
+      </section>
+    }
+
+    @if (result(); as r) {
+      <section class="at-result">
+        <h2 class="at-result__title">{{ 'asgn.resultTitle' | translate }}</h2>
+
+        <div class="score-badge" [class]="scoreClass(r.score)">
+          {{ scorePercent(r.score) }}%
+        </div>
+
+        @if (r.gradingRows.length > 0) {
+          <table class="grading-table">
+            <thead>
+              <tr>
+                <th>{{ 'poe.explain.quantity' | translate }}</th>
+                <th>{{ 'asgn.expected' | translate }}</th>
+                <th>{{ 'poe.explain.actual' | translate }}</th>
+                <th>{{ 'poe.explain.relError' | translate }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (row of r.gradingRows; track row.key) {
+                <tr>
+                  <td>{{ row.key }}</td>
+                  <td>{{ row.expected | number: '1.0-4' }}</td>
+                  <td>{{ row.actual | number: '1.0-4' }}</td>
+                  <td [class.ok]="row.relError < 0.1" [class.err]="row.relError >= 0.1">
+                    {{ row.relError * 100 | number: '1.0-1' }}%
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        }
+
+        <button class="btn btn--ghost at-pdf-btn" (click)="downloadPdf()">
+          ↓ {{ 'asgn.downloadPdf' | translate }}
+        </button>
+      </section>
+    }
+  </div>
+}

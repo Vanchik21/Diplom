@@ -33,4 +33,17 @@ export class AssignmentsService {
   submit(id: string, dto: SubmitAssignmentDto): Observable<SubmissionResultDto> {
     return this.http.post<SubmissionResultDto>(`${this.base}/${id}/submit`, dto);
   }
+
+  downloadReport(submissionId: string): void {
+    this.http
+      .get(`/api/submissions/${submissionId}/report.pdf`, { responseType: 'blob' })
+      .subscribe(blob => {
+        const url = URL.createObjectURL(blob);
+        const a   = document.createElement('a');
+        a.href     = url;
+        a.download = `physis-report-${submissionId}.pdf`;
+        a.click();
+        URL.revokeObjectURL(url);
+      });
+  }
 }

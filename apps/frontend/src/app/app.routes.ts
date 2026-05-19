@@ -60,6 +60,14 @@ export const routes: Routes = [
           import('./pages/analytics/analytics.component').then(m => m.AnalyticsComponent),
       },
       {
+        path: 'assignments/:assignmentId',
+        canActivate: [authGuard],
+        loadComponent: () =>
+          import('./pages/assignment-take/assignment-take.component').then(
+            m => m.AssignmentTakeComponent,
+          ),
+      },
+      {
         path: 'admin',
         canActivate: [adminGuard],
         loadComponent: () =>
