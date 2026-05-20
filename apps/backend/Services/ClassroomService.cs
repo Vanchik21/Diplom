@@ -6,7 +6,7 @@ using Physis.Api.Models;
 
 namespace Physis.Api.Services;
 
-public class ClassroomService(AppDbContext db)
+public class ClassroomService(AppDbContext db, Microsoft.AspNetCore.Identity.UserManager<ApplicationUser> userManager)
 {
     private const string InviteCodeChars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 
@@ -90,7 +90,7 @@ public class ClassroomService(AppDbContext db)
             classroom.Description,
             classroom.OwnerId,
             classroom.Owner.UserName!,
-            membership.Role == ClassroomRole.Teacher ? classroom.InviteCode : string.Empty,
+            (membership.Role == ClassroomRole.Teacher || membership.Role == ClassroomRole.CoAuthor) ? classroom.InviteCode : string.Empty,
             classroom.IsArchived,
             classroom.CreatedAt,
             membership.Role,
@@ -124,23 +124,27 @@ public class ClassroomService(AppDbContext db)
         var alreadyMember = classroom.Memberships.Any(m => m.UserId == userId);
         if (alreadyMember) return null;
 
+        var joiningUser = await userManager.FindByIdAsync(userId);
+        var isTeacher   = joiningUser is not null && await userManager.IsInRoleAsync(joiningUser, "Teacher");
+        var assignedRole = isTeacher ? ClassroomRole.CoAuthor : ClassroomRole.Student;
+
         var membership = new ClassroomMembership
         {
             ClassroomId = classroom.Id,
             UserId      = userId,
-            Role        = ClassroomRole.Student,
+            Role        = assignedRole,
             JoinedAt    = DateTime.UtcNow,
         };
         db.ClassroomMemberships.Add(membership);
         await db.SaveChangesAsync();
 
-        return ToSummary(classroom, ClassroomRole.Student, classroom.Memberships.Count + 1, classroom.Owner);
+        return ToSummary(classroom, assignedRole, classroom.Memberships.Count + 1, classroom.Owner);
     }
 
     public async Task<bool> RemoveMemberAsync(Guid classroomId, string requesterId, string targetUserId)
     {
         var (classroom, role) = await LoadWithRoleAsync(classroomId, requesterId);
-        if (classroom is null || role != ClassroomRole.Teacher) return false;
+        if (classroom is null || (role != ClassroomRole.Teacher && role != ClassroomRole.CoAuthor)) return false;
 
         var membership = await db.ClassroomMemberships
             .FirstOrDefaultAsync(m => m.ClassroomId == classroomId

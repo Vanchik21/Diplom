@@ -2,12 +2,16 @@
   <header class="my-classes__header">
     <h1 class="my-classes__title">{{ 'cls.myClasses' | translate }}</h1>
     <div class="my-classes__actions">
-      <button class="btn btn--ghost" (click)="showJoin.set(true)">
-        + {{ 'cls.joinByCode' | translate }}
-      </button>
-      @if (auth.userRole() === 'Teacher' || auth.userRole() === 'Admin') {
+      @if (isTeacher()) {
+        <button class="btn btn--ghost" (click)="showJoin.set(true)">
+          + {{ 'cls.requestCoAuthorship' | translate }}
+        </button>
         <button class="btn btn--primary" (click)="showCreate.set(true)">
           + {{ 'cls.createClass' | translate }}
+        </button>
+      } @else {
+        <button class="btn btn--ghost" (click)="showJoin.set(true)">
+          + {{ 'cls.joinByCode' | translate }}
         </button>
       }
     </div>
@@ -17,7 +21,7 @@
     <p class="my-classes__state">{{ 'common.loading' | translate }}</p>
   } @else {
 
-    @if (auth.userRole() === 'Teacher' || auth.userRole() === 'Admin') {
+    @if (isTeacher()) {
       <section class="my-classes__section">
         <h2 class="my-classes__section-title">{{ 'cls.teaching' | translate }}</h2>
         @if (teaching().length === 0) {
@@ -42,29 +46,52 @@
           </div>
         }
       </section>
-    }
 
-    <section class="my-classes__section">
-      <h2 class="my-classes__section-title">{{ 'cls.studying' | translate }}</h2>
-      @if (studying().length === 0) {
-        <p class="my-classes__empty">{{ 'cls.noStudying' | translate }}</p>
-      } @else {
-        <div class="class-grid">
-          @for (cls of studying(); track cls.id) {
-            <a class="class-card" [routerLink]="['/classes', cls.id]">
-              <div class="class-card__name">{{ cls.name }}</div>
-              @if (cls.description) {
-                <div class="class-card__desc">{{ cls.description }}</div>
-              }
-              <div class="class-card__meta">
-                <span class="class-card__badge class-card__badge--student">{{ 'cls.roleStudent' | translate }}</span>
-                <span>{{ 'cls.teacher' | translate }}: {{ cls.ownerName }}</span>
-              </div>
-            </a>
-          }
-        </div>
-      }
-    </section>
+      <section class="my-classes__section">
+        <h2 class="my-classes__section-title">{{ 'cls.coAuthoring' | translate }}</h2>
+        @if (coAuthoring().length === 0) {
+          <p class="my-classes__empty">{{ 'cls.noCoAuthoring' | translate }}</p>
+        } @else {
+          <div class="class-grid">
+            @for (cls of coAuthoring(); track cls.id) {
+              <a class="class-card" [routerLink]="['/classes', cls.id]">
+                <div class="class-card__name">{{ cls.name }}</div>
+                @if (cls.description) {
+                  <div class="class-card__desc">{{ cls.description }}</div>
+                }
+                <div class="class-card__meta">
+                  <span class="class-card__badge class-card__badge--coauthor">{{ 'cls.roleCoAuthor' | translate }}</span>
+                  <span>{{ 'cls.teacher' | translate }}: {{ cls.ownerName }}</span>
+                  <span>{{ cls.memberCount }} {{ 'cls.members' | translate }}</span>
+                </div>
+              </a>
+            }
+          </div>
+        }
+      </section>
+    } @else {
+      <section class="my-classes__section">
+        <h2 class="my-classes__section-title">{{ 'cls.studying' | translate }}</h2>
+        @if (studying().length === 0) {
+          <p class="my-classes__empty">{{ 'cls.noStudying' | translate }}</p>
+        } @else {
+          <div class="class-grid">
+            @for (cls of studying(); track cls.id) {
+              <a class="class-card" [routerLink]="['/classes', cls.id]">
+                <div class="class-card__name">{{ cls.name }}</div>
+                @if (cls.description) {
+                  <div class="class-card__desc">{{ cls.description }}</div>
+                }
+                <div class="class-card__meta">
+                  <span class="class-card__badge class-card__badge--student">{{ 'cls.roleStudent' | translate }}</span>
+                  <span>{{ 'cls.teacher' | translate }}: {{ cls.ownerName }}</span>
+                </div>
+              </a>
+            }
+          </div>
+        }
+      </section>
+    }
   }
 </div>
 

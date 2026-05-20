@@ -16,7 +16,8 @@ public class AssignmentService(AppDbContext db)
         var membership = await db.ClassroomMemberships
             .FirstOrDefaultAsync(m => m.ClassroomId == dto.ClassroomId && m.UserId == userId);
 
-        if (membership is null || membership.Role != ClassroomRole.Teacher)
+        if (membership is null ||
+            (membership.Role != ClassroomRole.Teacher && membership.Role != ClassroomRole.CoAuthor))
             return null;
 
         var assignment = new Assignment
@@ -25,7 +26,11 @@ public class AssignmentService(AppDbContext db)
             ModuleId        = dto.ModuleId,
             Title           = dto.Title,
             Description     = dto.Description,
+            AssignmentType  = dto.AssignmentType,
             ExpectedMetrics = JsonSerializer.Serialize(dto.ExpectedMetrics ?? new Dictionary<string, double>()),
+            Questions       = dto.Questions is { Count: > 0 }
+                                ? JsonSerializer.Serialize(dto.Questions)
+                                : null,
             DueAt           = dto.DueAt,
             CreatedAt       = DateTime.UtcNow,
             CreatedById     = userId,
@@ -76,12 +81,13 @@ public class AssignmentService(AppDbContext db)
 
         if (membership is null) return null;
 
-        var isTeacher = membership.Role == ClassroomRole.Teacher;
+        var isTeacher = membership.Role == ClassroomRole.Teacher
+                     || membership.Role == ClassroomRole.CoAuthor;
 
-        var expected = DeserializeMetrics(assignment.ExpectedMetrics);
+        var expected   = DeserializeMetrics(assignment.ExpectedMetrics);
+        var questions  = DeserializeQuestions(assignment.Questions);
 
-        var mySubmission = assignment.Submissions
-            .FirstOrDefault(s => s.StudentId == userId);
+        var mySubmission = assignment.Submissions.FirstOrDefault(s => s.StudentId == userId);
 
         var allSubmissions = isTeacher
             ? assignment.Submissions
@@ -96,7 +102,9 @@ public class AssignmentService(AppDbContext db)
             assignment.ModuleId,
             assignment.Title,
             assignment.Description,
+            assignment.AssignmentType,
             expected,
+            questions,
             assignment.DueAt,
             assignment.CreatedAt,
             isTeacher,
@@ -113,7 +121,9 @@ public class AssignmentService(AppDbContext db)
         var membership = await db.ClassroomMemberships
             .FirstOrDefaultAsync(m => m.ClassroomId == assignment.ClassroomId && m.UserId == userId);
 
-        if (membership is null || membership.Role != ClassroomRole.Teacher) return false;
+        if (membership is null ||
+            (membership.Role != ClassroomRole.Teacher && membership.Role != ClassroomRole.CoAuthor))
+            return false;
 
         db.Assignments.Remove(assignment);
         await db.SaveChangesAsync();
@@ -136,17 +146,38 @@ public class AssignmentService(AppDbContext db)
             .AnyAsync(s => s.AssignmentId == assignmentId && s.StudentId == userId);
         if (alreadySubmitted) return null;
 
-        var expected = DeserializeMetrics(assignment.ExpectedMetrics);
-        var (score, rows) = GradingService.Grade(expected, dto.ObservedMetrics);
+        double score;
+        List<ComparisonRowDto> rows;
+        string? quizAnswersJson = null;
+
+        if (assignment.AssignmentType == AssignmentType.Quiz)
+        {
+            var questions = DeserializeQuestions(assignment.Questions) ?? [];
+            var answers   = dto.QuizAnswers ?? [];
+            quizAnswersJson = JsonSerializer.Serialize(answers);
+
+            var correct = questions
+                .Select((q, i) => i < answers.Count && answers[i] == q.CorrectIndex)
+                .Count(ok => ok);
+
+            score = questions.Count > 0 ? (double)correct / questions.Count : 0;
+            rows  = [];
+        }
+        else
+        {
+            var expected = DeserializeMetrics(assignment.ExpectedMetrics);
+            (score, rows) = GradingService.Grade(expected, dto.ObservedMetrics ?? new());
+        }
 
         var submission = new Submission
         {
             AssignmentId    = assignmentId,
             StudentId       = userId,
-            ObservedMetrics = JsonSerializer.Serialize(dto.ObservedMetrics),
+            ObservedMetrics = JsonSerializer.Serialize(dto.ObservedMetrics ?? new Dictionary<string, double>()),
             GradingRows     = JsonSerializer.Serialize(rows),
             Score           = score,
             ConclusionText  = dto.ConclusionText?.Trim(),
+            QuizAnswers     = quizAnswersJson,
             SubmittedAt     = DateTime.UtcNow,
         };
 
@@ -175,15 +206,37 @@ public class AssignmentService(AppDbContext db)
     }
 
     private static Dictionary<string, double> DeserializeMetrics(string json)
+        => JsonSerializer.Deserialize<Dictionary<string, double>>(json, JsonOpts)
+           ?? new Dictionary<string, double>();
+
+    private static List<QuizQuestionDto>? DeserializeQuestions(string? json)
     {
-        return JsonSerializer.Deserialize<Dictionary<string, double>>(json, JsonOpts)
-            ?? new Dictionary<string, double>();
+        if (string.IsNullOrWhiteSpace(json)) return null;
+        return JsonSerializer.Deserialize<List<QuizQuestionDto>>(json, JsonOpts);
     }
 
     private static List<ComparisonRowDto> DeserializeRows(string json)
+        => JsonSerializer.Deserialize<List<ComparisonRowDto>>(json, JsonOpts) ?? [];
+
+    public async Task<SubmissionResultDto?> GradeAsync(
+        Guid submissionId, string teacherId, double teacherScore)
     {
-        return JsonSerializer.Deserialize<List<ComparisonRowDto>>(json, JsonOpts)
-            ?? [];
+        var submission = await db.Submissions
+            .Include(s => s.Assignment)
+            .Include(s => s.Student)
+            .FirstOrDefaultAsync(s => s.Id == submissionId);
+        if (submission is null) return null;
+
+        var membership = await db.ClassroomMemberships
+            .FirstOrDefaultAsync(m =>
+                m.ClassroomId == submission.Assignment.ClassroomId &&
+                m.UserId == teacherId &&
+                (m.Role == ClassroomRole.Teacher || m.Role == ClassroomRole.CoAuthor));
+        if (membership is null) return null;
+
+        submission.TeacherScore = Math.Clamp(teacherScore, 0.0, 1.0);
+        await db.SaveChangesAsync();
+        return ToResult(submission, submission.Student);
     }
 
     private static SubmissionResultDto ToResult(Submission s, ApplicationUser student) =>
@@ -192,6 +245,7 @@ public class AssignmentService(AppDbContext db)
             $"{student.FirstName} {student.LastName}".Trim() is { Length: > 0 } n
                 ? n : student.UserName ?? s.StudentId,
             s.Score,
+            s.TeacherScore,
             !string.IsNullOrWhiteSpace(s.ConclusionText),
             s.SubmittedAt,
             DeserializeRows(s.GradingRows));
@@ -199,5 +253,5 @@ public class AssignmentService(AppDbContext db)
     private static AssignmentSummaryDto ToSummary(
         Assignment a, int submissionCount, SubmissionResultDto? mySubmission) =>
         new(a.Id, a.ClassroomId, a.ModuleId, a.Title, a.Description,
-            a.DueAt, a.CreatedAt, submissionCount, mySubmission);
+            a.AssignmentType, a.DueAt, a.CreatedAt, submissionCount, mySubmission);
 }

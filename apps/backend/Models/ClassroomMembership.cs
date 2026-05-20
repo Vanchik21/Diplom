@@ -12,4 +12,4 @@ public sealed class ClassroomMembership
     public ApplicationUser User { get; set; } = null!;
 }
 
-public enum ClassroomRole { Teacher = 1, Student = 2 }
+public enum ClassroomRole { Teacher = 1, Student = 2, CoAuthor = 3 }

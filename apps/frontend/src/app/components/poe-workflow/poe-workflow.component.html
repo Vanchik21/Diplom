@@ -78,6 +78,8 @@
         <button class="btn btn--ghost poe__action" (click)="tryAgain()">
           {{ 'poe.explain.tryAgain' | translate }}
         </button>
+
+        <ng-content select="[poe-submit]" />
       </div>
     </div>
 

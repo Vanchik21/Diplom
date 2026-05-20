@@ -44,6 +44,7 @@ export class PoeWorkflowComponent implements OnDestroy {
   readonly initialPredictions = input<Record<string, number>>({});
 
   readonly predictionsChange = output<Record<string, number>>();
+  readonly explained        = output<Record<string, number>>();
 
   private readonly sanitizer = inject(DomSanitizer);
   private readonly translate = inject(TranslateService);
@@ -129,6 +130,7 @@ export class PoeWorkflowComponent implements OnDestroy {
     this.comparisonRows.set(rows);
     this.explanationHtml.set(this.renderExplanation(preds));
     this.phase.set('explain');
+    this.explained.emit(metrics.scalars);
   }
 
   protected tryAgain(): void {

@@ -9,6 +9,8 @@ public sealed class Submission
     public string GradingRows { get; set; } = "[]";
     public double Score { get; set; }
     public string? ConclusionText { get; set; }
+    public string? QuizAnswers { get; set; }
+    public double? TeacherScore { get; set; }
     public DateTime SubmittedAt { get; set; }
 
     public Assignment Assignment { get; set; } = null!;

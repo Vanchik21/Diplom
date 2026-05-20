@@ -186,8 +186,8 @@ export class RigidBodyPendulumModule
         'Ek (Дж)': ke,
         'Ep (Дж)': pe,
         'E (Дж)': ke + pe,
-        'T (с)': period,
-        'θ̇ макс': this.maxThetaDot,
+        period,
+        maxAngularVelocity: this.maxThetaDot,
         't (с)': this.time,
       },
       timeSeries: {

@@ -1,139 +1,375 @@
 @if (loading()) {
-  <div class="at-page at-page--loading">
-    <p>{{ 'common.loading' | translate }}</p>
-  </div>
+  <div class="at-center"><p>{{ 'common.loading' | translate }}</p></div>
 } @else if (!assignment()) {
-  <div class="at-page at-page--loading">
-    <p>{{ 'asgn.notFound' | translate }}</p>
-  </div>
-} @else {
-  <div class="at-page">
-    <header class="at-header">
-      <div class="at-header__breadcrumb">
-        <a class="at-link" routerLink="/classes/{{ assignment()!.classroomId }}">
+  <div class="at-center"><p>{{ 'asgn.notFound' | translate }}</p></div>
+
+<!-- ══════════════════════════════════════════════════════════
+     QUIZ — окреме модальне вікно
+     ══════════════════════════════════════════════════════════ -->
+} @else if (isQuiz()) {
+
+  <div class="at-quiz-backdrop">
+    <div class="at-quiz-modal">
+      <div class="at-quiz-modal__header">
+        <a class="at-quiz-modal__back" routerLink="/classes/{{ assignment()!.classroomId }}">
           ← {{ 'cls.assignments' | translate }}
         </a>
+        <div>
+          <h2 class="at-quiz-modal__title">{{ assignment()!.title }}</h2>
+          @if (assignment()!.description) {
+            <p class="at-quiz-modal__desc">{{ assignment()!.description }}</p>
+          }
+        </div>
       </div>
-      <h1 class="at-header__title">{{ assignment()!.title }}</h1>
-      @if (assignment()!.description) {
-        <p class="at-header__desc">{{ assignment()!.description }}</p>
+
+      @if (assignment()!.isTeacher) {
+        <!-- Teacher: submissions list -->
+        <ng-container *ngTemplateOutlet="teacherSubmissions" />
+      } @else if (result()) {
+        <!-- Result -->
+        <div class="at-quiz-result">
+          <div class="at-score-badge" [class]="scoreClass(result()!.score)">
+            {{ scorePercent(result()!.score) }}%
+          </div>
+          <p class="at-quiz-result__hint">
+            {{ 'asgn.quizResult' | translate: {
+              correct: (scorePercent(result()!.score) / 100 * (assignment()!.questions?.length ?? 0)) | number:'1.0-0',
+              total: assignment()!.questions?.length ?? 0
+            } }}
+          </p>
+
+          @for (q of assignment()!.questions ?? []; track $index; let qi = $index) {
+            <div class="at-quiz-review">
+              <p class="at-quiz-review__q"><b>{{ qi + 1 }}.</b> {{ q.text }}</p>
+              @for (opt of q.options; track $index; let oi = $index) {
+                <div class="at-quiz-review__opt"
+                  [class.at-quiz-review__opt--correct]="oi === q.correctIndex">
+                  {{ oi === q.correctIndex ? '✓' : '·' }} {{ opt }}
+                </div>
+              }
+            </div>
+          }
+        </div>
+      } @else {
+        <!-- Questions -->
+        <div class="at-quiz-modal__body">
+          @for (q of assignment()!.questions ?? []; track $index; let qi = $index) {
+            <div class="quiz-card">
+              <p class="quiz-card__text">
+                <span class="quiz-card__num">{{ qi + 1 }}.</span> {{ q.text }}
+              </p>
+              <div class="quiz-card__options">
+                @for (opt of q.options; track $index; let oi = $index) {
+                  <label class="quiz-card__option"
+                    [class.quiz-card__option--selected]="quizAnswers()[qi] === oi">
+                    <input type="radio" [name]="'q' + qi"
+                      [checked]="quizAnswers()[qi] === oi"
+                      (change)="setQuizAnswer(qi, oi)" />
+                    {{ opt }}
+                  </label>
+                }
+              </div>
+            </div>
+          }
+        </div>
+
+        @if (error()) { <p class="at-error">{{ error() | translate }}</p> }
+
+        <div class="at-quiz-modal__footer">
+          <button class="btn btn--primary btn--lg"
+            [disabled]="submitting() || !allAnswered()"
+            (click)="submitQuiz()">
+            {{ submitting() ? ('common.loading' | translate) : ('asgn.submitQuiz' | translate) }}
+          </button>
+        </div>
       }
-      <div class="at-header__meta">
-        <span class="at-badge">{{ moduleName() }}</span>
+    </div>
+  </div>
+
+<!-- ══════════════════════════════════════════════════════════
+     POE / SCENARIO — повний режим симуляції
+     ══════════════════════════════════════════════════════════ -->
+} @else {
+
+  <div class="at-sim-page">
+
+    <!-- Top bar -->
+    <header class="at-topbar">
+      <a class="at-topbar__back" routerLink="/classes/{{ assignment()!.classroomId }}">
+        ← {{ 'cls.assignments' | translate }}
+      </a>
+      <div class="at-topbar__info">
+        <h1 class="at-topbar__title">{{ assignment()!.title }}</h1>
+        @if (assignment()!.description) {
+          <span class="at-topbar__desc">{{ assignment()!.description }}</span>
+        }
+      </div>
+      <div class="at-topbar__meta">
+        <span class="at-badge">
+          @if (isPoe()) { 🔬 {{ 'asgn.typePoe' | translate }} }
+          @else { 🎯 {{ 'asgn.typeScenario' | translate }} }
+        </span>
         @if (assignment()!.dueAt) {
           <span class="at-badge at-badge--due">
-            {{ 'asgn.due' | translate }}: {{ assignment()!.dueAt | date: 'dd.MM.yyyy' }}
+            {{ 'asgn.due' | translate }}: {{ assignment()!.dueAt | date:'dd.MM.yyyy' }}
+          </span>
+        }
+        @if (result()) {
+          <span class="at-badge at-badge--score" [class]="scoreClass(result()!.score)">
+            ✓ {{ scorePercent(result()!.score) }}%
           </span>
         }
       </div>
     </header>
 
-    @if (moduleEntry()) {
-      <section class="at-section">
-        <p class="at-hint">
-          {{ 'asgn.simHint' | translate }}
-          <a class="at-link" routerLink="/sim/{{ assignment()!.moduleId }}" target="_blank">
-            {{ moduleName() }} ↗
-          </a>
-        </p>
-      </section>
-    }
+    @if (assignment()!.isTeacher) {
+      <!-- ── Teacher: submissions list ── -->
+      <div class="at-teacher-panel">
+        <ng-container *ngTemplateOutlet="teacherSubmissions" />
+      </div>
 
-    @if (!alreadySubmitted() && !result()) {
-      <section class="at-section">
-        <h2 class="at-section__title">{{ 'asgn.expectedMetrics' | translate }}</h2>
-        <div class="at-metrics-ref">
-          @for (entry of assignment()!.expectedMetrics | keyvalue; track entry.key) {
-            <div class="metric-ref">
-              <span class="metric-ref__key">{{ entry.key }}</span>
-              <span class="metric-ref__val">{{ entry.value }}</span>
+    } @else if (isPoe()) {
+      <!-- ══ POE: Simulation + Predict → Observe → Explain ══ -->
+      @if (physicsModule()) {
+        <app-poe-workflow
+          class="at-poe-host"
+          [module]="physicsModule()!"
+          (explained)="onPoeExplained($event)"
+        >
+          <!-- Simulation canvas (projected into ng-content) -->
+          <div class="at-sim">
+            <div class="at-sim__toolbar">
+              <span class="at-sim__module-name">{{ moduleName() }}</span>
+              <div class="at-sim__actions">
+                <button class="btn btn--ghost btn--sm" (click)="togglePause()">
+                  {{ paused() ? '▶' : '⏸' }}
+                </button>
+              </div>
+            </div>
+            <div class="at-sim__canvas-wrap">
+              <app-babylon-adapter
+                [setupFn]="setupFn"
+                [frameFn]="frameFn"
+                [paused]="paused()"
+              />
+            </div>
+          </div>
+
+          <!-- Submit section (projected into explain card via [poe-submit]) -->
+          @if (!result()) {
+            <div poe-submit class="poe-submit-section">
+              <hr class="poe-submit-section__divider" />
+              <label class="poe-submit-section__label">
+                {{ 'asgn.conclusionLabel' | translate }}
+                <span class="poe-submit-section__hint">{{ 'asgn.conclusionHint' | translate }}</span>
+              </label>
+              <textarea
+                class="poe-submit-section__textarea"
+                rows="3"
+                [value]="conclusionText()"
+                (input)="conclusionText.set($any($event.target).value)"
+                [placeholder]="'asgn.conclusionPlaceholder' | translate"
+              ></textarea>
+              @if (error()) { <p class="at-error">{{ error() | translate }}</p> }
+              <button
+                class="btn btn--primary btn--lg poe-submit-section__btn"
+                [disabled]="submitting()"
+                (click)="submitPoe()">
+                {{ submitting() ? ('common.loading' | translate) : ('asgn.submit' | translate) }}
+              </button>
+            </div>
+          }
+        </app-poe-workflow>
+      }
+
+      <!-- Already submitted result banner -->
+      @if (result()) {
+        <div class="at-result-banner">
+          <div class="at-result-banner__score at-score-badge" [class]="scoreClass(result()!.score)">
+            {{ scorePercent(result()!.score) }}%
+          </div>
+          <div class="at-result-banner__info">
+            <span>{{ 'asgn.resultTitle' | translate }}</span>
+            @if (result()!.gradingRows.length > 0) {
+              <table class="at-grading-table">
+                <thead>
+                  <tr>
+                    <th>{{ 'poe.explain.quantity' | translate }}</th>
+                    <th>{{ 'asgn.expected' | translate }}</th>
+                    <th>{{ 'poe.explain.actual' | translate }}</th>
+                    <th>{{ 'poe.explain.relError' | translate }}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (row of result()!.gradingRows; track row.key) {
+                    <tr>
+                      <td>{{ row.key }}</td>
+                      <td>{{ row.expected | number:'1.0-4' }}</td>
+                      <td>{{ row.actual | number:'1.0-4' }}</td>
+                      <td [class.ok]="row.relError < 0.1" [class.err]="row.relError >= 0.1">
+                        {{ row.relError * 100 | number:'1.0-1' }}%
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            }
+            <button class="btn btn--ghost at-pdf-btn" (click)="downloadPdf()">
+              ↓ {{ 'asgn.downloadPdf' | translate }}
+            </button>
+          </div>
+        </div>
+      }
+
+    } @else if (isScenario()) {
+      <!-- ══ SCENARIO: Simulation left + Panel right ══ -->
+      <div class="at-scenario-layout">
+
+        <!-- Left: simulation -->
+        <div class="at-scenario-sim">
+          @if (physicsModule()) {
+            <div class="at-sim__toolbar">
+              <span class="at-sim__module-name">{{ moduleName() }}</span>
+              <button class="btn btn--ghost btn--sm" (click)="togglePause()">
+                {{ paused() ? '▶' : '⏸' }}
+              </button>
+            </div>
+            <div class="at-sim__canvas-wrap at-sim__canvas-wrap--fill">
+              <app-babylon-adapter
+                [setupFn]="setupFn"
+                [frameFn]="frameFn"
+                [paused]="paused()"
+              />
             </div>
           }
         </div>
 
-        <h2 class="at-section__title">{{ 'asgn.observedMetrics' | translate }}</h2>
-        <form class="at-form" (ngSubmit)="submit()">
-          <div class="at-inputs">
-            @for (m of metricInputs(); track m.key) {
-              <div class="at-field">
-                <label class="at-label">{{ m.key }}</label>
-                <input
-                  class="at-input"
-                  type="number"
-                  step="any"
-                  [value]="m.value"
-                  (input)="updateMetric(m.key, $any($event.target).value)"
-                />
-              </div>
+        <!-- Right: task panel -->
+        <aside class="at-scenario-panel">
+          @if (result()) {
+            <!-- Result view -->
+            <div class="at-score-badge at-score-badge--lg" [class]="scoreClass(result()!.score)">
+              {{ scorePercent(result()!.score) }}%
+            </div>
+            @if (result()!.gradingRows.length > 0) {
+              <table class="at-grading-table">
+                <thead>
+                  <tr>
+                    <th>{{ 'poe.explain.quantity' | translate }}</th>
+                    <th>{{ 'asgn.expected' | translate }}</th>
+                    <th>{{ 'poe.explain.actual' | translate }}</th>
+                    <th>{{ 'poe.explain.relError' | translate }}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (row of result()!.gradingRows; track row.key) {
+                    <tr>
+                      <td>{{ row.key }}</td>
+                      <td>{{ row.expected | number:'1.0-4' }}</td>
+                      <td>{{ row.actual | number:'1.0-4' }}</td>
+                      <td [class.ok]="row.relError < 0.1" [class.err]="row.relError >= 0.1">
+                        {{ row.relError * 100 | number:'1.0-1' }}%
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
             }
-          </div>
-
-          <div class="at-field at-field--full">
-            <label class="at-label">
-              {{ 'asgn.conclusionLabel' | translate }}
-              <span class="at-label__hint">{{ 'asgn.conclusionHint' | translate }}</span>
-            </label>
-            <textarea
-              class="at-textarea"
-              rows="5"
-              [value]="conclusionText()"
-              (input)="conclusionText.set($any($event.target).value)"
-              [placeholder]="'asgn.conclusionPlaceholder' | translate"
-            ></textarea>
-          </div>
-
-          @if (error()) {
-            <p class="at-error">{{ error() | translate }}</p>
-          }
-
-          <button
-            type="submit"
-            class="btn btn--primary"
-            [disabled]="submitting()"
-          >
-            {{ submitting() ? ('common.loading' | translate) : ('asgn.submit' | translate) }}
-          </button>
-        </form>
-      </section>
-    }
-
-    @if (result(); as r) {
-      <section class="at-result">
-        <h2 class="at-result__title">{{ 'asgn.resultTitle' | translate }}</h2>
-
-        <div class="score-badge" [class]="scoreClass(r.score)">
-          {{ scorePercent(r.score) }}%
-        </div>
-
-        @if (r.gradingRows.length > 0) {
-          <table class="grading-table">
-            <thead>
-              <tr>
-                <th>{{ 'poe.explain.quantity' | translate }}</th>
-                <th>{{ 'asgn.expected' | translate }}</th>
-                <th>{{ 'poe.explain.actual' | translate }}</th>
-                <th>{{ 'poe.explain.relError' | translate }}</th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (row of r.gradingRows; track row.key) {
-                <tr>
-                  <td>{{ row.key }}</td>
-                  <td>{{ row.expected | number: '1.0-4' }}</td>
-                  <td>{{ row.actual | number: '1.0-4' }}</td>
-                  <td [class.ok]="row.relError < 0.1" [class.err]="row.relError >= 0.1">
-                    {{ row.relError * 100 | number: '1.0-1' }}%
-                  </td>
-                </tr>
+            <button class="btn btn--ghost" (click)="downloadPdf()">
+              ↓ {{ 'asgn.downloadPdf' | translate }}
+            </button>
+          } @else {
+            <!-- Input form -->
+            @if (assignment()!.expectedMetrics | keyvalue; as entries) {
+              @if (entries.length > 0) {
+                <h3 class="at-panel-title">{{ 'asgn.expectedMetrics' | translate }}</h3>
+                <div class="at-metrics-ref">
+                  @for (e of entries; track e.key) {
+                    <div class="at-metric-chip">
+                      <span class="at-metric-chip__key">{{ e.key }}</span>
+                      <span class="at-metric-chip__val">{{ e.value }}</span>
+                    </div>
+                  }
+                </div>
               }
-            </tbody>
-          </table>
-        }
+            }
 
-        <button class="btn btn--ghost at-pdf-btn" (click)="downloadPdf()">
-          ↓ {{ 'asgn.downloadPdf' | translate }}
-        </button>
-      </section>
+            <h3 class="at-panel-title">{{ 'asgn.observedMetrics' | translate }}</h3>
+            <div class="at-inputs">
+              @for (m of metricInputs(); track m.key) {
+                <div class="at-field">
+                  <label class="at-label">{{ m.key }}</label>
+                  <input class="at-input" type="number" step="any"
+                    [value]="m.value"
+                    (input)="updateMetric(m.key, $any($event.target).value)" />
+                </div>
+              }
+            </div>
+
+            <div class="at-field">
+              <label class="at-label">
+                {{ 'asgn.conclusionLabel' | translate }}
+                <span class="at-label-hint">{{ 'asgn.conclusionHint' | translate }}</span>
+              </label>
+              <textarea class="at-textarea" rows="4"
+                [value]="conclusionText()"
+                (input)="conclusionText.set($any($event.target).value)"
+                [placeholder]="'asgn.conclusionPlaceholder' | translate">
+              </textarea>
+            </div>
+
+            @if (error()) { <p class="at-error">{{ error() | translate }}</p> }
+
+            <button class="btn btn--primary btn--lg at-submit-btn"
+              [disabled]="submitting()"
+              (click)="submitScenario()">
+              {{ submitting() ? ('common.loading' | translate) : ('asgn.submit' | translate) }}
+            </button>
+          }
+        </aside>
+      </div>
     }
   </div>
 }
+
+<!-- ══════════════════════════════════════════════════════════
+     TEACHER SUBMISSIONS TEMPLATE (shared for all types)
+     ══════════════════════════════════════════════════════════ -->
+<ng-template #teacherSubmissions>
+  <div class="at-sub-list-wrap">
+    <h3 class="at-panel-title">
+      {{ 'asgn.submissions' | translate }} ({{ assignment()!.submissions.length }})
+    </h3>
+
+    @if (assignment()!.submissions.length === 0) {
+      <p class="at-empty">{{ 'analytics.noSubmissions' | translate }}</p>
+    }
+
+    <div class="sub-list">
+      @for (s of assignment()!.submissions; track s.id) {
+        <div class="sub-row">
+          <div class="sub-row__info">
+            <span class="sub-row__name">{{ s.studentName }}</span>
+            <span class="sub-row__date">{{ s.submittedAt | date:'dd.MM.yyyy HH:mm' }}</span>
+            <span class="sub-row__auto">{{ 'asgn.autoScore' | translate }}: {{ scorePercent(s.score) }}%</span>
+          </div>
+          <div class="sub-row__grade">
+            @if (s.teacherScore != null) {
+              <span class="at-score-badge sub-row__teacher-score" [class]="scoreClass(s.teacherScore)">
+                {{ scorePercent(s.teacherScore) }}%
+              </span>
+            }
+            <input class="at-input at-input--grade" type="number" min="0" max="100"
+              [value]="gradeInputs()[s.id]"
+              (input)="setGradeInput(s.id, $any($event.target).value)" />
+            <button class="btn btn--primary btn--sm"
+              [disabled]="gradingId() === s.id"
+              (click)="gradeSubmission(s.id)">
+              {{ gradingId() === s.id ? ('common.loading' | translate) : ('asgn.grade' | translate) }}
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</ng-template>

@@ -19,7 +19,9 @@ public class AnalyticsService(AppDbContext db)
         var membership = await db.ClassroomMemberships
             .FirstOrDefaultAsync(m => m.ClassroomId == classroomId && m.UserId == userId);
 
-        if (membership is null || membership.Role != ClassroomRole.Teacher) return null;
+        if (membership is null ||
+            (membership.Role != ClassroomRole.Teacher && membership.Role != ClassroomRole.CoAuthor))
+            return null;
 
         var assignments = await db.Assignments
             .Where(a => a.ClassroomId == classroomId)
@@ -42,8 +44,8 @@ public class AnalyticsService(AppDbContext db)
                 {
                     StudentId = g.Key,
                     Count     = g.Count(),
-                    AvgScore  = g.Average(s => s.Score),
-                    PassCount = g.Count(s => s.Score >= 0.999),
+                    AvgScore  = g.Average(s => s.TeacherScore ?? s.Score),
+                    PassCount = g.Count(s => (s.TeacherScore ?? s.Score) >= 0.6),
                 })
                 .ToListAsync()
             : [];
@@ -53,9 +55,9 @@ public class AnalyticsService(AppDbContext db)
         var assignmentDtos = assignments.Select(a =>
         {
             var count    = a.Submissions.Count;
-            var avgScore = count > 0 ? a.Submissions.Average(s => s.Score) : 0.0;
+            var avgScore = count > 0 ? a.Submissions.Average(s => s.TeacherScore ?? s.Score) : 0.0;
             var passRate = count > 0
-                ? a.Submissions.Count(s => s.Score >= 0.999) / (double)count
+                ? a.Submissions.Count(s => (s.TeacherScore ?? s.Score) >= 0.6) / (double)count
                 : 0.0;
 
             var metricErrors = a.Submissions
@@ -87,7 +89,9 @@ public class AnalyticsService(AppDbContext db)
         var requester = await db.ClassroomMemberships
             .FirstOrDefaultAsync(m => m.ClassroomId == classroomId && m.UserId == requesterId);
 
-        if (requester is null || requester.Role != ClassroomRole.Teacher) return null;
+        if (requester is null ||
+            (requester.Role != ClassroomRole.Teacher && requester.Role != ClassroomRole.CoAuthor))
+            return null;
 
         var student = await db.Users.FindAsync(studentId);
         if (student is null) return null;
@@ -106,7 +110,7 @@ public class AnalyticsService(AppDbContext db)
             : [];
 
         var scoreOverTime = submissions
-            .Select(s => new ScorePointDto(s.SubmittedAt, s.Score, s.Assignment.Title))
+            .Select(s => new ScorePointDto(s.SubmittedAt, s.TeacherScore ?? s.Score, s.Assignment.Title))
             .ToList();
 
         var mastery = ComputeMastery(submissions);
@@ -130,14 +134,13 @@ public class AnalyticsService(AppDbContext db)
             cat => cat,
             cat =>
             {
-                var errors = submissions
+                var scores = submissions
                     .Where(s => ModuleCatalog.GetCategory(s.Assignment.ModuleId) == cat)
-                    .SelectMany(s => ParseRows(s.GradingRows))
-                    .Select(r => r.RelError)
+                    .Select(s => s.TeacherScore ?? s.Score)
                     .ToList();
 
-                return errors.Count > 0
-                    ? (double?)(1.0 - Math.Clamp(errors.Average(), 0.0, 1.0))
+                return scores.Count > 0
+                    ? (double?)scores.Average()
                     : null;
             });
     }

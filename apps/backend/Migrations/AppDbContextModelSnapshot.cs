@@ -294,6 +294,9 @@ namespace Physis.Api.Migrations
                         .HasMaxLength(1000)
                         .HasColumnType("character varying(1000)");
 
+                    b.Property<int>("AssignmentType")
+                        .HasColumnType("integer");
+
                     b.Property<DateTime?>("DueAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -307,6 +310,9 @@ namespace Physis.Api.Migrations
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
+
+                    b.Property<string>("Questions")
+                        .HasColumnType("text");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -488,6 +494,9 @@ namespace Physis.Api.Migrations
                         .HasMaxLength(2000)
                         .HasColumnType("character varying(2000)");
 
+                    b.Property<string>("QuizAnswers")
+                        .HasColumnType("text");
+
                     b.Property<string>("GradingRows")
                         .IsRequired()
                         .ValueGeneratedOnAdd()
@@ -501,6 +510,9 @@ namespace Physis.Api.Migrations
                         .HasDefaultValue("{}");
 
                     b.Property<double>("Score")
+                        .HasColumnType("double precision");
+
+                    b.Property<double?>("TeacherScore")
                         .HasColumnType("double precision");
 
                     b.Property<string>("StudentId")

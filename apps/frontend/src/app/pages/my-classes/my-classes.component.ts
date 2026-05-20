@@ -32,8 +32,15 @@ export class MyClassesComponent implements OnInit {
 
   protected readonly classrooms = this.service.classrooms;
 
+  protected readonly isTeacher = computed(() =>
+    this.auth.userRole() === 'Teacher' || this.auth.userRole() === 'Admin',
+  );
+
   protected readonly teaching = computed(() =>
     this.classrooms().filter(c => c.myRole === 1),
+  );
+  protected readonly coAuthoring = computed(() =>
+    this.classrooms().filter(c => c.myRole === 3),
   );
   protected readonly studying = computed(() =>
     this.classrooms().filter(c => c.myRole === 2),

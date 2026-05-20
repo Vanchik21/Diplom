@@ -41,7 +41,10 @@ export class ClassroomDetailComponent implements OnInit {
   protected readonly assignmentsLoading  = signal(false);
   protected readonly showCreateDialog    = signal(false);
 
-  protected readonly isTeacher = computed(() => this.classroom()?.myRole === 1);
+  protected readonly isTeacher = computed(() => {
+    const role = this.classroom()?.myRole;
+    return role === 1 || role === 3;
+  });
   protected readonly teachers  = computed(() =>
     this.classroom()?.members.filter(m => m.role === 1) ?? [],
   );

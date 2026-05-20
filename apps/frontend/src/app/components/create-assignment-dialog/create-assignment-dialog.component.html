@@ -1,81 +1,131 @@
 <div class="dialog-backdrop" (click)="cancelled.emit()"></div>
-<div class="dialog">
+<div class="dialog dialog--wide">
   <h2 class="dialog__title">{{ 'asgn.createTitle' | translate }}</h2>
 
+  <!-- Type selector -->
   <div class="dialog__field">
-    <label class="dialog__label">{{ 'asgn.module' | translate }}</label>
-    <select class="dialog__input" [ngModel]="moduleId()" (ngModelChange)="moduleId.set($event)">
-      @for (m of modules(); track m.meta.id) {
-        <option [value]="m.meta.id">{{ m.meta.name.uk }}</option>
-      }
-    </select>
+    <label class="dialog__label">{{ 'asgn.type' | translate }}</label>
+    <div class="type-tabs">
+      <button
+        class="type-tab"
+        [class.type-tab--active]="assignmentType() === AT.Poe"
+        type="button"
+        (click)="assignmentType.set(AT.Poe)"
+      >🔬 {{ 'asgn.typePoe' | translate }}</button>
+      <button
+        class="type-tab"
+        [class.type-tab--active]="assignmentType() === AT.Scenario"
+        type="button"
+        (click)="assignmentType.set(AT.Scenario)"
+      >🎯 {{ 'asgn.typeScenario' | translate }}</button>
+      <button
+        class="type-tab"
+        [class.type-tab--active]="assignmentType() === AT.Quiz"
+        type="button"
+        (click)="assignmentType.set(AT.Quiz)"
+      >📝 {{ 'asgn.typeQuiz' | translate }}</button>
+    </div>
   </div>
+
+  <!-- Module (not for quiz) -->
+  @if (!isQuiz()) {
+    <div class="dialog__field">
+      <label class="dialog__label">{{ 'asgn.module' | translate }}</label>
+      <select class="dialog__input" [ngModel]="moduleId()" (ngModelChange)="moduleId.set($event)">
+        @for (m of modules(); track m.meta.id) {
+          <option [value]="m.meta.id">{{ m.meta.name.uk }}</option>
+        }
+      </select>
+    </div>
+  }
 
   <div class="dialog__field">
     <label class="dialog__label">{{ 'asgn.title' | translate }}</label>
-    <input
-      class="dialog__input"
-      type="text"
-      [ngModel]="title()"
-      (ngModelChange)="title.set($event)"
-      [placeholder]="'asgn.titlePlaceholder' | translate"
-      maxlength="200"
-    />
+    <input class="dialog__input" type="text"
+      [ngModel]="title()" (ngModelChange)="title.set($event)"
+      [placeholder]="'asgn.titlePlaceholder' | translate" maxlength="200"/>
   </div>
 
   <div class="dialog__field">
     <label class="dialog__label">{{ 'asgn.description' | translate }}</label>
-    <textarea
-      class="dialog__input dialog__input--textarea"
-      [ngModel]="description()"
-      (ngModelChange)="description.set($event)"
-      [placeholder]="'asgn.descriptionPlaceholder' | translate"
-      maxlength="1000"
-      rows="3"
-    ></textarea>
+    <textarea class="dialog__input dialog__input--textarea"
+      [ngModel]="description()" (ngModelChange)="description.set($event)"
+      [placeholder]="isScenario() ? ('asgn.scenarioDescPlaceholder' | translate) : ('asgn.descriptionPlaceholder' | translate)"
+      maxlength="1000" rows="3"></textarea>
   </div>
 
   <div class="dialog__field">
     <label class="dialog__label">{{ 'asgn.dueAt' | translate }}</label>
-    <input
-      class="dialog__input"
-      type="datetime-local"
-      [ngModel]="dueAt()"
-      (ngModelChange)="dueAt.set($event)"
-    />
+    <input class="dialog__input" type="datetime-local"
+      [ngModel]="dueAt()" (ngModelChange)="dueAt.set($event)"/>
   </div>
 
-  <div class="dialog__metrics">
-    <div class="dialog__metrics-header">
-      <span class="dialog__label">{{ 'asgn.expectedMetrics' | translate }}</span>
-      <button class="btn btn--ghost btn--sm" type="button" (click)="addMetric()">
-        + {{ 'asgn.addMetric' | translate }}
-      </button>
-    </div>
-
-    @for (metric of metrics(); track $index) {
-      <div class="metric-row">
-        <input
-          class="dialog__input metric-row__key"
-          type="text"
-          [ngModel]="metric.key"
-          (ngModelChange)="updateMetricKey($index, $event)"
-          [placeholder]="'asgn.metricKey' | translate"
-        />
-        <input
-          class="dialog__input metric-row__val"
-          type="number"
-          [ngModel]="metric.value"
-          (ngModelChange)="updateMetricValue($index, +$event)"
-          [placeholder]="'asgn.metricValue' | translate"
-        />
-        <button class="btn btn--ghost btn--sm metric-row__remove" type="button" (click)="removeMetric($index)">✕</button>
+  <!-- POE / Scenario: expected metrics -->
+  @if (isPoe() || isScenario()) {
+    <div class="dialog__metrics">
+      <div class="dialog__metrics-header">
+        <span class="dialog__label">{{ 'asgn.expectedMetrics' | translate }}</span>
+        <button class="btn btn--ghost btn--sm" type="button" (click)="addMetric()">
+          + {{ 'asgn.addMetric' | translate }}
+        </button>
       </div>
-    }
-    @if (metrics().length === 0) {
-      <p class="dialog__hint">{{ 'asgn.metricsHint' | translate }}</p>
-    }
-  </div>
+      @for (metric of metrics(); track $index) {
+        <div class="metric-row">
+          <input class="dialog__input metric-row__key" type="text"
+            [ngModel]="metric.key" (ngModelChange)="updateMetricKey($index, $event)"
+            [placeholder]="'asgn.metricKey' | translate"/>
+          <input class="dialog__input metric-row__val" type="number"
+            [ngModel]="metric.value" (ngModelChange)="updateMetricValue($index, +$event)"
+            [placeholder]="'asgn.metricValue' | translate"/>
+          <button class="btn btn--ghost btn--sm metric-row__remove" type="button" (click)="removeMetric($index)">✕</button>
+        </div>
+      }
+      @if (metrics().length === 0) {
+        <p class="dialog__hint">{{ 'asgn.metricsHint' | translate }}</p>
+      }
+    </div>
+  }
+
+  <!-- Quiz: question builder -->
+  @if (isQuiz()) {
+    <div class="dialog__quiz">
+      <div class="dialog__metrics-header">
+        <span class="dialog__label">{{ 'asgn.questions' | translate }} ({{ questions().length }}/6)</span>
+        <button class="btn btn--ghost btn--sm" type="button"
+          (click)="addQuestion()" [disabled]="questions().length >= 6">
+          + {{ 'asgn.addQuestion' | translate }}
+        </button>
+      </div>
+      @for (q of questions(); track $index) {
+        <div class="quiz-question">
+          <div class="quiz-question__header">
+            <span class="quiz-question__num">{{ $index + 1 }}</span>
+            <button class="btn btn--ghost btn--sm" type="button" (click)="removeQuestion($index)">✕</button>
+          </div>
+          <input class="dialog__input" type="text"
+            [ngModel]="q.text" (ngModelChange)="updateQuestionText($index, $event)"
+            [placeholder]="'asgn.questionText' | translate" maxlength="500"/>
+          <div class="quiz-options">
+            @for (opt of q.options; track $index; let oi = $index) {
+              <div class="quiz-option">
+                <input type="radio" [name]="'correct-' + $index"
+                  [checked]="q.correctIndex === oi"
+                  (change)="setCorrect($index, oi)"
+                  [title]="'asgn.markCorrect' | translate"/>
+                <input class="dialog__input quiz-option__input" type="text"
+                  [ngModel]="opt" (ngModelChange)="updateOption($index, oi, $event)"
+                  [placeholder]="('asgn.option' | translate) + ' ' + (oi + 1)" maxlength="200"/>
+              </div>
+            }
+          </div>
+          <p class="dialog__hint">{{ 'asgn.correctHint' | translate }}</p>
+        </div>
+      }
+      @if (questions().length === 0) {
+        <p class="dialog__hint">{{ 'asgn.quizHint' | translate }}</p>
+      }
+    </div>
+  }
 
   @if (error()) {
     <p class="dialog__error">{{ error() | translate }}</p>
@@ -85,12 +135,9 @@
     <button class="btn btn--ghost" type="button" (click)="cancelled.emit()">
       {{ 'common.cancel' | translate }}
     </button>
-    <button
-      class="btn btn--primary"
-      type="button"
+    <button class="btn btn--primary" type="button"
       [disabled]="saving() || !title().trim()"
-      (click)="submit()"
-    >
+      (click)="submit()">
       {{ saving() ? ('common.loading' | translate) : ('asgn.create' | translate) }}
     </button>
   </div>

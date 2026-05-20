@@ -1,4 +1,4 @@
-export type ClassroomRole = 1 | 2; // 1 = Teacher, 2 = Student
+export type ClassroomRole = 1 | 2 | 3; // 1 = Teacher, 2 = Student, 3 = CoAuthor
 
 export interface ClassroomSummaryDto {
   id: string;

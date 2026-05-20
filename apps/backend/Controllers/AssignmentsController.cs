@@ -54,6 +54,15 @@ public class AssignmentsController(AssignmentService assignmentService) : Contro
             : Ok(result);
     }
 
+    [Authorize(Roles = "Teacher")]
+    [HttpPatch("submissions/{submissionId:guid}/grade")]
+    public async Task<ActionResult<SubmissionResultDto>> Grade(Guid submissionId, GradeSubmissionDto dto)
+    {
+        var userId = RequireUserId();
+        var result = await assignmentService.GradeAsync(submissionId, userId, dto.TeacherScore);
+        return result is null ? Forbid() : Ok(result);
+    }
+
     private string RequireUserId() =>
         User.FindFirstValue(ClaimTypes.NameIdentifier)
         ?? User.FindFirstValue("sub")

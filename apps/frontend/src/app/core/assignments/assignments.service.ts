@@ -34,6 +34,13 @@ export class AssignmentsService {
     return this.http.post<SubmissionResultDto>(`${this.base}/${id}/submit`, dto);
   }
 
+  grade(submissionId: string, teacherScore: number): Observable<SubmissionResultDto> {
+    return this.http.patch<SubmissionResultDto>(
+      `${this.base}/submissions/${submissionId}/grade`,
+      { teacherScore },
+    );
+  }
+
   downloadReport(submissionId: string): void {
     this.http
       .get(`/api/submissions/${submissionId}/report.pdf`, { responseType: 'blob' })
