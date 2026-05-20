@@ -22,6 +22,70 @@
     </div>
   }
 
+  <div class="admin-tabs">
+    <button class="admin-tab" [class.admin-tab--active]="tab() === 'users'" (click)="selectTab('users')">
+      {{ 'admin.users.title' | translate }}
+    </button>
+    <button class="admin-tab" [class.admin-tab--active]="tab() === 'roleRequests'" (click)="selectTab('roleRequests')">
+      {{ 'admin.roleRequests.title' | translate }}
+      @if (roleRequests().length > 0) {
+        <span class="admin-tab__badge">{{ roleRequests().length }}</span>
+      }
+    </button>
+  </div>
+
+  @if (tab() === 'roleRequests') {
+    <div class="admin-role-requests">
+      @if (roleRequestsLoading()) {
+        <p class="admin-status">{{ 'common.loading' | translate }}</p>
+      } @else if (roleRequests().length === 0) {
+        <p class="admin-status">{{ 'admin.roleRequests.empty' | translate }}</p>
+      } @else {
+        <div class="admin-table-wrap">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>{{ 'admin.users.columns.user' | translate }}</th>
+                <th>{{ 'admin.roleRequests.requestedRole' | translate }}</th>
+                <th>{{ 'admin.users.columns.joined' | translate }}</th>
+                <th>{{ 'admin.users.columns.actions' | translate }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (req of roleRequests(); track req.id) {
+                <tr>
+                  <td>
+                    <div class="user-cell">
+                      <div class="user-cell__name">{{ req.userName }}</div>
+                      <div class="user-cell__email">{{ req.userEmail }}</div>
+                    </div>
+                  </td>
+                  <td>
+                    <span class="badge badge--active">
+                      {{ req.requestedRole === 'Teacher' ? ('auth.register.roleTeacher' | translate) : ('auth.register.roleStudent' | translate) }}
+                    </span>
+                  </td>
+                  <td class="admin-table__date">{{ req.createdAt | date:'dd.MM.yyyy' }}</td>
+                  <td>
+                    <div class="action-btns">
+                      <button class="btn btn--primary btn--sm" [disabled]="busyRequestIds().has(req.id)" (click)="approveRequest(req)">
+                        {{ 'admin.roleRequests.approve' | translate }}
+                      </button>
+                      <button class="btn btn--ghost btn--sm" [disabled]="busyRequestIds().has(req.id)" (click)="rejectRequest(req)">
+                        {{ 'admin.roleRequests.reject' | translate }}
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </div>
+  }
+
+  @if (tab() === 'users') {
   <div class="admin-users">
     <div class="admin-users__toolbar">
       <h2 class="admin-users__heading">{{ 'admin.users.title' | translate }}</h2>
@@ -74,8 +138,11 @@
                   </span>
                 </td>
                 <td>
-                  <span class="badge" [class.badge--admin]="user.isAdmin">
-                    {{ (user.isAdmin ? 'admin.users.admin' : 'admin.users.user') | translate }}
+                  <span class="badge"
+                    [class.badge--admin]="user.role === 'Admin'"
+                    [class.badge--teacher]="user.role === 'Teacher'"
+                    [class.badge--student]="user.role === 'Student'">
+                    {{ ('admin.users.role_' + user.role.toLowerCase()) | translate }}
                   </span>
                 </td>
                 <td class="admin-table__date">{{ user.createdAt | date:'dd.MM.yyyy' }}</td>
@@ -116,4 +183,5 @@
       </div>
     }
   </div>
-</div>
+  } </div>
+

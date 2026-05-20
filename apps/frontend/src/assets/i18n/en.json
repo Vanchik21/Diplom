@@ -30,6 +30,9 @@
       "email": "Email",
       "userName": "Username",
       "password": "Password",
+      "role": "I am a",
+      "roleStudent": "Student",
+      "roleTeacher": "Teacher",
       "submit": "Create account",
       "hasAccount": "Already have an account?",
       "loginLink": "Log in"
@@ -37,6 +40,15 @@
     "errors": {
       "invalidCredentials": "Invalid email or password.",
       "registrationFailed": "Registration failed. Please check your details and try again."
+    },
+    "validation": {
+      "emailRequired": "Please enter your email address",
+      "emailInvalid": "Please enter a valid email address (e.g. user@example.com)",
+      "userNameRequired": "Please enter a username",
+      "userNameMinLength": "Username must be at least 3 characters",
+      "passwordRequired": "Please enter a password",
+      "passwordMinLength": "Password must be at least 8 characters",
+      "roleRequired": "Please select a role — Student or Teacher"
     }
   },
   "modules": {
@@ -119,6 +131,11 @@
     "userName": "Username",
     "memberSince": "Member since",
     "notFilled": "not specified",
+    "role": "Role",
+    "roleRequestSubmit": "Request role change",
+    "roleRequestPending": "⏳ Request submitted — awaiting admin review.",
+    "roleRequestRejected": "Request was rejected. You may submit a new one.",
+    "roleRequestError": "Could not submit request. Please try again.",
     "saveSuccess": "Profile saved successfully.",
     "saveError": "Could not save profile. Please try again.",
     "uploadError": "Could not upload photo.",
@@ -207,7 +224,18 @@
       "makeAdmin": "Make admin",
       "removeAdmin": "Remove admin",
       "activate": "Activate",
-      "deactivate": "Deactivate"
+      "deactivate": "Deactivate",
+      "role_admin": "Admin",
+      "role_teacher": "Teacher",
+      "role_student": "Student",
+      "role_user": "User"
+    },
+    "roleRequests": {
+      "title": "Role Change Requests",
+      "empty": "No pending requests.",
+      "requestedRole": "Requested role",
+      "approve": "Approve",
+      "reject": "Reject"
     },
     "pagination": {
       "prev": "Previous",
@@ -254,6 +282,17 @@
   },
   "asgn": {
     "create": "Create assignment",
+    "createTitle": "Create Assignment",
+    "module": "Module",
+    "title": "Title",
+    "titlePlaceholder": "e.g. Pendulum Lab #1",
+    "description": "Description",
+    "descriptionPlaceholder": "Optional instructions for students…",
+    "dueAt": "Due date",
+    "addMetric": "Add metric",
+    "metricsHint": "No expected metrics added. Students will enter free-form observations.",
+    "metricKey": "Metric name",
+    "metricValue": "Expected value",
     "empty": "No assignments yet.",
     "submissions": "submissions",
     "notFound": "Assignment not found.",

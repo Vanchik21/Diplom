@@ -7,7 +7,7 @@ public record AssignmentCreateDto(
     [Required, StringLength(50, MinimumLength = 1)] string ModuleId,
     [Required, StringLength(200, MinimumLength = 1)] string Title,
     [StringLength(1000)] string? Description,
-    Dictionary<string, double> ExpectedMetrics,
+    Dictionary<string, double>? ExpectedMetrics,
     DateTime? DueAt
 );
 

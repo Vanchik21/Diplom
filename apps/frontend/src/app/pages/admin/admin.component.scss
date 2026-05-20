@@ -11,6 +11,44 @@
   }
 }
 
+.admin-tabs {
+  display: flex;
+  gap: 0.25rem;
+  border-bottom: 1px solid var(--color-border);
+  margin-bottom: 1.5rem;
+}
+
+.admin-tab {
+  padding: 0.5rem 1.25rem;
+  border: none;
+  background: transparent;
+  color: var(--color-text-muted);
+  font-size: 0.9375rem;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: color 0.15s, border-color 0.15s;
+
+  &:hover { color: var(--color-text); }
+
+  &--active {
+    color: var(--color-primary);
+    border-bottom-color: var(--color-primary);
+  }
+
+  &__badge {
+    background: var(--color-primary);
+    color: #fff;
+    font-size: 0.7rem;
+    font-weight: 700;
+    border-radius: 99px;
+    padding: 0.1rem 0.45rem;
+    line-height: 1.4;
+  }
+}
+
 .admin-stats {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -175,6 +213,16 @@
   &--admin {
     background: color-mix(in srgb, var(--color-primary) 18%, transparent);
     color: var(--color-primary);
+  }
+
+  &--teacher {
+    background: color-mix(in srgb, #f59e0b 18%, transparent);
+    color: #f59e0b;
+  }
+
+  &--student {
+    background: color-mix(in srgb, var(--color-success) 18%, transparent);
+    color: var(--color-success);
   }
 }
 

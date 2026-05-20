@@ -56,6 +56,12 @@ public class AdminController(
         var adminIds = (await userManager.GetUsersInRoleAsync("Admin"))
             .Select(u => u.Id)
             .ToHashSet();
+        var teacherIds = (await userManager.GetUsersInRoleAsync("Teacher"))
+            .Select(u => u.Id)
+            .ToHashSet();
+        var studentIds = (await userManager.GetUsersInRoleAsync("Student"))
+            .Select(u => u.Id)
+            .ToHashSet();
 
         var items = users.Select(u => new AdminUserDto(
             u.Id,
@@ -67,6 +73,10 @@ public class AdminController(
             u.AvatarUrl,
             u.IsActive,
             adminIds.Contains(u.Id),
+            adminIds.Contains(u.Id) ? "Admin"
+                : teacherIds.Contains(u.Id) ? "Teacher"
+                : studentIds.Contains(u.Id) ? "Student"
+                : "User",
             u.CreatedAt)).ToList();
 
         return Ok(new PagedResult<AdminUserDto>(items, total, page, pageSize));

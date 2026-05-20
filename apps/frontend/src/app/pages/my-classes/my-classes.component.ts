@@ -9,6 +9,7 @@ import {
 import { RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { ClassroomsService } from '../../core/classrooms/classrooms.service';
+import { AuthService } from '../../core/auth/auth.service';
 import type { ClassroomSummaryDto } from '../../core/classrooms/classroom.models';
 import { CreateClassroomDialogComponent } from '../../components/create-classroom-dialog/create-classroom-dialog.component';
 import { JoinClassroomDialogComponent } from '../../components/join-classroom-dialog/join-classroom-dialog.component';
@@ -23,6 +24,7 @@ import { JoinClassroomDialogComponent } from '../../components/join-classroom-di
 })
 export class MyClassesComponent implements OnInit {
   private readonly service = inject(ClassroomsService);
+  protected readonly auth = inject(AuthService);
 
   protected readonly loading = signal(true);
   protected readonly showCreate = signal(false);

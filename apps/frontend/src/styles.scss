@@ -121,9 +121,16 @@ input, select, textarea {
     transition: border-color 0.15s;
 
     &:focus-visible { border-color: var(--color-primary); }
+    &.ng-invalid.ng-touched { border-color: var(--color-error); }
   }
 
   select { cursor: pointer; }
+}
+
+.field-error {
+  color: var(--color-error);
+  font-size: 0.78rem;
+  margin-top: -0.15rem;
 }
 
 .error-message {

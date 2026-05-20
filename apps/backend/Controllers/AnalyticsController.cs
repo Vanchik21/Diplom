@@ -22,6 +22,7 @@ public class AnalyticsController(AnalyticsService analyticsService) : Controller
         return Ok(entries);
     }
 
+    [Authorize(Roles = "Teacher")]
     [HttpGet("classrooms/{classroomId:guid}/overview")]
     public async Task<ActionResult<ClassroomOverviewDto>> GetOverview(Guid classroomId)
     {
@@ -29,6 +30,7 @@ public class AnalyticsController(AnalyticsService analyticsService) : Controller
         return result is null ? Forbid() : Ok(result);
     }
 
+    [Authorize(Roles = "Teacher")]
     [HttpGet("classrooms/{classroomId:guid}/students/{studentId}")]
     public async Task<ActionResult<StudentTimelineDto>> GetStudentTimeline(
         Guid classroomId, string studentId)

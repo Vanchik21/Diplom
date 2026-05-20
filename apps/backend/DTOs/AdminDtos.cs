@@ -10,6 +10,7 @@ public record AdminUserDto(
     string? AvatarUrl,
     bool IsActive,
     bool IsAdmin,
+    string Role,
     DateTime CreatedAt);
 
 public record AdminStatsDto(

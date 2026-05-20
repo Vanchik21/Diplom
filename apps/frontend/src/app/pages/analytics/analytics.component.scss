@@ -37,6 +37,8 @@
     color: var(--color-text-muted, #9ca3af);
     font-size: 0.875rem;
     padding: 1rem 0;
+
+    &--error { color: var(--color-error, #f87171); }
   }
 }
 

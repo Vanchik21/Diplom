@@ -215,6 +215,34 @@
       </form>
     }
 
+    <!-- ══════════ ROLE ══════════ -->
+    @if (!editing() && currentRole() !== 'Admin') {
+      <div class="role-zone">
+        <h2 class="role-zone__title">{{ 'profile.role' | translate }}</h2>
+        <p class="role-zone__current">
+          {{ currentRole() === 'Teacher' ? ('auth.register.roleTeacher' | translate) : ('auth.register.roleStudent' | translate) }}
+        </p>
+
+        @if (myRoleRequest(); as req) {
+          @if (req.status === 'Pending') {
+            <p class="role-zone__pending">{{ 'profile.roleRequestPending' | translate }}</p>
+          } @else if (req.status === 'Rejected') {
+            <p class="role-zone__error">{{ 'profile.roleRequestRejected' | translate }}</p>
+            <button class="btn role-zone__request-btn" [disabled]="submittingRoleRequest()" (click)="submitRoleRequest()">
+              {{ submittingRoleRequest() ? ('common.loading' | translate) : ('profile.roleRequestSubmit' | translate) }}
+            </button>
+          }
+        } @else {
+          @if (roleRequestError()) {
+            <p class="role-zone__error">{{ roleRequestError()! | translate }}</p>
+          }
+          <button class="btn role-zone__request-btn" [disabled]="submittingRoleRequest()" (click)="submitRoleRequest()">
+            {{ submittingRoleRequest() ? ('common.loading' | translate) : ('profile.roleRequestSubmit' | translate) }}
+          </button>
+        }
+      </div>
+    }
+
     <!-- ══════════ DATA & PRIVACY ══════════ -->
     @if (!editing()) {
       <div class="privacy-zone">

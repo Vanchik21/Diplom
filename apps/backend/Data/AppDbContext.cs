@@ -13,6 +13,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
     public DbSet<Assignment>           Assignments           => Set<Assignment>();
     public DbSet<Submission>           Submissions           => Set<Submission>();
     public DbSet<SubmissionArtifact>   SubmissionArtifacts   => Set<SubmissionArtifact>();
+    public DbSet<RoleChangeRequest>    RoleChangeRequests    => Set<RoleChangeRequest>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -120,6 +121,19 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
             e.Property(a => a.Kind).HasMaxLength(50).IsRequired();
             e.Property(a => a.ContentType).HasMaxLength(100).IsRequired();
             e.HasIndex(a => a.SubmissionId).IsUnique();
+        });
+
+        builder.Entity<RoleChangeRequest>(e =>
+        {
+            e.HasKey(r => r.Id);
+            e.Property(r => r.Id).ValueGeneratedOnAdd();
+            e.Property(r => r.RequestedRole).HasMaxLength(20).IsRequired();
+            e.Property(r => r.Status).HasMaxLength(20).IsRequired();
+            e.Property(r => r.CreatedAt).HasDefaultValueSql("now()");
+            e.HasOne(r => r.User)
+             .WithMany()
+             .HasForeignKey(r => r.UserId)
+             .OnDelete(DeleteBehavior.Cascade);
         });
     }
 }

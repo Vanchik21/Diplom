@@ -13,6 +13,7 @@ import {
 import { DecimalPipe } from '@angular/common';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { TranslateModule } from '@ngx-translate/core';
+import { Subscription } from 'rxjs';
 import { Chart, registerables } from 'chart.js';
 import { AnalyticsService } from '../../core/analytics/analytics.service';
 import { ClassroomsService } from '../../core/classrooms/classrooms.service';
@@ -48,11 +49,15 @@ export class AnalyticsComponent implements OnDestroy {
   );
   protected readonly isTeacher = computed(() => this.teacherClassrooms().length > 0);
 
-  protected readonly personalData    = toSignal(this.analyticsService.getPersonal());
+  protected readonly personalData    = signal<PersonalAnalyticsDto | null>(null);
+  protected readonly personalLoading = signal(true);
+  protected readonly personalError   = signal(false);
   protected readonly overviewData    = signal<ClassroomOverviewDto | null>(null);
   protected readonly overviewLoading = signal(false);
   protected readonly studentTimeline = signal<StudentTimelineDto | null>(null);
   protected readonly studentLoading  = signal(false);
+
+  private personalSub?: Subscription;
 
   private scoreBarEl   = viewChild<ElementRef<HTMLCanvasElement>>('scoreBarCanvas');
   private studentLineEl = viewChild<ElementRef<HTMLCanvasElement>>('studentLineCanvas');
@@ -70,6 +75,11 @@ export class AnalyticsComponent implements OnDestroy {
   ];
 
   constructor() {
+    this.personalSub = this.analyticsService.getPersonal().subscribe({
+      next: data => { this.personalData.set(data); this.personalLoading.set(false); },
+      error: ()   => { this.personalError.set(true); this.personalLoading.set(false); },
+    });
+
     effect(() => {
       const el   = this.scoreBarEl();
       const data = this.overviewData();
@@ -86,6 +96,7 @@ export class AnalyticsComponent implements OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.personalSub?.unsubscribe();
     this.barChart?.destroy();
     this.lineChart?.destroy();
   }

@@ -11,6 +11,7 @@ namespace Physis.Api.Controllers;
 [Authorize]
 public class ClassroomsController(ClassroomService classroomService) : ControllerBase
 {
+    [Authorize(Roles = "Teacher")]
     [HttpPost]
     public async Task<ActionResult<ClassroomSummaryDto>> Create(ClassroomCreateDto dto)
     {

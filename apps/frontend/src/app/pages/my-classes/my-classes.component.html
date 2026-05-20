@@ -5,9 +5,11 @@
       <button class="btn btn--ghost" (click)="showJoin.set(true)">
         + {{ 'cls.joinByCode' | translate }}
       </button>
-      <button class="btn btn--primary" (click)="showCreate.set(true)">
-        + {{ 'cls.createClass' | translate }}
-      </button>
+      @if (auth.userRole() === 'Teacher' || auth.userRole() === 'Admin') {
+        <button class="btn btn--primary" (click)="showCreate.set(true)">
+          + {{ 'cls.createClass' | translate }}
+        </button>
+      }
     </div>
   </header>
 
@@ -15,30 +17,32 @@
     <p class="my-classes__state">{{ 'common.loading' | translate }}</p>
   } @else {
 
-    <section class="my-classes__section">
-      <h2 class="my-classes__section-title">{{ 'cls.teaching' | translate }}</h2>
-      @if (teaching().length === 0) {
-        <p class="my-classes__empty">{{ 'cls.noTeaching' | translate }}</p>
-      } @else {
-        <div class="class-grid">
-          @for (cls of teaching(); track cls.id) {
-            <a class="class-card" [routerLink]="['/classes', cls.id]">
-              <div class="class-card__name">{{ cls.name }}</div>
-              @if (cls.description) {
-                <div class="class-card__desc">{{ cls.description }}</div>
-              }
-              <div class="class-card__meta">
-                <span class="class-card__badge class-card__badge--teacher">{{ 'cls.roleTeacher' | translate }}</span>
-                <span>{{ cls.memberCount }} {{ 'cls.members' | translate }}</span>
-                @if (cls.isArchived) {
-                  <span class="class-card__badge class-card__badge--archived">{{ 'cls.archived' | translate }}</span>
+    @if (auth.userRole() === 'Teacher' || auth.userRole() === 'Admin') {
+      <section class="my-classes__section">
+        <h2 class="my-classes__section-title">{{ 'cls.teaching' | translate }}</h2>
+        @if (teaching().length === 0) {
+          <p class="my-classes__empty">{{ 'cls.noTeaching' | translate }}</p>
+        } @else {
+          <div class="class-grid">
+            @for (cls of teaching(); track cls.id) {
+              <a class="class-card" [routerLink]="['/classes', cls.id]">
+                <div class="class-card__name">{{ cls.name }}</div>
+                @if (cls.description) {
+                  <div class="class-card__desc">{{ cls.description }}</div>
                 }
-              </div>
-            </a>
-          }
-        </div>
-      }
-    </section>
+                <div class="class-card__meta">
+                  <span class="class-card__badge class-card__badge--teacher">{{ 'cls.roleTeacher' | translate }}</span>
+                  <span>{{ cls.memberCount }} {{ 'cls.members' | translate }}</span>
+                  @if (cls.isArchived) {
+                    <span class="class-card__badge class-card__badge--archived">{{ 'cls.archived' | translate }}</span>
+                  }
+                </div>
+              </a>
+            }
+          </div>
+        }
+      </section>
+    }
 
     <section class="my-classes__section">
       <h2 class="my-classes__section-title">{{ 'cls.studying' | translate }}</h2>

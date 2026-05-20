@@ -25,7 +25,7 @@ public class AssignmentService(AppDbContext db)
             ModuleId        = dto.ModuleId,
             Title           = dto.Title,
             Description     = dto.Description,
-            ExpectedMetrics = JsonSerializer.Serialize(dto.ExpectedMetrics),
+            ExpectedMetrics = JsonSerializer.Serialize(dto.ExpectedMetrics ?? new Dictionary<string, double>()),
             DueAt           = dto.DueAt,
             CreatedAt       = DateTime.UtcNow,
             CreatedById     = userId,

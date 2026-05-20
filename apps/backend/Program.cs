@@ -97,8 +97,9 @@ using (var scope = app.Services.CreateScope())
         db.Database.EnsureCreated();
 
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-    if (!await roleManager.RoleExistsAsync(AdminRole))
-        await roleManager.CreateAsync(new IdentityRole(AdminRole));
+    foreach (var roleName in new[] { AdminRole, "Teacher", "Student" })
+        if (!await roleManager.RoleExistsAsync(roleName))
+            await roleManager.CreateAsync(new IdentityRole(roleName));
 
     if (app.Environment.IsDevelopment())
     {
@@ -131,10 +132,14 @@ using (var scope = app.Services.CreateScope())
                     app.Logger.LogWarning("Dev admin seed failed: {Errors}", errors);
                 }
             }
-            else if (!await userManager.IsInRoleAsync(existing, AdminRole))
+            else
             {
-                await userManager.AddToRoleAsync(existing, AdminRole);
-                app.Logger.LogInformation("Admin role assigned to existing dev account: {Email}", seedEmail);
+                // Reset password for existing admin account on every dev startup
+                var resetToken = await userManager.GeneratePasswordResetTokenAsync(existing);
+                await userManager.ResetPasswordAsync(existing, resetToken, seedPassword);
+                if (!await userManager.IsInRoleAsync(existing, AdminRole))
+                    await userManager.AddToRoleAsync(existing, AdminRole);
+                app.Logger.LogInformation("Dev admin password reset for: {Email}", seedEmail);
             }
         }
         else

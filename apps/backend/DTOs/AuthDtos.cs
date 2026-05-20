@@ -1,6 +1,8 @@
 namespace Physis.Api.DTOs;
 
-public record RegisterRequest(string Email, string UserName, string Password);
+public record RegisterRequest(string Email, string UserName, string Password, string Role);
+
+public record ChangeRoleRequest(string Role);
 
 public record LoginRequest(string Email, string Password);
 

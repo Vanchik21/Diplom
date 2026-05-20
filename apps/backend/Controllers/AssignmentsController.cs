@@ -11,6 +11,7 @@ namespace Physis.Api.Controllers;
 [Authorize]
 public class AssignmentsController(AssignmentService assignmentService) : ControllerBase
 {
+    [Authorize(Roles = "Teacher")]
     [HttpPost]
     public async Task<ActionResult<AssignmentSummaryDto>> Create(AssignmentCreateDto dto)
     {
@@ -42,6 +43,7 @@ public class AssignmentsController(AssignmentService assignmentService) : Contro
         return deleted ? NoContent() : Forbid();
     }
 
+    [Authorize(Roles = "Student")]
     [HttpPost("{id:guid}/submit")]
     public async Task<ActionResult<SubmissionResultDto>> Submit(Guid id, SubmitAssignmentDto dto)
     {

@@ -14,7 +14,9 @@ import { Observable, switchMap, of } from 'rxjs';
 import { ProfileService } from '../../core/profile/profile.service';
 import { GdprService } from '../../core/gdpr/gdpr.service';
 import { AuthService } from '../../core/auth/auth.service';
+import { RoleRequestsService } from '../../core/role-requests/role-requests.service';
 import type { UpdateProfileRequest, UserProfile } from '../../core/profile/profile.models';
+import type { RoleRequestDto } from '../../core/role-requests/role-requests.models';
 
 const AVATAR_COLORS = [
   '#5c6ef8', '#7c3aed', '#db2777', '#dc2626',
@@ -41,6 +43,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
   private readonly profileService = inject(ProfileService);
   private readonly gdprService = inject(GdprService);
   private readonly authService = inject(AuthService);
+  private readonly roleRequestsService = inject(RoleRequestsService);
   private readonly translate = inject(TranslateService);
   private readonly fb = inject(FormBuilder);
 
@@ -55,6 +58,11 @@ export class ProfileComponent implements OnInit, OnDestroy {
   protected readonly avatarPreviewUrl = signal<string | null>(null);
   protected readonly deletingAccount = signal(false);
   protected readonly confirmDelete = signal(false);
+  protected readonly submittingRoleRequest = signal(false);
+  protected readonly roleRequestError = signal<string | null>(null);
+  protected readonly myRoleRequest = signal<RoleRequestDto | null>(null);
+
+  protected readonly currentRole = this.authService.userRole;
 
   protected readonly initials = computed(() => {
     const p = this.profile();
@@ -101,6 +109,13 @@ export class ProfileComponent implements OnInit, OnDestroy {
         this.loading.set(false);
       },
     });
+
+    if (this.authService.userRole() !== 'Admin') {
+      this.roleRequestsService.getMyRequest().subscribe({
+        next: r => this.myRoleRequest.set(r),
+        error: () => {},
+      });
+    }
   }
 
   protected startEdit(): void {
@@ -192,6 +207,24 @@ export class ProfileComponent implements OnInit, OnDestroy {
           this.saving.set(false);
         },
       });
+  }
+
+  protected submitRoleRequest(): void {
+    if (this.submittingRoleRequest()) return;
+    const current = this.authService.userRole();
+    const requested: 'Student' | 'Teacher' = current === 'Student' ? 'Teacher' : 'Student';
+    this.submittingRoleRequest.set(true);
+    this.roleRequestError.set(null);
+    this.roleRequestsService.submit(requested).subscribe({
+      next: r => {
+        this.myRoleRequest.set(r);
+        this.submittingRoleRequest.set(false);
+      },
+      error: () => {
+        this.roleRequestError.set('profile.roleRequestError');
+        this.submittingRoleRequest.set(false);
+      },
+    });
   }
 
   protected exportData(): void {

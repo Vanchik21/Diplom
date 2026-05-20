@@ -8,6 +8,7 @@ export interface AdminUser {
   avatarUrl: string | null;
   isActive: boolean;
   isAdmin: boolean;
+  role: 'Admin' | 'Teacher' | 'Student' | 'User';
   createdAt: string;
 }
 

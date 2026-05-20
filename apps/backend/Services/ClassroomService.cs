@@ -43,6 +43,7 @@ public class ClassroomService(AppDbContext db)
     {
         return await db.ClassroomMemberships
             .Where(m => m.UserId == userId)
+            .OrderByDescending(m => m.Classroom.CreatedAt)
             .Select(m => new ClassroomSummaryDto(
                 m.Classroom.Id,
                 m.Classroom.Name,
@@ -53,9 +54,8 @@ public class ClassroomService(AppDbContext db)
                 m.Classroom.IsArchived,
                 m.Classroom.CreatedAt,
                 m.Role,
-                m.Classroom.Memberships.Count
+                db.ClassroomMemberships.Count(cm => cm.ClassroomId == m.ClassroomId)
             ))
-            .OrderByDescending(c => c.CreatedAt)
             .ToListAsync();
     }
 

@@ -217,6 +217,66 @@
   margin-top: 0.25rem;
 }
 
+/* ── Role zone ── */
+.role-zone {
+  margin-top: 2.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--color-border);
+
+  &__title {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 0.4rem;
+  }
+
+  &__current {
+    font-size: 0.9rem;
+    color: var(--color-text-muted);
+    margin-bottom: 0.75rem;
+  }
+
+  &__request-btn {
+    padding-left: 0;
+    background: var(--color-border);
+    color: var(--color-text);
+    border: none;
+
+    &:hover:not(:disabled) {
+      background: color-mix(in srgb, var(--color-border) 75%, var(--color-text) 25%);
+      color: var(--color-text);
+    }
+
+    &:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+  }
+
+  &__actions {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+  }
+
+  &__success {
+    font-size: 0.875rem;
+    color: var(--color-success, #34d399);
+    margin-bottom: 0.5rem;
+  }
+
+  &__pending {
+    font-size: 0.875rem;
+    color: #fbbf24;
+    margin-bottom: 0.5rem;
+  }
+
+  &__error {
+    font-size: 0.875rem;
+    color: var(--color-error);
+    margin-bottom: 0.5rem;
+  }
+}
+
 /* ── Data & Privacy zone ── */
 .privacy-zone {
   margin-top: 2.5rem;

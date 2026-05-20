@@ -25,6 +25,7 @@ export class LoginComponent {
   });
 
   protected submit(): void {
+    this.form.markAllAsTouched();
     if (this.form.invalid || this.loading()) return;
     this.error.set(null);
     this.loading.set(true);

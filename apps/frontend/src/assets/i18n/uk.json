@@ -30,6 +30,9 @@
       "email": "Електронна пошта",
       "userName": "Ім'я користувача",
       "password": "Пароль",
+      "role": "Я є",
+      "roleStudent": "Учень",
+      "roleTeacher": "Викладач",
       "submit": "Зареєструватись",
       "hasAccount": "Вже є акаунт?",
       "loginLink": "Увійти"
@@ -37,6 +40,15 @@
     "errors": {
       "invalidCredentials": "Невірна пошта або пароль.",
       "registrationFailed": "Не вдалося зареєструватись. Перевірте дані та спробуйте ще раз."
+    },
+    "validation": {
+      "emailRequired": "Введіть електронну пошту",
+      "emailInvalid": "Введіть коректну електронну пошту (наприклад, user@example.com)",
+      "userNameRequired": "Введіть ім'я користувача",
+      "userNameMinLength": "Ім'я користувача має містити щонайменше 3 символи",
+      "passwordRequired": "Введіть пароль",
+      "passwordMinLength": "Пароль має містити щонайменше 8 символів",
+      "roleRequired": "Оберіть роль — Учень або Викладач"
     }
   },
   "modules": {
@@ -119,6 +131,11 @@
     "userName": "Ім'я користувача",
     "memberSince": "Учасник з",
     "notFilled": "не вказано",
+    "role": "Роль",
+    "roleRequestSubmit": "Подати заявку на зміну ролі",
+    "roleRequestPending": "⏳ Заявку подано — очікує розгляду адміністратором.",
+    "roleRequestRejected": "Заявку відхилено. Ви можете подати нову.",
+    "roleRequestError": "Не вдалося подати заявку. Спробуйте ще раз.",
     "saveSuccess": "Профіль успішно збережено.",
     "saveError": "Не вдалося зберегти профіль. Спробуйте ще раз.",
     "uploadError": "Не вдалося завантажити фото.",
@@ -207,7 +224,18 @@
       "makeAdmin": "Зробити адміном",
       "removeAdmin": "Зняти права адміна",
       "activate": "Активувати",
-      "deactivate": "Деактивувати"
+      "deactivate": "Деактивувати",
+      "role_admin": "Адмін",
+      "role_teacher": "Викладач",
+      "role_student": "Учень",
+      "role_user": "Користувач"
+    },
+    "roleRequests": {
+      "title": "Заявки на зміну ролі",
+      "empty": "Немає активних заявок.",
+      "requestedRole": "Запитана роль",
+      "approve": "Підтвердити",
+      "reject": "Відхилити"
     },
     "pagination": {
       "prev": "Назад",
@@ -254,6 +282,17 @@
   },
   "asgn": {
     "create": "Створити завдання",
+    "createTitle": "Нове завдання",
+    "module": "Модуль",
+    "title": "Назва",
+    "titlePlaceholder": "Наприклад: Лабораторна №1 — Маятник",
+    "description": "Опис",
+    "descriptionPlaceholder": "Необов'язкові інструкції для студентів…",
+    "dueAt": "Дедлайн",
+    "addMetric": "Додати показник",
+    "metricsHint": "Очікувані показники не додано. Студенти вносять довільні спостереження.",
+    "metricKey": "Назва показника",
+    "metricValue": "Очікуване значення",
     "empty": "Завдань ще немає.",
     "submissions": "здач",
     "notFound": "Завдання не знайдено.",

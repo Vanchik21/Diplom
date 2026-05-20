@@ -11,7 +11,9 @@ import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { AdminService } from '../../core/admin/admin.service';
 import { AuthService } from '../../core/auth/auth.service';
+import { RoleRequestsService } from '../../core/role-requests/role-requests.service';
 import type { AdminStats, AdminUser } from '../../core/admin/admin.models';
+import type { RoleRequestDto } from '../../core/role-requests/role-requests.models';
 
 const PAGE_SIZE = 15;
 
@@ -26,6 +28,7 @@ const PAGE_SIZE = 15;
 export class AdminComponent implements OnInit {
   private readonly adminService = inject(AdminService);
   private readonly auth = inject(AuthService);
+  private readonly roleRequestsService = inject(RoleRequestsService);
 
   protected readonly currentUserId = computed(() => {
     const token = this.auth.accessToken();
@@ -51,12 +54,17 @@ export class AdminComponent implements OnInit {
   protected readonly search = signal('');
   protected readonly actionError = signal<string | null>(null);
   protected readonly busyIds = signal<Set<string>>(new Set());
+  protected readonly tab = signal<'users' | 'roleRequests'>('users');
+  protected readonly roleRequests = signal<RoleRequestDto[]>([]);
+  protected readonly roleRequestsLoading = signal(false);
+  protected readonly busyRequestIds = signal<Set<string>>(new Set());
 
   protected searchValue = '';
 
   ngOnInit(): void {
     this.loadStats();
     this.loadUsers();
+    this.loadRoleRequests();
   }
 
   private loadStats(): void {
@@ -139,8 +147,55 @@ export class AdminComponent implements OnInit {
     return full || user.userName;
   }
 
+  protected selectTab(t: 'users' | 'roleRequests'): void {
+    this.tab.set(t);
+  }
+
+  private loadRoleRequests(): void {
+    this.roleRequestsLoading.set(true);
+    this.roleRequestsService.getPending().subscribe({
+      next: list => { this.roleRequests.set(list); this.roleRequestsLoading.set(false); },
+      error: ()   => this.roleRequestsLoading.set(false),
+    });
+  }
+
+  protected approveRequest(req: RoleRequestDto): void {
+    this.setBusyRequest(req.id, true);
+    this.roleRequestsService.approve(req.id).subscribe({
+      next: () => {
+        this.roleRequests.update(list => list.filter(r => r.id !== req.id));
+        this.setBusyRequest(req.id, false);
+        this.loadUsers();
+        this.loadStats();
+      },
+      error: () => this.setBusyRequest(req.id, false),
+    });
+  }
+
+  protected rejectRequest(req: RoleRequestDto): void {
+    this.setBusyRequest(req.id, true);
+    this.roleRequestsService.reject(req.id).subscribe({
+      next: () => {
+        this.roleRequests.update(list => list.filter(r => r.id !== req.id));
+        this.setBusyRequest(req.id, false);
+        this.loadUsers();
+        this.loadStats();
+      },
+      error: () => this.setBusyRequest(req.id, false),
+    });
+  }
+
   private setBusy(id: string, busy: boolean): void {
     this.busyIds.update(set => {
+      const next = new Set(set);
+      if (busy) next.add(id);
+      else next.delete(id);
+      return next;
+    });
+  }
+
+  private setBusyRequest(id: string, busy: boolean): void {
+    this.busyRequestIds.update(set => {
       const next = new Set(set);
       if (busy) next.add(id);
       else next.delete(id);

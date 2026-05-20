@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -13,9 +14,14 @@ public class AuthController(
     UserManager<ApplicationUser> userManager,
     TokenService tokenService) : ControllerBase
 {
+    private static readonly HashSet<string> AllowedRoles = ["Student", "Teacher"];
+
     [HttpPost("register")]
     public async Task<ActionResult<AuthResponse>> Register(RegisterRequest request)
     {
+        if (!AllowedRoles.Contains(request.Role))
+            return BadRequest(new { error = "Role must be 'Student' or 'Teacher'." });
+
         var user = new ApplicationUser
         {
             Email = request.Email,
@@ -25,6 +31,8 @@ public class AuthController(
         var result = await userManager.CreateAsync(user, request.Password);
         if (!result.Succeeded)
             return BadRequest(result.Errors.Select(e => e.Description));
+
+        await userManager.AddToRoleAsync(user, request.Role);
 
         return Ok(await IssueTokens(user));
     }
@@ -55,9 +63,9 @@ public class AuthController(
     [HttpGet("me")]
     public ActionResult<CurrentUserResponse> Me()
     {
-        var id = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value
+        var id = User.FindFirst(ClaimTypes.NameIdentifier)?.Value
                  ?? User.FindFirst("sub")?.Value;
-        var email = User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value
+        var email = User.FindFirst(ClaimTypes.Email)?.Value
                     ?? User.FindFirst("email")?.Value;
         var userName = User.Identity?.Name;
 
@@ -65,6 +73,32 @@ public class AuthController(
             return Unauthorized();
 
         return Ok(new CurrentUserResponse(id, email, userName));
+    }
+
+    [Authorize(Roles = "Admin")]
+    [HttpPatch("/api/users/me/role")]
+    public async Task<ActionResult<AuthResponse>> ChangeRole(ChangeRoleRequest request)
+    {
+        if (!AllowedRoles.Contains(request.Role))
+            return BadRequest(new { error = "Role must be 'Student' or 'Teacher'." });
+
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)
+                     ?? User.FindFirstValue("sub");
+        if (userId is null) return Unauthorized();
+
+        var user = await userManager.FindByIdAsync(userId);
+        if (user is null) return Unauthorized();
+
+        var currentRoles = await userManager.GetRolesAsync(user);
+        if (currentRoles.Contains("Admin"))
+            return BadRequest(new { error = "Admin role cannot be changed." });
+
+        if (currentRoles.Count > 0)
+            await userManager.RemoveFromRolesAsync(user, currentRoles);
+
+        await userManager.AddToRoleAsync(user, request.Role);
+
+        return Ok(await IssueTokens(user));
     }
 
     private async Task<AuthResponse> IssueTokens(ApplicationUser user)

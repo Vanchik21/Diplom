@@ -20,17 +20,19 @@ export class RegisterComponent {
   protected readonly loading = signal(false);
 
   protected readonly form = new FormGroup({
-    email: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.email] }),
+    email:    new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.email] }),
     userName: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.minLength(3)] }),
     password: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.minLength(8)] }),
+    role:     new FormControl<'Student' | 'Teacher' | ''>('', { nonNullable: true, validators: [Validators.required] }),
   });
 
   protected submit(): void {
+    this.form.markAllAsTouched();
     if (this.form.invalid || this.loading()) return;
     this.error.set(null);
     this.loading.set(true);
-    const { email, userName, password } = this.form.getRawValue();
-    this.auth.register(email, userName, password).subscribe({
+    const { email, userName, password, role } = this.form.getRawValue();
+    this.auth.register(email, userName, password, role as 'Student' | 'Teacher').subscribe({
       next: () => this.router.navigate(['/']),
       error: () => {
         this.error.set('auth.errors.registrationFailed');
