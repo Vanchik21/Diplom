@@ -11,7 +11,7 @@ import {
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { AssignmentsService } from '../../core/assignments/assignments.service';
-import type { AssignmentSummaryDto, QuizQuestion } from '../../core/assignments/assignment.models';
+import type { AnswerFieldDto, AssignmentSummaryDto, QuizQuestion } from '../../core/assignments/assignment.models';
 import { AssignmentTypes } from '../../core/assignments/assignment.models';
 import { ModuleRegistryService } from '../../physics-modules/registry.service';
 import type { RegistryEntry } from '../../physics-modules/registry.service';
@@ -41,15 +41,17 @@ export class CreateAssignmentDialogComponent implements OnInit {
   protected readonly description = signal('');
   protected readonly moduleId    = signal('');
   protected readonly dueAt       = signal('');
-  protected readonly assignmentType = signal<0|1|2>(0);
+  protected readonly assignmentType = signal<0|1|2|3>(0);
   protected readonly metrics     = signal<MetricEntry[]>([]);
   protected readonly questions   = signal<QuizQuestion[]>([]);
+  protected readonly answerFields = signal<AnswerFieldDto[]>([]);
   protected readonly saving      = signal(false);
   protected readonly error       = signal('');
 
   protected readonly isQuiz     = computed(() => this.assignmentType() === AssignmentTypes.Quiz);
   protected readonly isScenario = computed(() => this.assignmentType() === AssignmentTypes.Scenario);
   protected readonly isPoe      = computed(() => this.assignmentType() === AssignmentTypes.Poe);
+  protected readonly isProblem  = computed(() => this.assignmentType() === AssignmentTypes.Problem);
 
   ngOnInit(): void {
     const all = this.registry.getAll();
@@ -68,6 +70,16 @@ export class CreateAssignmentDialogComponent implements OnInit {
   }
   protected updateMetricValue(i: number, value: number): void {
     this.metrics.update(m => m.map((e, j) => j === i ? { ...e, value } : e));
+  }
+
+  protected addAnswerField(): void {
+    this.answerFields.update(f => [...f, { label: '', unit: null, correctValue: 0, tolerance: 0.05 }]);
+  }
+  protected removeAnswerField(i: number): void {
+    this.answerFields.update(f => f.filter((_, j) => j !== i));
+  }
+  protected updateAnswerField(i: number, patch: Partial<AnswerFieldDto>): void {
+    this.answerFields.update(f => f.map((e, j) => j === i ? { ...e, ...patch } : e));
   }
 
   protected addQuestion(): void {
@@ -98,11 +110,14 @@ export class CreateAssignmentDialogComponent implements OnInit {
     if (this.isQuiz() && this.questions().length === 0) {
       this.error.set('asgn.quizNeedQuestions'); return;
     }
+    if (this.isProblem() && this.answerFields().length === 0) {
+      this.error.set('asgn.problemNeedFields'); return;
+    }
     this.saving.set(true);
     this.error.set('');
 
     const expectedMetrics: Record<string, number> = {};
-    if (!this.isQuiz()) {
+    if (!this.isQuiz() && !this.isProblem()) {
       for (const m of this.metrics()) {
         if (m.key.trim()) expectedMetrics[m.key.trim()] = m.value;
       }
@@ -116,6 +131,7 @@ export class CreateAssignmentDialogComponent implements OnInit {
       assignmentType: this.assignmentType(),
       expectedMetrics,
       questions:      this.isQuiz() ? this.questions() : null,
+      answerFields:   this.isProblem() ? this.answerFields() : null,
       dueAt:          this.dueAt() || null,
     }).subscribe({
       next: result => { this.saving.set(false); this.created.emit(result); },

@@ -1,0 +1,17 @@
+<div class="al-root">
+  <nav class="al-sidebar">
+    <div class="al-sidebar__title">{{ 'admin.panel' | translate }}</div>
+    <a class="al-sidebar__link" routerLink="users" routerLinkActive="al-sidebar__link--active">
+      {{ 'admin.nav.users' | translate }}
+    </a>
+    <a class="al-sidebar__link" routerLink="role-requests" routerLinkActive="al-sidebar__link--active">
+      {{ 'admin.nav.roleRequests' | translate }}
+    </a>
+    <a class="al-sidebar__link" routerLink="audit-log" routerLinkActive="al-sidebar__link--active">
+      {{ 'admin.nav.auditLog' | translate }}
+    </a>
+  </nav>
+  <main class="al-content">
+    <router-outlet />
+  </main>
+</div>

@@ -16,6 +16,8 @@ public class ApplicationUser : IdentityUser
     public string? Bio { get; set; }
 
     public bool IsActive { get; set; } = true;
+    public bool IsDeleted { get; set; } = false;
+    public int TokenVersion { get; set; } = 0;
 
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }

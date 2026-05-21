@@ -6,7 +6,10 @@ using Physis.Api.Models;
 
 namespace Physis.Api.Services;
 
-public class AssignmentService(AppDbContext db)
+public class AssignmentService(
+    AppDbContext db,
+    NotificationService notificationService,
+    IEmailService emailService)
 {
     private static readonly JsonSerializerOptions JsonOpts =
         new() { PropertyNameCaseInsensitive = true };
@@ -30,6 +33,9 @@ public class AssignmentService(AppDbContext db)
             ExpectedMetrics = JsonSerializer.Serialize(dto.ExpectedMetrics ?? new Dictionary<string, double>()),
             Questions       = dto.Questions is { Count: > 0 }
                                 ? JsonSerializer.Serialize(dto.Questions)
+                                : null,
+            AnswerFieldsJson = dto.AnswerFields is { Count: > 0 }
+                                ? JsonSerializer.Serialize(dto.AnswerFields)
                                 : null,
             DueAt           = dto.DueAt,
             CreatedAt       = DateTime.UtcNow,
@@ -84,10 +90,19 @@ public class AssignmentService(AppDbContext db)
         var isTeacher = membership.Role == ClassroomRole.Teacher
                      || membership.Role == ClassroomRole.CoAuthor;
 
-        var expected   = DeserializeMetrics(assignment.ExpectedMetrics);
-        var questions  = DeserializeQuestions(assignment.Questions);
+        var expected     = DeserializeMetrics(assignment.ExpectedMetrics);
+        var questions    = DeserializeQuestions(assignment.Questions);
+        var answerFields = GradingService.DeserializeAnswerFields(assignment.AnswerFieldsJson);
 
         var mySubmission = assignment.Submissions.FirstOrDefault(s => s.StudentId == userId);
+
+        // Students only see their own submission if it's been reviewed & published
+        SubmissionResultDto? myResult = null;
+        if (mySubmission is not null)
+        {
+            var show = isTeacher || mySubmission.Status == SubmissionStatus.ReviewedPublished;
+            myResult = show ? ToResult(mySubmission, mySubmission.Student) : null;
+        }
 
         var allSubmissions = isTeacher
             ? assignment.Submissions
@@ -105,10 +120,11 @@ public class AssignmentService(AppDbContext db)
             assignment.AssignmentType,
             expected,
             questions,
+            answerFields,
             assignment.DueAt,
             assignment.CreatedAt,
             isTeacher,
-            mySubmission is null ? null : ToResult(mySubmission, mySubmission.Student),
+            myResult,
             allSubmissions
         );
     }
@@ -148,7 +164,8 @@ public class AssignmentService(AppDbContext db)
 
         double score;
         List<ComparisonRowDto> rows;
-        string? quizAnswersJson = null;
+        string? quizAnswersJson    = null;
+        string? problemAnswersJson = null;
 
         if (assignment.AssignmentType == AssignmentType.Quiz)
         {
@@ -162,6 +179,13 @@ public class AssignmentService(AppDbContext db)
 
             score = questions.Count > 0 ? (double)correct / questions.Count : 0;
             rows  = [];
+        }
+        else if (assignment.AssignmentType == AssignmentType.Problem)
+        {
+            var fields  = GradingService.DeserializeAnswerFields(assignment.AnswerFieldsJson) ?? [];
+            var answers = dto.ProblemAnswers ?? new Dictionary<string, double>();
+            problemAnswersJson = JsonSerializer.Serialize(answers);
+            (score, rows) = GradingService.GradeProblem(fields, answers);
         }
         else
         {
@@ -178,6 +202,8 @@ public class AssignmentService(AppDbContext db)
             Score           = score,
             ConclusionText  = dto.ConclusionText?.Trim(),
             QuizAnswers     = quizAnswersJson,
+            ProblemAnswers  = problemAnswersJson,
+            Status          = SubmissionStatus.PendingReview,
             SubmittedAt     = DateTime.UtcNow,
         };
 
@@ -189,7 +215,7 @@ public class AssignmentService(AppDbContext db)
             try
             {
                 var imageData = Convert.FromBase64String(dto.ScreenshotBase64);
-                db.SubmissionArtifacts.Add(new Models.SubmissionArtifact
+                db.SubmissionArtifacts.Add(new SubmissionArtifact
                 {
                     SubmissionId = submission.Id,
                     Kind         = "screenshot",
@@ -202,24 +228,36 @@ public class AssignmentService(AppDbContext db)
         }
 
         var student = await db.Users.FindAsync(userId);
+
+        // Notify + email all teachers/co-authors in this classroom
+        var teacherIds = await db.ClassroomMemberships
+            .Where(m => m.ClassroomId == assignment.ClassroomId &&
+                        (m.Role == ClassroomRole.Teacher || m.Role == ClassroomRole.CoAuthor))
+            .Select(m => m.UserId)
+            .ToListAsync();
+
+        var studentName = DisplayName(student!);
+        var notifLink   = $"/classes/{assignment.ClassroomId}/assignments/{assignment.Id}/submissions";
+        var notifMsg    = $"Нова робота від {studentName} — {assignment.Title}";
+
+        await notificationService.CreateManyAsync(teacherIds, notifMsg, notifLink);
+
+        var teachers = await db.Users
+            .Where(u => teacherIds.Contains(u.Id) && u.Email != null)
+            .Select(u => u.Email!)
+            .ToListAsync();
+
+        foreach (var email in teachers)
+            await emailService.SendAsync(
+                email,
+                $"Physis: нова робота на перевірку — {assignment.Title}",
+                $"Студент {studentName} надіслав(ла) роботу до завдання «{assignment.Title}».\n\nПерейдіть до перевірки: http://localhost:4200{notifLink}");
+
         return ToResult(submission, student!);
     }
 
-    private static Dictionary<string, double> DeserializeMetrics(string json)
-        => JsonSerializer.Deserialize<Dictionary<string, double>>(json, JsonOpts)
-           ?? new Dictionary<string, double>();
-
-    private static List<QuizQuestionDto>? DeserializeQuestions(string? json)
-    {
-        if (string.IsNullOrWhiteSpace(json)) return null;
-        return JsonSerializer.Deserialize<List<QuizQuestionDto>>(json, JsonOpts);
-    }
-
-    private static List<ComparisonRowDto> DeserializeRows(string json)
-        => JsonSerializer.Deserialize<List<ComparisonRowDto>>(json, JsonOpts) ?? [];
-
     public async Task<SubmissionResultDto?> GradeAsync(
-        Guid submissionId, string teacherId, double teacherScore)
+        Guid submissionId, string teacherId, double teacherScore, string? comment)
     {
         var submission = await db.Submissions
             .Include(s => s.Assignment)
@@ -235,20 +273,59 @@ public class AssignmentService(AppDbContext db)
         if (membership is null) return null;
 
         submission.TeacherScore = Math.Clamp(teacherScore, 0.0, 1.0);
+        submission.Status       = SubmissionStatus.ReviewedPublished;
+        if (comment is not null)
+            submission.ConclusionText = comment;
+
         await db.SaveChangesAsync();
+
+        // Notify + email student
+        var assignment  = submission.Assignment;
+        var notifLink   = $"/assignments/{assignment.Id}";
+        var scorePercent = (int)Math.Round(submission.TeacherScore.Value * 100);
+        var notifMsg    = $"Роботу перевірено — {assignment.Title}. Оцінка: {scorePercent}%";
+
+        await notificationService.CreateAsync(submission.StudentId, notifMsg, notifLink);
+
+        if (submission.Student.Email is not null)
+            await emailService.SendAsync(
+                submission.Student.Email,
+                $"Physis: роботу перевірено — {assignment.Title}",
+                $"Вашу роботу до завдання «{assignment.Title}» перевірено.\nОцінка: {scorePercent}%\n\nПерейти до результатів: http://localhost:4200{notifLink}");
+
         return ToResult(submission, submission.Student);
+    }
+
+    private static Dictionary<string, double> DeserializeMetrics(string json)
+        => JsonSerializer.Deserialize<Dictionary<string, double>>(json, JsonOpts)
+           ?? new Dictionary<string, double>();
+
+    private static List<QuizQuestionDto>? DeserializeQuestions(string? json)
+    {
+        if (string.IsNullOrWhiteSpace(json)) return null;
+        return JsonSerializer.Deserialize<List<QuizQuestionDto>>(json, JsonOpts);
+    }
+
+    private static List<ComparisonRowDto> DeserializeRows(string json)
+        => JsonSerializer.Deserialize<List<ComparisonRowDto>>(json, JsonOpts) ?? [];
+
+    private static string DisplayName(ApplicationUser u)
+    {
+        var full = $"{u.FirstName} {u.LastName}".Trim();
+        return full.Length > 0 ? full : u.UserName ?? u.Id;
     }
 
     private static SubmissionResultDto ToResult(Submission s, ApplicationUser student) =>
         new(s.Id,
             s.StudentId,
-            $"{student.FirstName} {student.LastName}".Trim() is { Length: > 0 } n
-                ? n : student.UserName ?? s.StudentId,
+            DisplayName(student),
             s.Score,
             s.TeacherScore,
+            s.Status == SubmissionStatus.ReviewedPublished ? s.ConclusionText : null,
             !string.IsNullOrWhiteSpace(s.ConclusionText),
             s.SubmittedAt,
-            DeserializeRows(s.GradingRows));
+            DeserializeRows(s.GradingRows),
+            s.Status.ToString());
 
     private static AssignmentSummaryDto ToSummary(
         Assignment a, int submissionCount, SubmissionResultDto? mySubmission) =>

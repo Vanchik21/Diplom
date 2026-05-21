@@ -20,6 +20,19 @@
       }
     </div>
 
+    @if (notice() === 'deactivated') {
+      <div class="deactivated-notice">
+        <span class="deactivated-notice__icon">⚠</span>
+        <div class="deactivated-notice__body">
+          <strong>{{ 'auth.login.deactivated.title' | translate }}</strong>
+          <p>{{ 'auth.login.deactivated.body' | translate }}</p>
+          <p class="deactivated-notice__contact">
+            {{ 'auth.login.deactivated.contact' | translate }}
+            <a href="mailto:admin@physis.local">admin&#64;physis.local</a>
+          </p>
+        </div>
+      </div>
+    }
     @if (error()) {
       <p class="error-message">{{ error()! | translate }}</p>
     }

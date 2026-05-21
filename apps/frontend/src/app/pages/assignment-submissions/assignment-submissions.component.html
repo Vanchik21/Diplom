@@ -1,0 +1,133 @@
+@if (loading()) {
+  <div class="subs-page subs-page--loading">
+    <p>{{ 'common.loading' | translate }}</p>
+  </div>
+} @else if (!assignment()) {
+  <div class="subs-page subs-page--loading">
+    <p>{{ 'common.error' | translate }}</p>
+  </div>
+} @else {
+  <div class="subs-page">
+    <div class="subs-page__header">
+      <a class="btn btn--ghost btn--sm" [routerLink]="['/classes', classroomId()]">
+        ← {{ 'common.back' | translate }}
+      </a>
+      <div>
+        <h1 class="subs-page__title">{{ assignment()!.title }}</h1>
+        <p class="subs-page__subtitle">{{ 'asgn.submissionsTitle' | translate }}</p>
+      </div>
+    </div>
+
+    <div class="subs-layout">
+      <aside class="subs-list">
+        @if (submissions().length === 0) {
+          <p class="subs-list__empty">{{ 'asgn.noSubmissions' | translate }}</p>
+        }
+        @for (s of submissions(); track s.id) {
+          <button
+            class="sub-row"
+            [class.sub-row--active]="selected()?.id === s.id"
+            [class.sub-row--graded]="s.status === 'ReviewedPublished'"
+            (click)="select(s)"
+          >
+            <div class="sub-row__top">
+              <span class="sub-row__name">{{ s.studentName }}</span>
+              <span class="sub-row__score" [attr.data-color]="scoreColor(s.teacherScore ?? s.score)">
+                {{ ((s.teacherScore ?? s.score) * 100) | number: '1.0-0' }}%
+              </span>
+            </div>
+            <div class="sub-row__bottom">
+              <span class="sub-row__date">{{ formatDate(s.submittedAt) }}</span>
+              @if (s.status === 'ReviewedPublished') {
+                <span class="sub-row__badge sub-row__badge--done">✓</span>
+              } @else {
+                <span class="sub-row__badge sub-row__badge--pending">{{ 'asgn.pending' | translate }}</span>
+              }
+            </div>
+          </button>
+        }
+      </aside>
+
+      <main class="subs-detail">
+        @if (!selected()) {
+          <div class="subs-detail__empty">
+            <p>{{ 'asgn.selectSubmission' | translate }}</p>
+          </div>
+        } @else {
+          <div class="subs-detail__content">
+            <h2 class="subs-detail__name">{{ selected()!.studentName }}</h2>
+            <p class="subs-detail__date">{{ formatDate(selected()!.submittedAt) }}</p>
+
+            @if (selected()!.gradingRows.length > 0) {
+              <div class="subs-section">
+                <h3 class="subs-section__title">{{ 'asgn.gradingRows' | translate }}</h3>
+                <table class="subs-table">
+                  <thead>
+                    <tr>
+                      <th>{{ 'asgn.metric' | translate }}</th>
+                      <th>{{ 'asgn.expected' | translate }}</th>
+                      <th>{{ 'asgn.actual' | translate }}</th>
+                      <th>{{ 'asgn.relError' | translate }}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (row of selected()!.gradingRows; track row.key) {
+                      <tr>
+                        <td>{{ row.key }}</td>
+                        <td>{{ row.expected | number: '1.0-4' }}</td>
+                        <td>{{ row.actual | number: '1.0-4' }}</td>
+                        <td [class.cell--ok]="row.relError <= 0.05"
+                            [class.cell--warn]="row.relError > 0.05 && row.relError <= 0.15"
+                            [class.cell--err]="row.relError > 0.15">
+                          {{ (row.relError * 100) | number: '1.0-1' }}%
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            }
+
+            @if (selected()!.teacherComment) {
+              <div class="subs-section">
+                <h3 class="subs-section__title">{{ 'asgn.teacherComment' | translate }}</h3>
+                <p class="subs-detail__comment">{{ selected()!.teacherComment }}</p>
+              </div>
+            }
+
+            <div class="subs-section">
+              <h3 class="subs-section__title">{{ 'asgn.autoScore' | translate }}</h3>
+              <p class="score-line">
+                <span class="score-chip" [attr.data-color]="scoreColor(selected()!.score)">
+                  {{ (selected()!.score * 100) | number: '1.0-0' }}%
+                </span>
+              </p>
+            </div>
+
+            <div class="subs-section grade-form">
+              <h3 class="subs-section__title">{{ 'asgn.grade' | translate }}</h3>
+              <div class="grade-form__row">
+                <label class="grade-form__label">{{ 'asgn.teacherScore' | translate }} (0–100)</label>
+                <input class="grade-form__input" type="number" min="0" max="100"
+                  [ngModel]="gradeScore()" (ngModelChange)="gradeScore.set(+$event)"/>
+              </div>
+              <div class="grade-form__row">
+                <label class="grade-form__label">{{ 'asgn.comment' | translate }}</label>
+                <textarea class="grade-form__textarea"
+                  [ngModel]="gradeComment()" (ngModelChange)="gradeComment.set($event)"
+                  rows="3" maxlength="2000"
+                  [placeholder]="'asgn.commentPlaceholder' | translate"></textarea>
+              </div>
+              @if (gradeError()) {
+                <p class="grade-form__error">{{ gradeError() | translate }}</p>
+              }
+              <button class="btn btn--primary" [disabled]="grading()" (click)="submitGrade()">
+                {{ grading() ? ('common.loading' | translate) : ('asgn.publishGrade' | translate) }}
+              </button>
+            </div>
+          </div>
+        }
+      </main>
+    </div>
+  </div>
+}

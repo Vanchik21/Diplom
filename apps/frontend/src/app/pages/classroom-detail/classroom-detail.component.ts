@@ -36,7 +36,7 @@ export class ClassroomDetailComponent implements OnInit {
   protected readonly rotating    = signal(false);
   protected readonly removingId  = signal<string | null>(null);
 
-  protected readonly tab                 = signal<'members' | 'assignments'>('members');
+  protected readonly tab                 = signal<'members' | 'assignments' | 'review'>('members');
   protected readonly assignments         = signal<AssignmentSummaryDto[]>([]);
   protected readonly assignmentsLoading  = signal(false);
   protected readonly showCreateDialog    = signal(false);
@@ -99,9 +99,9 @@ export class ClassroomDetailComponent implements OnInit {
     });
   }
 
-  protected selectTab(t: 'members' | 'assignments'): void {
+  protected selectTab(t: 'members' | 'assignments' | 'review'): void {
     this.tab.set(t);
-    if (t === 'assignments' && this.assignments().length === 0 && !this.assignmentsLoading()) {
+    if ((t === 'assignments' || t === 'review') && this.assignments().length === 0 && !this.assignmentsLoading()) {
       this.loadAssignments();
     }
   }

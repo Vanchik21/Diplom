@@ -1,0 +1,49 @@
+<h2 class="aal-title">{{ 'admin.nav.auditLog' | translate }}</h2>
+
+<div class="aal-filters">
+  <select class="aal-select" [(ngModel)]="actionFilter" (ngModelChange)="onFilter()">
+    <option value="">{{ 'admin.filter.allActions' | translate }}</option>
+    @for (a of actions; track a) {
+      <option [value]="a">{{ 'admin.auditLog.actionLabel.' + a | translate }}</option>
+    }
+  </select>
+</div>
+
+@if (loading()) {
+  <p class="aal-muted">{{ 'common.loading' | translate }}</p>
+} @else if (logs().length === 0) {
+  <p class="aal-muted">{{ 'admin.auditLog.empty' | translate }}</p>
+} @else {
+  <div class="aal-table-wrap">
+    <table class="aal-table">
+      <thead>
+        <tr>
+          <th>{{ 'admin.auditLog.admin' | translate }}</th>
+          <th>{{ 'admin.auditLog.action' | translate }}</th>
+          <th>{{ 'admin.auditLog.target' | translate }}</th>
+          <th>{{ 'admin.auditLog.details' | translate }}</th>
+          <th>{{ 'admin.auditLog.time' | translate }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (l of logs(); track l.id) {
+          <tr>
+            <td>{{ l.adminName }}</td>
+            <td><span class="aal-action aal-action--{{ l.action | lowercase }}">{{ l.action }}</span></td>
+            <td>{{ l.targetUserName }}</td>
+            <td class="aal-details">{{ l.details ?? '—' }}</td>
+            <td class="aal-time">{{ l.createdAt | date:'dd.MM.yyyy HH:mm' }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  @if (totalPages() > 1) {
+    <div class="aal-pagination">
+      <button class="btn btn--ghost btn--sm" [disabled]="page() === 1" (click)="goToPage(page() - 1)">←</button>
+      <span>{{ page() }} / {{ totalPages() }}</span>
+      <button class="btn btn--ghost btn--sm" [disabled]="page() === totalPages()" (click)="goToPage(page() + 1)">→</button>
+    </div>
+  }
+}

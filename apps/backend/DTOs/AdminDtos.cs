@@ -9,6 +9,7 @@ public record AdminUserDto(
     string University,
     string? AvatarUrl,
     bool IsActive,
+    bool IsDeleted,
     bool IsAdmin,
     string Role,
     DateTime CreatedAt);
@@ -26,3 +27,15 @@ public record PagedResult<T>(
     int PageSize);
 
 public record SetRoleRequest(bool IsAdmin);
+
+public record ApproveRoleRequestDto(string Role);
+
+public record AdminAuditLogDto(
+    Guid Id,
+    string AdminId,
+    string AdminName,
+    string Action,
+    string TargetUserId,
+    string TargetUserName,
+    string? Details,
+    DateTime CreatedAt);

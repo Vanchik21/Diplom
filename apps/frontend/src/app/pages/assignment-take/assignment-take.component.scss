@@ -515,5 +515,61 @@
   &__date,
   &__auto { font-size: 0.8125rem; color: var(--color-text-muted); }
   &__grade { display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0; }
+  &__teacher-label { font-size: 0.8125rem; color: var(--color-text-muted); white-space: nowrap; }
   &__teacher-score { font-size: 1rem; font-weight: 700; }
+}
+
+.problem-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--color-border);
+
+  &:last-child { border-bottom: none; }
+
+  &__label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--color-text);
+    display: flex;
+    align-items: baseline;
+    gap: 0.4rem;
+  }
+
+  &__unit {
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+    font-weight: 400;
+  }
+
+  &__input {
+    max-width: 220px;
+  }
+}
+
+.at-pending-notice {
+  padding: 1rem 1.25rem;
+  background: color-mix(in srgb, var(--color-warning) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-warning) 40%, transparent);
+  border-radius: 8px;
+  color: var(--color-warning);
+  font-weight: 600;
+  font-size: 0.95rem;
+  text-align: center;
+}
+
+.at-score-badge--teacher {
+  margin-top: 0.5rem;
+  font-size: 0.95rem;
+}
+
+.at-quiz-result__comment {
+  margin: 0.75rem 0 0;
+  padding: 0.75rem;
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  font-size: 0.9rem;
+  color: var(--color-text);
 }

@@ -9,7 +9,10 @@
     "logout": "Log out",
     "admin": "Admin",
     "myClasses": "My Classes",
-    "analytics": "Analytics"
+    "analytics": "Analytics",
+    "notifications": "Notifications",
+    "markAllRead": "Mark all read",
+    "noNotifications": "No new notifications"
   },
   "home": {
     "title": "Physis™ — Physics Simulations",
@@ -23,7 +26,12 @@
       "password": "Password",
       "submit": "Log in",
       "noAccount": "Don't have an account?",
-      "registerLink": "Sign up"
+      "registerLink": "Sign up",
+      "deactivated": {
+        "title": "Account deactivated",
+        "body": "Your account has been deactivated by the platform administration. Access to the system is temporarily blocked.",
+        "contact": "To restore access, contact the administrator:"
+      }
     },
     "register": {
       "title": "Create account",
@@ -230,17 +238,71 @@
       "role_student": "Student",
       "role_user": "User"
     },
-    "roleRequests": {
-      "title": "Role Change Requests",
-      "empty": "No pending requests.",
-      "requestedRole": "Requested role",
-      "approve": "Approve",
-      "reject": "Reject"
-    },
     "pagination": {
       "prev": "Previous",
       "next": "Next",
       "of": "of"
+    },
+    "panel": "Admin Panel",
+    "search": "Search by name or email…",
+    "nav": {
+      "users": "Users",
+      "roleRequests": "Role Requests",
+      "auditLog": "Audit Log"
+    },
+    "col": {
+      "name": "Name",
+      "email": "Email",
+      "role": "Role",
+      "status": "Status",
+      "registered": "Registered",
+      "actions": "Actions"
+    },
+    "filter": {
+      "allRoles": "All Roles",
+      "allStatus": "All Statuses",
+      "active": "Active",
+      "inactive": "Inactive",
+      "allActions": "All Actions"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Deactivated",
+      "deleted": "Deleted"
+    },
+    "action": {
+      "deactivate": "Deactivate",
+      "activate": "Activate",
+      "delete": "Delete",
+      "confirmDelete": "Are you sure?",
+      "review": "Review",
+      "approve": "Approve",
+      "reject": "Reject"
+    },
+    "roleRequests": {
+      "title": "Role Change Requests",
+      "empty": "No pending requests.",
+      "requested": "Requested Role",
+      "requestedRole": "Requested role",
+      "assignRole": "Assign Role",
+      "modalTitle": "Review Request",
+      "approve": "Approve",
+      "reject": "Reject"
+    },
+    "auditLog": {
+      "empty": "No records found.",
+      "admin": "Admin",
+      "action": "Action",
+      "target": "User",
+      "details": "Details",
+      "time": "Time",
+      "actionLabel": {
+        "Deactivate": "Deactivation",
+        "Activate": "Activation",
+        "Delete": "Deletion",
+        "ApproveRole": "Role Approved",
+        "RejectRole": "Role Rejected"
+      }
     }
   },
   "cls": {
@@ -332,7 +394,34 @@
     "submitQuiz": "Submit answers",
     "quizResult": "Correct: {{correct}} / {{total}}",
     "autoScore": "Auto score",
-    "grade": "Grade"
+    "grade": "Grade",
+    "typeProblem": "Problem",
+    "answerFields": "Answer fields",
+    "addField": "Add field",
+    "fieldLabel": "Label (e.g. F)",
+    "fieldUnit": "Unit (e.g. N)",
+    "fieldCorrect": "Correct value",
+    "fieldTolerance": "Tolerance",
+    "problemHint": "Add numeric answer fields for the student to fill in.",
+    "problemNeedFields": "Please add at least one answer field.",
+    "problemAnswers": "Answers",
+    "submissionsTitle": "Grading submissions",
+    "noSubmissions": "No submissions yet.",
+    "selectSubmission": "Select a submission from the list on the left.",
+    "gradingRows": "Comparison details",
+    "metric": "Metric",
+    "actual": "Actual",
+    "relError": "Relative error",
+    "teacherComment": "Teacher comment",
+    "teacherScore": "Teacher score",
+    "comment": "Comment",
+    "commentPlaceholder": "Optional comment on the submission…",
+    "publishGrade": "Publish grade",
+    "pending": "Pending review",
+    "gradeError": "Failed to save grade.",
+    "gradeRangeError": "Score must be between 0 and 100.",
+    "review": "Review",
+    "pendingNotice": "Submitted. Awaiting teacher review."
   },
   "analytics": {
     "title": "Analytics",
@@ -365,6 +454,10 @@
     "cancel": "Cancel",
     "reset": "Reset",
     "loading": "Loading…",
-    "error": "Error"
+    "error": "Error",
+    "search": "Search",
+    "yes": "Yes",
+    "no": "No",
+    "back": "Back"
   }
 }

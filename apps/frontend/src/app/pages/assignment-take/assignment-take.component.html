@@ -87,6 +87,92 @@
   </div>
 
 <!-- ══════════════════════════════════════════════════════════
+     PROBLEM — числові відповіді
+     ══════════════════════════════════════════════════════════ -->
+} @else if (isProblem()) {
+
+  <div class="at-quiz-backdrop">
+    <div class="at-quiz-modal">
+      <div class="at-quiz-modal__header">
+        <a class="at-quiz-modal__back" routerLink="/classes/{{ assignment()!.classroomId }}">
+          ← {{ 'cls.assignments' | translate }}
+        </a>
+        <div>
+          <h2 class="at-quiz-modal__title">{{ assignment()!.title }}</h2>
+          @if (assignment()!.description) {
+            <p class="at-quiz-modal__desc">{{ assignment()!.description }}</p>
+          }
+        </div>
+      </div>
+
+      @if (assignment()!.isTeacher) {
+        <ng-container *ngTemplateOutlet="teacherSubmissions" />
+      } @else if (result()) {
+        <div class="at-quiz-result">
+          @if (result()!.status !== 'ReviewedPublished') {
+            <div class="at-pending-notice">
+              ⏳ {{ 'asgn.pendingNotice' | translate }}
+            </div>
+          } @else {
+            <div class="at-score-badge" [class]="scoreClass(result()!.teacherScore ?? result()!.score)">
+              {{ scorePercent(result()!.teacherScore ?? result()!.score) }}%
+            </div>
+            @if (result()!.teacherComment) {
+              <p class="at-quiz-result__comment">{{ result()!.teacherComment }}</p>
+            }
+            @if (result()!.gradingRows.length > 0) {
+              <table class="at-grading-table">
+                <thead>
+                  <tr>
+                    <th>{{ 'asgn.metric' | translate }}</th>
+                    <th>{{ 'asgn.expected' | translate }}</th>
+                    <th>{{ 'poe.explain.actual' | translate }}</th>
+                    <th>Δ</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (row of result()!.gradingRows; track row.key) {
+                    <tr>
+                      <td>{{ row.key }}</td>
+                      <td>{{ row.expected | number:'1.0-4' }}</td>
+                      <td>{{ row.actual | number:'1.0-4' }}</td>
+                      <td [class.ok]="row.absError === 0" [class.err]="row.absError > 0">
+                        {{ row.absError | number:'1.0-4' }}
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            }
+          }
+        </div>
+      } @else {
+        <div class="at-quiz-modal__body">
+          @for (field of assignment()!.answerFields ?? []; track field.label) {
+            <div class="problem-field">
+              <label class="problem-field__label">
+                {{ field.label }}
+                @if (field.unit) { <span class="problem-field__unit">({{ field.unit }})</span> }
+              </label>
+              <input class="at-input problem-field__input" type="number" step="any"
+                [value]="problemInputs()[field.label] ?? 0"
+                (input)="updateProblemInput(field.label, $any($event.target).value)" />
+            </div>
+          }
+        </div>
+        @if (error()) { <p class="at-error">{{ error() | translate }}</p> }
+        <div class="at-quiz-modal__footer">
+          <button class="btn btn--primary btn--lg"
+            [disabled]="submitting()"
+            (click)="submitProblem()">
+            {{ submitting() ? ('common.loading' | translate) : ('asgn.submit' | translate) }}
+          </button>
+        </div>
+      }
+    </div>
+  </div>
+
+<!-- ══════════════════════════════════════════════════════════
      POE / SCENARIO — повний режим симуляції
      ══════════════════════════════════════════════════════════ -->
 } @else {
@@ -337,10 +423,6 @@
      ══════════════════════════════════════════════════════════ -->
 <ng-template #teacherSubmissions>
   <div class="at-sub-list-wrap">
-    <h3 class="at-panel-title">
-      {{ 'asgn.submissions' | translate }} ({{ assignment()!.submissions.length }})
-    </h3>
-
     @if (assignment()!.submissions.length === 0) {
       <p class="at-empty">{{ 'analytics.noSubmissions' | translate }}</p>
     }
@@ -355,6 +437,7 @@
           </div>
           <div class="sub-row__grade">
             @if (s.teacherScore != null) {
+              <span class="sub-row__teacher-label">{{ 'asgn.teacherScore' | translate }}:</span>
               <span class="at-score-badge sub-row__teacher-score" [class]="scoreClass(s.teacherScore)">
                 {{ scorePercent(s.teacherScore) }}%
               </span>

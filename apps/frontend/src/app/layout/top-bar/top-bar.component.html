@@ -46,6 +46,7 @@
     >{{ langLabel }}</button>
 
     @if (auth.isAuthenticated()) {
+      <app-notification-bell />
       <a class="btn btn--ghost" routerLink="/profile">{{ auth.currentUserName() }}</a>
       <button class="btn btn--ghost" (click)="auth.logout()">{{ 'nav.logout' | translate }}</button>
     } @else {

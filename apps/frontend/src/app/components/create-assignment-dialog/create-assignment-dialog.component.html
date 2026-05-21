@@ -24,11 +24,17 @@
         type="button"
         (click)="assignmentType.set(AT.Quiz)"
       >📝 {{ 'asgn.typeQuiz' | translate }}</button>
+      <button
+        class="type-tab"
+        [class.type-tab--active]="assignmentType() === AT.Problem"
+        type="button"
+        (click)="assignmentType.set(AT.Problem)"
+      >🔢 {{ 'asgn.typeProblem' | translate }}</button>
     </div>
   </div>
 
-  <!-- Module (not for quiz) -->
-  @if (!isQuiz()) {
+  <!-- Module (not for quiz or problem) -->
+  @if (!isQuiz() && !isProblem()) {
     <div class="dialog__field">
       <label class="dialog__label">{{ 'asgn.module' | translate }}</label>
       <select class="dialog__input" [ngModel]="moduleId()" (ngModelChange)="moduleId.set($event)">
@@ -59,6 +65,38 @@
     <input class="dialog__input" type="datetime-local"
       [ngModel]="dueAt()" (ngModelChange)="dueAt.set($event)"/>
   </div>
+
+  <!-- Problem: answer fields -->
+  @if (isProblem()) {
+    <div class="dialog__metrics">
+      <div class="dialog__metrics-header">
+        <span class="dialog__label">{{ 'asgn.answerFields' | translate }}</span>
+        <button class="btn btn--ghost btn--sm" type="button" (click)="addAnswerField()">
+          + {{ 'asgn.addField' | translate }}
+        </button>
+      </div>
+      @for (field of answerFields(); track $index) {
+        <div class="answer-field-row">
+          <input class="dialog__input answer-field-row__label" type="text"
+            [ngModel]="field.label" (ngModelChange)="updateAnswerField($index, { label: $event })"
+            [placeholder]="'asgn.fieldLabel' | translate" maxlength="100"/>
+          <input class="dialog__input answer-field-row__unit" type="text"
+            [ngModel]="field.unit ?? ''" (ngModelChange)="updateAnswerField($index, { unit: $event || null })"
+            [placeholder]="'asgn.fieldUnit' | translate" maxlength="20"/>
+          <input class="dialog__input answer-field-row__val" type="number"
+            [ngModel]="field.correctValue" (ngModelChange)="updateAnswerField($index, { correctValue: +$event })"
+            [placeholder]="'asgn.fieldCorrect' | translate"/>
+          <input class="dialog__input answer-field-row__tol" type="number" min="0"
+            [ngModel]="field.tolerance" (ngModelChange)="updateAnswerField($index, { tolerance: +$event })"
+            [placeholder]="'asgn.fieldTolerance' | translate"/>
+          <button class="btn btn--ghost btn--sm" type="button" (click)="removeAnswerField($index)">✕</button>
+        </div>
+      }
+      @if (answerFields().length === 0) {
+        <p class="dialog__hint">{{ 'asgn.problemHint' | translate }}</p>
+      }
+    </div>
+  }
 
   <!-- POE / Scenario: expected metrics -->
   @if (isPoe() || isScenario()) {

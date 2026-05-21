@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Physis.Api.Data;
 using Physis.Api.Endpoints;
+using Physis.Api.Middleware;
 using Physis.Api.Models;
 using Physis.Api.Services;
 
@@ -57,6 +58,8 @@ builder.Services.AddScoped<TokenService>();
 builder.Services.AddScoped<ScenarioService>();
 builder.Services.AddScoped<ProfileService>();
 builder.Services.AddScoped<ClassroomService>();
+builder.Services.AddScoped<NotificationService>();
+builder.Services.AddScoped<IEmailService, SmtpEmailService>();
 builder.Services.AddScoped<AssignmentService>();
 builder.Services.AddScoped<AnalyticsService>();
 builder.Services.AddScoped<LabReportService>();
@@ -175,6 +178,7 @@ if (!app.Environment.IsDevelopment())
 app.UseStaticFiles();
 app.UseCors();
 app.UseAuthentication();
+app.UseMiddleware<TokenVersionMiddleware>();
 app.UseAuthorization();
 app.MapControllers();
 app.MapHealthEndpoints();

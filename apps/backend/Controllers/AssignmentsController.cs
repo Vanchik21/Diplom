@@ -59,7 +59,7 @@ public class AssignmentsController(AssignmentService assignmentService) : Contro
     public async Task<ActionResult<SubmissionResultDto>> Grade(Guid submissionId, GradeSubmissionDto dto)
     {
         var userId = RequireUserId();
-        var result = await assignmentService.GradeAsync(submissionId, userId, dto.TeacherScore);
+        var result = await assignmentService.GradeAsync(submissionId, userId, dto.TeacherScore, dto.Comment);
         return result is null ? Forbid() : Ok(result);
     }
 

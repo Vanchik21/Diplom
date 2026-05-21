@@ -64,8 +64,9 @@ export class AssignmentTakeComponent implements OnInit, OnDestroy {
   protected readonly metricInputs       = signal<MetricInput[]>([]);
   protected readonly quizAnswers        = signal<number[]>([]);
 
-  protected readonly gradeInputs = signal<Record<string, number>>({});
-  protected readonly gradingId   = signal<string | null>(null);
+  protected readonly gradeInputs   = signal<Record<string, number>>({});
+  protected readonly gradingId     = signal<string | null>(null);
+  protected readonly problemInputs = signal<Record<string, number>>({});
 
   protected readonly moduleEntry = computed(() => {
     const a = this.assignment();
@@ -78,9 +79,10 @@ export class AssignmentTakeComponent implements OnInit, OnDestroy {
   });
 
   protected readonly alreadySubmitted = computed(() => !!this.assignment()?.mySubmission);
-  protected readonly isQuiz     = computed(() => this.assignment()?.assignmentType === AssignmentTypes.Quiz);
-  protected readonly isScenario = computed(() => this.assignment()?.assignmentType === AssignmentTypes.Scenario);
-  protected readonly isPoe      = computed(() => this.assignment()?.assignmentType === AssignmentTypes.Poe);
+  protected readonly isQuiz    = computed(() => this.assignment()?.assignmentType === AssignmentTypes.Quiz);
+  protected readonly isScenario= computed(() => this.assignment()?.assignmentType === AssignmentTypes.Scenario);
+  protected readonly isPoe     = computed(() => this.assignment()?.assignmentType === AssignmentTypes.Poe);
+  protected readonly isProblem = computed(() => this.assignment()?.assignmentType === AssignmentTypes.Problem);
 
   ngOnInit(): void {
     this.service.getById(this.assignmentId()).subscribe({
@@ -92,7 +94,13 @@ export class AssignmentTakeComponent implements OnInit, OnDestroy {
           this.result.set(a.mySubmission);
         }
 
-        if (a.assignmentType !== AssignmentTypes.Quiz) {
+        if (a.assignmentType === AssignmentTypes.Problem && !a.mySubmission) {
+          const inputs: Record<string, number> = {};
+          for (const f of a.answerFields ?? []) inputs[f.label] = 0;
+          this.problemInputs.set(inputs);
+        }
+
+        if (a.assignmentType !== AssignmentTypes.Quiz && a.assignmentType !== AssignmentTypes.Problem) {
           const entry = this.registry.getById(a.moduleId);
           if (entry) {
             const defaults = Object.fromEntries(
@@ -164,6 +172,7 @@ export class AssignmentTakeComponent implements OnInit, OnDestroy {
       conclusionText: this.conclusionText().trim() || null,
       screenshotBase64: null,
       quizAnswers: null,
+      problemAnswers: null,
     });
   }
 
@@ -176,12 +185,29 @@ export class AssignmentTakeComponent implements OnInit, OnDestroy {
       conclusionText: this.conclusionText().trim() || null,
       screenshotBase64: null,
       quizAnswers: null,
+      problemAnswers: null,
     });
   }
 
   protected submitQuiz(): void {
     if (this.submitting() || !this.allAnswered()) return;
-    this._submit({ observedMetrics: null, conclusionText: null, screenshotBase64: null, quizAnswers: this.quizAnswers() });
+    this._submit({ observedMetrics: null, conclusionText: null, screenshotBase64: null, quizAnswers: this.quizAnswers(), problemAnswers: null });
+  }
+
+  protected updateProblemInput(label: string, raw: string): void {
+    const value = parseFloat(raw);
+    this.problemInputs.update(m => ({ ...m, [label]: isNaN(value) ? 0 : value }));
+  }
+
+  protected submitProblem(): void {
+    if (this.submitting()) return;
+    this._submit({
+      observedMetrics: null,
+      conclusionText: null,
+      screenshotBase64: null,
+      quizAnswers: null,
+      problemAnswers: { ...this.problemInputs() },
+    });
   }
 
   private _submit(dto: Parameters<typeof this.service.submit>[1]): void {
@@ -206,7 +232,7 @@ export class AssignmentTakeComponent implements OnInit, OnDestroy {
   protected gradeSubmission(submissionId: string): void {
     if (this.gradingId()) return;
     this.gradingId.set(submissionId);
-    this.service.grade(submissionId, (this.gradeInputs()[submissionId] ?? 0) / 100).subscribe({
+    this.service.grade(submissionId, { teacherScore: (this.gradeInputs()[submissionId] ?? 0) / 100, comment: null }).subscribe({
       next: updated => {
         this.assignment.update(a =>
           a ? { ...a, submissions: a.submissions.map(s => s.id === submissionId ? updated : s) } : a,

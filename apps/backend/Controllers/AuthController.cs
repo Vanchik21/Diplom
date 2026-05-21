@@ -44,6 +44,9 @@ public class AuthController(
         if (user is null || !await userManager.CheckPasswordAsync(user, request.Password))
             return Unauthorized("Invalid credentials.");
 
+        if (!user.IsActive)
+            return StatusCode(403, new { error = "Account is deactivated." });
+
         return Ok(await IssueTokens(user));
     }
 
@@ -55,6 +58,9 @@ public class AuthController(
 
         if (user is null || user.RefreshTokenExpiry < DateTime.UtcNow)
             return Unauthorized("Invalid or expired refresh token.");
+
+        if (!user.IsActive)
+            return StatusCode(403, new { error = "Account is deactivated." });
 
         return Ok(await IssueTokens(user));
     }

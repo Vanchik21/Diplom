@@ -1,0 +1,122 @@
+<h2 class="au-title">{{ 'admin.nav.users' | translate }}</h2>
+
+<!-- Stats row -->
+@if (stats()) {
+  <div class="au-stats">
+    <div class="au-stat">
+      <span class="au-stat__val">{{ stats()!.totalUsers }}</span>
+      <span class="au-stat__label">{{ 'admin.stats.totalUsers' | translate }}</span>
+    </div>
+    <div class="au-stat">
+      <span class="au-stat__val">{{ stats()!.activeUsers }}</span>
+      <span class="au-stat__label">{{ 'admin.stats.activeUsers' | translate }}</span>
+    </div>
+    <div class="au-stat">
+      <span class="au-stat__val">{{ stats()!.adminUsers }}</span>
+      <span class="au-stat__label">{{ 'admin.stats.admins' | translate }}</span>
+    </div>
+  </div>
+}
+
+<!-- Filters -->
+<form class="au-filters" (ngSubmit)="onSearch()">
+  <input class="au-input" type="text" [(ngModel)]="searchValue" name="search"
+    [placeholder]="'admin.search' | translate" />
+  <select class="au-select" [(ngModel)]="roleFilter" name="role">
+    <option value="">{{ 'admin.filter.allRoles' | translate }}</option>
+    <option value="Admin">Admin</option>
+    <option value="Teacher">Teacher</option>
+    <option value="Student">Student</option>
+  </select>
+  <select class="au-select" [(ngModel)]="activeFilter" name="active">
+    <option value="">{{ 'admin.filter.allStatus' | translate }}</option>
+    <option value="true">{{ 'admin.filter.active' | translate }}</option>
+    <option value="false">{{ 'admin.filter.inactive' | translate }}</option>
+  </select>
+  <button class="btn btn--primary btn--sm" type="submit">{{ 'common.search' | translate }}</button>
+</form>
+
+@if (actionError()) {
+  <p class="au-error">{{ actionError()! | translate }}</p>
+}
+
+<!-- Table -->
+@if (loading()) {
+  <p class="au-loading">{{ 'common.loading' | translate }}</p>
+} @else if (loadError()) {
+  <p class="au-error">{{ 'common.error' | translate }}</p>
+} @else {
+  <div class="au-table-wrap">
+    <table class="au-table">
+      <thead>
+        <tr>
+          <th>{{ 'admin.col.name' | translate }}</th>
+          <th>{{ 'admin.col.email' | translate }}</th>
+          <th>{{ 'admin.col.role' | translate }}</th>
+          <th>{{ 'admin.col.status' | translate }}</th>
+          <th>{{ 'admin.col.registered' | translate }}</th>
+          <th>{{ 'admin.col.actions' | translate }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (u of users(); track u.id) {
+          <tr [class.au-row--deleted]="u.isDeleted" [class.au-row--inactive]="!u.isActive && !u.isDeleted">
+            <td>{{ displayName(u) }}</td>
+            <td class="au-email">{{ u.email }}</td>
+            <td>
+              <span class="au-role-badge au-role-badge--{{ u.role | lowercase }}">{{ u.role }}</span>
+            </td>
+            <td>
+              @if (u.isDeleted) {
+                <span class="au-status au-status--deleted">{{ 'admin.status.deleted' | translate }}</span>
+              } @else if (!u.isActive) {
+                <span class="au-status au-status--inactive">{{ 'admin.status.inactive' | translate }}</span>
+              } @else {
+                <span class="au-status au-status--active">{{ 'admin.status.active' | translate }}</span>
+              }
+            </td>
+            <td>{{ u.createdAt | date:'dd.MM.yyyy' }}</td>
+            <td class="au-actions">
+              @if (!u.isDeleted && !u.isAdmin && !isSelf(u.id)) {
+                @if (u.isActive) {
+                  <button class="btn btn--ghost btn--sm au-btn-toggle" [disabled]="isBusy(u.id)" (click)="deactivate(u)">
+                    {{ 'admin.action.deactivate' | translate }}
+                  </button>
+                } @else {
+                  <button class="btn btn--ghost btn--sm au-btn-toggle" [disabled]="isBusy(u.id)" (click)="activate(u)">
+                    {{ 'admin.action.activate' | translate }}
+                  </button>
+                }
+                @if (confirmDeleteId() === u.id) {
+                  <span class="au-confirm">
+                    {{ 'admin.action.confirmDelete' | translate }}
+                    <button class="btn btn--danger btn--sm" (click)="confirmDelete(u)">
+                      {{ 'common.yes' | translate }}
+                    </button>
+                    <button class="btn btn--ghost btn--sm" (click)="cancelDelete()">
+                      {{ 'common.no' | translate }}
+                    </button>
+                  </span>
+                } @else {
+                  <button class="btn btn--danger btn--sm" [disabled]="isBusy(u.id)"
+                    (click)="requestDelete(u.id)">
+                    {{ 'admin.action.delete' | translate }}
+                  </button>
+                }
+              }
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination -->
+  @if (totalPages() > 1) {
+    <div class="au-pagination">
+      <button class="btn btn--ghost btn--sm" [disabled]="page() === 1" (click)="goToPage(page() - 1)">←</button>
+      <span>{{ page() }} / {{ totalPages() }}</span>
+      <button class="btn btn--ghost btn--sm" [disabled]="page() === totalPages()" (click)="goToPage(page() + 1)">→</button>
+    </div>
+  }
+}

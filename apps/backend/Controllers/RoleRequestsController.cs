@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Physis.Api.Data;
 using Physis.Api.DTOs;
 using Physis.Api.Models;
+
 namespace Physis.Api.Controllers;
 
 [ApiController]
@@ -13,7 +14,8 @@ namespace Physis.Api.Controllers;
 [Route("api")]
 public class RoleRequestsController(
     AppDbContext db,
-    UserManager<ApplicationUser> userManager) : ControllerBase
+    UserManager<ApplicationUser> userManager,
+    AdminController adminController) : ControllerBase
 {
     private static readonly HashSet<string> AllowedRoles = ["Student", "Teacher"];
 
@@ -45,10 +47,10 @@ public class RoleRequestsController(
 
         var req = new RoleChangeRequest
         {
-            UserId = userId,
+            UserId        = userId,
             RequestedRole = dto.RequestedRole,
-            Status = "Pending",
-            CreatedAt = DateTime.UtcNow,
+            Status        = "Pending",
+            CreatedAt     = DateTime.UtcNow,
         };
         db.RoleChangeRequests.Add(req);
         await db.SaveChangesAsync();
@@ -94,23 +96,35 @@ public class RoleRequestsController(
 
     [Authorize(Roles = "Admin")]
     [HttpPost("admin/role-requests/{id:guid}/approve")]
-    public async Task<IActionResult> Approve(Guid id)
+    public async Task<IActionResult> Approve(Guid id, [FromBody] ApproveRoleRequestDto dto)
     {
+        var adminId = UserId();
+        if (adminId is null) return Unauthorized();
+
+        if (!AllowedRoles.Contains(dto.Role))
+            return BadRequest(new { error = "Role must be 'Student' or 'Teacher'." });
+
         var req = await db.RoleChangeRequests.Include(r => r.User).FirstOrDefaultAsync(r => r.Id == id);
         if (req is null) return NotFound();
         if (req.Status != "Pending") return BadRequest(new { error = "Request is not pending." });
 
-        var user = req.User;
+        var user         = req.User;
         var currentRoles = await userManager.GetRolesAsync(user);
         var nonAdminRoles = currentRoles.Where(r => r != "Admin").ToList();
         if (nonAdminRoles.Count > 0)
             await userManager.RemoveFromRolesAsync(user, nonAdminRoles);
-        await userManager.AddToRoleAsync(user, req.RequestedRole);
+        await userManager.AddToRoleAsync(user, dto.Role);
 
-        req.Status = "Approved";
-        req.ResolvedAt = DateTime.UtcNow;
-        req.ResolvedByAdminId = UserId();
+        user.TokenVersion++;
+        await userManager.UpdateAsync(user);
+
+        req.Status            = "Approved";
+        req.ResolvedAt        = DateTime.UtcNow;
+        req.ResolvedByAdminId = adminId;
         await db.SaveChangesAsync();
+
+        await adminController.WriteLog(adminId, "ApproveRole", user.Id,
+            $"Requested: {req.RequestedRole}, Assigned: {dto.Role}");
 
         return NoContent();
     }
@@ -119,14 +133,20 @@ public class RoleRequestsController(
     [HttpPost("admin/role-requests/{id:guid}/reject")]
     public async Task<IActionResult> Reject(Guid id)
     {
-        var req = await db.RoleChangeRequests.FirstOrDefaultAsync(r => r.Id == id);
+        var adminId = UserId();
+        if (adminId is null) return Unauthorized();
+
+        var req = await db.RoleChangeRequests.Include(r => r.User).FirstOrDefaultAsync(r => r.Id == id);
         if (req is null) return NotFound();
         if (req.Status != "Pending") return BadRequest(new { error = "Request is not pending." });
 
-        req.Status = "Rejected";
-        req.ResolvedAt = DateTime.UtcNow;
-        req.ResolvedByAdminId = UserId();
+        req.Status            = "Rejected";
+        req.ResolvedAt        = DateTime.UtcNow;
+        req.ResolvedByAdminId = adminId;
         await db.SaveChangesAsync();
+
+        await adminController.WriteLog(adminId, "RejectRole", req.UserId,
+            $"Requested: {req.RequestedRole}");
 
         return NoContent();
     }

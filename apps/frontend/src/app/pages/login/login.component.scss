@@ -43,3 +43,48 @@
     font-size: 0.875rem;
   }
 }
+
+.deactivated-notice {
+  display: flex;
+  gap: 0.75rem;
+  background: rgba(251, 191, 36, 0.08);
+  border: 1px solid rgba(251, 191, 36, 0.35);
+  border-radius: 8px;
+  padding: 0.9rem 1rem;
+
+  &__icon {
+    font-size: 1.2rem;
+    line-height: 1.4;
+    color: #fbbf24;
+    flex-shrink: 0;
+  }
+
+  &__body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    font-size: 0.875rem;
+
+    strong {
+      color: #fbbf24;
+      font-size: 0.925rem;
+    }
+
+    p {
+      color: var(--color-text-muted);
+      line-height: 1.45;
+      margin: 0;
+    }
+  }
+
+  &__contact {
+    margin-top: 0.1rem;
+
+    a {
+      color: #fbbf24;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+      &:hover { color: #f59e0b; }
+    }
+  }
+}

@@ -1,6 +1,6 @@
 namespace Physis.Api.Models;
 
-public enum AssignmentType { Poe = 0, Scenario = 1, Quiz = 2 }
+public enum AssignmentType { Poe = 0, Scenario = 1, Quiz = 2, Problem = 3 }
 
 public sealed class Assignment
 {
@@ -12,6 +12,8 @@ public sealed class Assignment
     public AssignmentType AssignmentType { get; set; } = AssignmentType.Poe;
     public string ExpectedMetrics { get; set; } = "{}";
     public string? Questions { get; set; }
+    // Used for Problem type: JSON array of {label, unit, correctValue, tolerance}
+    public string? AnswerFieldsJson { get; set; }
     public DateTime? DueAt { get; set; }
     public DateTime CreatedAt { get; set; }
     public string CreatedById { get; set; } = null!;

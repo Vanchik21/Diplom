@@ -8,6 +8,7 @@
   /* Dark theme (default) */
   --color-bg: #0f1117;
   --color-surface: #1a1d27;
+  --color-surface-2: #1f2937;
   --color-surface-raised: #232637;
   --color-border: #2e3148;
   --color-primary: #5c6ef8;
@@ -35,6 +36,7 @@
 html.light {
   --color-bg: #f0f2f9;
   --color-surface: #ffffff;
+  --color-surface-2: #edf0f9;
   --color-surface-raised: #e8ebf5;
   --color-border: #cdd1e8;
   --color-primary: #4a5cf5;
@@ -136,6 +138,15 @@ input, select, textarea {
 .error-message {
   color: var(--color-error);
   font-size: 0.85rem;
+}
+
+.notice-message {
+  color: #fbbf24;
+  font-size: 0.85rem;
+  background: rgba(251, 191, 36, 0.1);
+  border: 1px solid rgba(251, 191, 36, 0.25);
+  border-radius: 0.375rem;
+  padding: 0.5rem 0.75rem;
 }
 
 .btn--sm {

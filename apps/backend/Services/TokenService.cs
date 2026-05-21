@@ -25,6 +25,7 @@ public class TokenService(IConfiguration config, UserManager<ApplicationUser> us
             new(JwtRegisteredClaimNames.Email, user.Email!),
             new(JwtRegisteredClaimNames.UniqueName, user.UserName!),
             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+            new("tokenVersion", user.TokenVersion.ToString()),
         };
 
         var roles = await userManager.GetRolesAsync(user);

@@ -18,8 +18,8 @@ export class RoleRequestsService {
     return this.http.get<RoleRequestDto[]>('/api/admin/role-requests?status=Pending');
   }
 
-  approve(id: string) {
-    return this.http.post<void>(`/api/admin/role-requests/${id}/approve`, {});
+  approve(id: string, role: 'Student' | 'Teacher') {
+    return this.http.post<void>(`/api/admin/role-requests/${id}/approve`, { role });
   }
 
   reject(id: string) {

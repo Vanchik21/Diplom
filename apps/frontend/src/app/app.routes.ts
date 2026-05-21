@@ -68,10 +68,40 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'classes/:classroomId/assignments/:assignmentId/submissions',
+        canActivate: [authGuard],
+        loadComponent: () =>
+          import('./pages/assignment-submissions/assignment-submissions.component').then(
+            m => m.AssignmentSubmissionsComponent,
+          ),
+      },
+      {
         path: 'admin',
         canActivate: [adminGuard],
         loadComponent: () =>
-          import('./pages/admin/admin.component').then(m => m.AdminComponent),
+          import('./pages/admin/admin-layout/admin-layout.component').then(m => m.AdminLayoutComponent),
+        children: [
+          { path: '', redirectTo: 'users', pathMatch: 'full' },
+          {
+            path: 'users',
+            loadComponent: () =>
+              import('./pages/admin/users/admin-users.component').then(m => m.AdminUsersComponent),
+          },
+          {
+            path: 'role-requests',
+            loadComponent: () =>
+              import('./pages/admin/role-requests/admin-role-requests.component').then(
+                m => m.AdminRoleRequestsComponent,
+              ),
+          },
+          {
+            path: 'audit-log',
+            loadComponent: () =>
+              import('./pages/admin/audit-log/admin-audit-log.component').then(
+                m => m.AdminAuditLogComponent,
+              ),
+          },
+        ],
       },
       {
         path: 'privacy',

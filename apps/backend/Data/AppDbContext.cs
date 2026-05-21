@@ -14,10 +14,15 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
     public DbSet<Submission>           Submissions           => Set<Submission>();
     public DbSet<SubmissionArtifact>   SubmissionArtifacts   => Set<SubmissionArtifact>();
     public DbSet<RoleChangeRequest>    RoleChangeRequests    => Set<RoleChangeRequest>();
+    public DbSet<AdminAuditLog>        AdminAuditLogs        => Set<AdminAuditLog>();
+    public DbSet<Notification>         Notifications         => Set<Notification>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
+
+        builder.Entity<ApplicationUser>()
+            .HasQueryFilter(u => !u.IsDeleted);
 
         builder.Entity<ApplicationUser>(e =>
         {
@@ -80,6 +85,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
             e.Property(a => a.Title).HasMaxLength(200).IsRequired();
             e.Property(a => a.Description).HasMaxLength(1000);
             e.Property(a => a.ExpectedMetrics).HasColumnType("text").HasDefaultValue("{}");
+            e.Property(a => a.AnswerFieldsJson).HasColumnType("text");
             e.Property(a => a.CreatedAt).HasDefaultValueSql("now()");
             e.HasOne(a => a.Classroom)
              .WithMany()
@@ -98,6 +104,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
             e.Property(s => s.ObservedMetrics).HasColumnType("text").HasDefaultValue("{}");
             e.Property(s => s.GradingRows).HasColumnType("text").HasDefaultValue("[]");
             e.Property(s => s.ConclusionText).HasMaxLength(2000);
+            e.Property(s => s.ProblemAnswers).HasColumnType("text");
+            e.Property(s => s.Status).HasDefaultValue(SubmissionStatus.Submitted);
             e.Property(s => s.SubmittedAt).HasDefaultValueSql("now()");
             e.HasIndex(s => new { s.AssignmentId, s.StudentId }).IsUnique();
             e.HasOne(s => s.Assignment)
@@ -133,6 +141,34 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
             e.HasOne(r => r.User)
              .WithMany()
              .HasForeignKey(r => r.UserId)
+             .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        builder.Entity<AdminAuditLog>(e =>
+        {
+            e.HasKey(a => a.Id);
+            e.Property(a => a.Id).ValueGeneratedOnAdd();
+            e.Property(a => a.Action).HasMaxLength(50).IsRequired();
+            e.Property(a => a.TargetUserId).IsRequired();
+            e.Property(a => a.Details).HasMaxLength(1000);
+            e.Property(a => a.CreatedAt).HasDefaultValueSql("now()");
+            e.HasOne(a => a.Admin)
+             .WithMany()
+             .HasForeignKey(a => a.AdminId)
+             .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        builder.Entity<Notification>(e =>
+        {
+            e.HasKey(n => n.Id);
+            e.Property(n => n.Id).ValueGeneratedOnAdd();
+            e.Property(n => n.Message).HasMaxLength(500).IsRequired();
+            e.Property(n => n.Link).HasMaxLength(200);
+            e.Property(n => n.CreatedAt).HasDefaultValueSql("now()");
+            e.HasIndex(n => new { n.UserId, n.IsRead });
+            e.HasOne(n => n.User)
+             .WithMany()
+             .HasForeignKey(n => n.UserId)
              .OnDelete(DeleteBehavior.Cascade);
         });
     }

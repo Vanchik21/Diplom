@@ -1,5 +1,5 @@
-export type AssignmentType = 0 | 1 | 2; // 0=Poe, 1=Scenario, 2=Quiz
-export const AssignmentTypes = { Poe: 0, Scenario: 1, Quiz: 2 } as const;
+export type AssignmentType = 0 | 1 | 2 | 3; // 0=Poe, 1=Scenario, 2=Quiz, 3=Problem
+export const AssignmentTypes = { Poe: 0, Scenario: 1, Quiz: 2, Problem: 3 } as const;
 
 export interface QuizQuestion {
   text: string;
@@ -15,15 +15,24 @@ export interface ComparisonRowDto {
   relError: number;
 }
 
+export interface AnswerFieldDto {
+  label: string;
+  unit: string | null;
+  correctValue: number;
+  tolerance: number;
+}
+
 export interface SubmissionResultDto {
   id: string;
   studentId: string;
   studentName: string;
   score: number;
   teacherScore?: number | null;
+  teacherComment?: string | null;
   hasConclusion: boolean;
   submittedAt: string;
   gradingRows: ComparisonRowDto[];
+  status: string;
 }
 
 export interface AssignmentSummaryDto {
@@ -48,6 +57,7 @@ export interface AssignmentDetailDto {
   assignmentType: AssignmentType;
   expectedMetrics: Record<string, number>;
   questions: QuizQuestion[] | null;
+  answerFields: AnswerFieldDto[] | null;
   dueAt: string | null;
   createdAt: string;
   isTeacher: boolean;
@@ -63,6 +73,7 @@ export interface AssignmentCreateDto {
   assignmentType: AssignmentType;
   expectedMetrics: Record<string, number>;
   questions: QuizQuestion[] | null;
+  answerFields: AnswerFieldDto[] | null;
   dueAt: string | null;
 }
 
@@ -71,4 +82,10 @@ export interface SubmitAssignmentDto {
   conclusionText: string | null;
   screenshotBase64: string | null;
   quizAnswers: number[] | null;
+  problemAnswers: Record<string, number> | null;
+}
+
+export interface GradeSubmissionDto {
+  teacherScore: number;
+  comment: string | null;
 }

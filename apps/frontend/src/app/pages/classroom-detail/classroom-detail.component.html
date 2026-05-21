@@ -51,6 +51,13 @@
         [class.cls-tab--active]="tab() === 'assignments'"
         (click)="selectTab('assignments')"
       >{{ 'cls.assignments' | translate }}</button>
+      @if (isTeacher()) {
+        <button
+          class="cls-tab"
+          [class.cls-tab--active]="tab() === 'review'"
+          (click)="selectTab('review')"
+        >{{ 'asgn.review' | translate }}</button>
+      }
     </div>
 
     @if (tab() === 'members') {
@@ -81,9 +88,11 @@
     @if (tab() === 'assignments') {
       <section class="cls-detail__assignments">
         @if (isTeacher()) {
-          <button class="btn btn--primary btn--sm" (click)="showCreateDialog.set(true)">
-            + {{ 'asgn.create' | translate }}
-          </button>
+          <div class="asgn-header">
+            <button class="btn btn--primary btn--sm" (click)="showCreateDialog.set(true)">
+              + {{ 'asgn.create' | translate }}
+            </button>
+          </div>
         }
 
         @if (assignmentsLoading()) {
@@ -96,7 +105,7 @@
 
         <div class="asgn-list">
           @for (a of assignments(); track a.id) {
-            <a class="asgn-row" routerLink="/assignments/{{ a.id }}">
+            <div class="asgn-row" [routerLink]="['/assignments', a.id]" style="cursor:pointer">
               <div class="asgn-row__main">
                 <span class="asgn-row__title">{{ a.title }}</span>
                 @if (a.dueAt) {
@@ -107,15 +116,15 @@
                 <span>{{ a.submissionCount }} {{ 'asgn.submissions' | translate }}</span>
                 @if (a.mySubmission) {
                   <span class="asgn-row__score">
-                    ✓ {{ (a.mySubmission.score * 100) | number: '1.0-0' }}%
+                    ✓ {{ ((a.mySubmission.teacherScore ?? a.mySubmission.score) * 100) | number: '1.0-0' }}%
                   </span>
                   <button
                     class="btn btn--ghost btn--xs"
-                    (click)="$event.preventDefault(); assignmentsService.downloadReport(a.mySubmission!.id)"
+                    (click)="$event.stopPropagation(); assignmentsService.downloadReport(a.mySubmission!.id)"
                   >PDF</button>
                 }
               </div>
-            </a>
+            </div>
           }
         </div>
 
@@ -126,6 +135,38 @@
             (cancelled)="showCreateDialog.set(false)"
           />
         }
+      </section>
+    }
+
+    @if (tab() === 'review') {
+      <section class="cls-detail__assignments">
+        @if (assignmentsLoading()) {
+          <p class="cls-detail__empty">{{ 'common.loading' | translate }}</p>
+        }
+
+        @if (!assignmentsLoading() && assignments().length === 0) {
+          <p class="cls-detail__empty">{{ 'asgn.empty' | translate }}</p>
+        }
+
+        <div class="asgn-list">
+          @for (a of assignments(); track a.id) {
+            <div
+              class="asgn-row"
+              [routerLink]="['/classes', classroomId(), 'assignments', a.id, 'submissions']"
+              style="cursor:pointer"
+            >
+              <div class="asgn-row__main">
+                <span class="asgn-row__title">{{ a.title }}</span>
+                @if (a.dueAt) {
+                  <span class="asgn-row__due">{{ formatDate(a.dueAt) }}</span>
+                }
+              </div>
+              <div class="asgn-row__meta">
+                <span>{{ a.submissionCount }} {{ 'asgn.submissions' | translate }}</span>
+              </div>
+            </div>
+          }
+        </div>
       </section>
     }
   </div>

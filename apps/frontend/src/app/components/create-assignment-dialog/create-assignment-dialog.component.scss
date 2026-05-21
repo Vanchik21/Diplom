@@ -158,3 +158,12 @@
 
   &__input { flex: 1; }
 }
+
+.answer-field-row {
+  display: grid;
+  grid-template-columns: 2fr 80px 120px 120px auto;
+  gap: 0.5rem;
+  align-items: center;
+
+  &__label, &__unit, &__val, &__tol { width: 100%; }
+}

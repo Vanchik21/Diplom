@@ -1,6 +1,6 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { AuthService } from '../../core/auth/auth.service';
 
@@ -12,28 +12,42 @@ import { AuthService } from '../../core/auth/auth.service';
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss',
 })
-export class LoginComponent {
-  private readonly auth = inject(AuthService);
+export class LoginComponent implements OnInit {
+  private readonly auth  = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly route  = inject(ActivatedRoute);
 
-  protected readonly error = signal<string | null>(null);
+  protected readonly error   = signal<string | null>(null);
+  protected readonly notice  = signal<string | null>(null);
   protected readonly loading = signal(false);
 
   protected readonly form = new FormGroup({
-    email: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.email] }),
+    email:    new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.email] }),
     password: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
   });
+
+  ngOnInit(): void {
+    const reason = this.route.snapshot.queryParamMap.get('reason');
+    if (reason === 'deactivated') {
+      this.notice.set('deactivated');
+    }
+  }
 
   protected submit(): void {
     this.form.markAllAsTouched();
     if (this.form.invalid || this.loading()) return;
     this.error.set(null);
+    this.notice.set(null);
     this.loading.set(true);
     const { email, password } = this.form.getRawValue();
     this.auth.login(email, password).subscribe({
       next: () => this.router.navigate(['/']),
-      error: () => {
-        this.error.set('auth.errors.invalidCredentials');
+      error: (err) => {
+        if (err?.status === 403) {
+          this.notice.set('deactivated');
+        } else {
+          this.error.set('auth.errors.invalidCredentials');
+        }
         this.loading.set(false);
       },
     });

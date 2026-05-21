@@ -5,6 +5,7 @@ import type {
   AssignmentCreateDto,
   AssignmentDetailDto,
   AssignmentSummaryDto,
+  GradeSubmissionDto,
   SubmissionResultDto,
   SubmitAssignmentDto,
 } from './assignment.models';
@@ -34,10 +35,10 @@ export class AssignmentsService {
     return this.http.post<SubmissionResultDto>(`${this.base}/${id}/submit`, dto);
   }
 
-  grade(submissionId: string, teacherScore: number): Observable<SubmissionResultDto> {
+  grade(submissionId: string, dto: GradeSubmissionDto): Observable<SubmissionResultDto> {
     return this.http.patch<SubmissionResultDto>(
       `${this.base}/submissions/${submissionId}/grade`,
-      { teacherScore },
+      dto,
     );
   }
 

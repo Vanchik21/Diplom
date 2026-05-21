@@ -9,7 +9,10 @@
     "logout": "Вийти",
     "admin": "Адмін",
     "myClasses": "Мої класи",
-    "analytics": "Аналітика"
+    "analytics": "Аналітика",
+    "notifications": "Сповіщення",
+    "markAllRead": "Прочитати всі",
+    "noNotifications": "Немає нових сповіщень"
   },
   "home": {
     "title": "Physis™ — Симуляції фізики",
@@ -23,7 +26,12 @@
       "password": "Пароль",
       "submit": "Увійти",
       "noAccount": "Немає акаунту?",
-      "registerLink": "Зареєструватись"
+      "registerLink": "Зареєструватись",
+      "deactivated": {
+        "title": "Акаунт деактивовано",
+        "body": "Ваш акаунт деактивовано адміністрацією платформи. Доступ до системи тимчасово заблоковано.",
+        "contact": "Для відновлення доступу зверніться до адміністратора:"
+      }
     },
     "register": {
       "title": "Реєстрація",
@@ -230,17 +238,71 @@
       "role_student": "Учень",
       "role_user": "Користувач"
     },
-    "roleRequests": {
-      "title": "Заявки на зміну ролі",
-      "empty": "Немає активних заявок.",
-      "requestedRole": "Запитана роль",
-      "approve": "Підтвердити",
-      "reject": "Відхилити"
-    },
     "pagination": {
       "prev": "Назад",
       "next": "Вперед",
       "of": "з"
+    },
+    "panel": "Адмін-панель",
+    "search": "Пошук за іменем або поштою…",
+    "nav": {
+      "users": "Користувачі",
+      "roleRequests": "Заявки на роль",
+      "auditLog": "Журнал дій"
+    },
+    "col": {
+      "name": "Ім'я",
+      "email": "Email",
+      "role": "Роль",
+      "status": "Статус",
+      "registered": "Дата реєстрації",
+      "actions": "Дії"
+    },
+    "filter": {
+      "allRoles": "Усі ролі",
+      "allStatus": "Усі статуси",
+      "active": "Активні",
+      "inactive": "Деактивовані",
+      "allActions": "Усі дії"
+    },
+    "status": {
+      "active": "Активний",
+      "inactive": "Деактивований",
+      "deleted": "Видалений"
+    },
+    "action": {
+      "deactivate": "Деактивувати",
+      "activate": "Активувати",
+      "delete": "Видалити",
+      "confirmDelete": "Ви впевнені?",
+      "review": "Переглянути",
+      "approve": "Підтвердити",
+      "reject": "Відхилити"
+    },
+    "roleRequests": {
+      "title": "Заявки на зміну ролі",
+      "empty": "Немає активних заявок.",
+      "requested": "Запитана роль",
+      "requestedRole": "Запитана роль",
+      "assignRole": "Призначити роль",
+      "modalTitle": "Розгляд заявки",
+      "approve": "Підтвердити",
+      "reject": "Відхилити"
+    },
+    "auditLog": {
+      "empty": "Немає записів.",
+      "admin": "Адмін",
+      "action": "Дія",
+      "target": "Користувач",
+      "details": "Деталі",
+      "time": "Час",
+      "actionLabel": {
+        "Deactivate": "Деактивація",
+        "Activate": "Активація",
+        "Delete": "Видалення",
+        "ApproveRole": "Підтвердження ролі",
+        "RejectRole": "Відхилення ролі"
+      }
     }
   },
   "cls": {
@@ -332,7 +394,34 @@
     "submitQuiz": "Надіслати відповіді",
     "quizResult": "Правильно: {{correct}} / {{total}}",
     "autoScore": "Авто-оцінка",
-    "grade": "Оцінити"
+    "grade": "Оцінити",
+    "typeProblem": "Задача",
+    "answerFields": "Поля відповідей",
+    "addField": "Додати поле",
+    "fieldLabel": "Назва (напр. F)",
+    "fieldUnit": "Одиниця (напр. Н)",
+    "fieldCorrect": "Правильне значення",
+    "fieldTolerance": "Допуск",
+    "problemHint": "Додайте поля для числових відповідей студента.",
+    "problemNeedFields": "Додайте хоча б одне поле відповіді.",
+    "problemAnswers": "Відповіді",
+    "submissionsTitle": "Перевірка робіт",
+    "noSubmissions": "Ще немає здач.",
+    "selectSubmission": "Оберіть роботу зі списку зліва.",
+    "gradingRows": "Деталі порівняння",
+    "metric": "Показник",
+    "actual": "Фактично",
+    "relError": "Відносна похибка",
+    "teacherComment": "Коментар викладача",
+    "teacherScore": "Оцінка викладача",
+    "comment": "Коментар",
+    "commentPlaceholder": "Необов'язковий коментар до роботи…",
+    "publishGrade": "Опублікувати оцінку",
+    "pending": "На перевірці",
+    "gradeError": "Не вдалося зберегти оцінку.",
+    "gradeRangeError": "Оцінка має бути від 0 до 100.",
+    "review": "Перевірити",
+    "pendingNotice": "Роботу здано. Очікуйте на оцінку від викладача."
   },
   "analytics": {
     "title": "Аналітика",
@@ -365,6 +454,10 @@
     "cancel": "Скасувати",
     "reset": "Скинути",
     "loading": "Завантаження…",
-    "error": "Помилка"
+    "error": "Помилка",
+    "search": "Пошук",
+    "yes": "Так",
+    "no": "Ні",
+    "back": "Назад"
   }
 }

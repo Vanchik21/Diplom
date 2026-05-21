@@ -1,0 +1,66 @@
+<h2 class="arr-title">{{ 'admin.nav.roleRequests' | translate }}</h2>
+
+@if (loading()) {
+  <p class="arr-muted">{{ 'common.loading' | translate }}</p>
+} @else if (requests().length === 0) {
+  <p class="arr-muted">{{ 'admin.roleRequests.empty' | translate }}</p>
+} @else {
+  <table class="arr-table">
+    <thead>
+      <tr>
+        <th>{{ 'admin.col.name' | translate }}</th>
+        <th>{{ 'admin.col.email' | translate }}</th>
+        <th>{{ 'admin.roleRequests.requested' | translate }}</th>
+        <th>{{ 'admin.col.registered' | translate }}</th>
+        <th>{{ 'admin.col.actions' | translate }}</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (r of requests(); track r.id) {
+        <tr class="arr-row" (click)="openModal(r)" tabindex="0" role="button">
+          <td>{{ r.userName }}</td>
+          <td class="arr-email">{{ r.userEmail }}</td>
+          <td><span class="arr-role">{{ r.requestedRole }}</span></td>
+          <td>{{ r.createdAt | date:'dd.MM.yyyy HH:mm' }}</td>
+          <td class="arr-actions" (click)="$event.stopPropagation()">
+            <button class="btn btn--ghost btn--sm" [disabled]="isBusy(r.id)" (click)="openModal(r)">
+              {{ 'admin.action.review' | translate }}
+            </button>
+            <button class="btn btn--danger btn--sm" [disabled]="isBusy(r.id)" (click)="reject(r)">
+              {{ 'admin.action.reject' | translate }}
+            </button>
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+}
+
+<!-- Modal -->
+@if (modalReq()) {
+  <div class="arr-backdrop" (click)="closeModal()">
+    <div class="arr-modal" (click)="$event.stopPropagation()">
+      <h3 class="arr-modal__title">{{ 'admin.roleRequests.modalTitle' | translate }}</h3>
+      <div class="arr-modal__info">
+        <span><b>{{ 'admin.col.name' | translate }}:</b> {{ modalReq()!.userName }}</span>
+        <span><b>{{ 'admin.col.email' | translate }}:</b> {{ modalReq()!.userEmail }}</span>
+        <span><b>{{ 'admin.roleRequests.requested' | translate }}:</b> {{ modalReq()!.requestedRole }}</span>
+      </div>
+      <div class="arr-modal__field">
+        <label class="arr-modal__label">{{ 'admin.roleRequests.assignRole' | translate }}</label>
+        <select class="arr-select" [(ngModel)]="selectedRole">
+          <option value="Student">Student</option>
+          <option value="Teacher">Teacher</option>
+        </select>
+      </div>
+      <div class="arr-modal__actions">
+        <button class="btn btn--primary" (click)="approve()">
+          {{ 'admin.action.approve' | translate }}
+        </button>
+        <button class="btn btn--ghost" (click)="closeModal()">
+          {{ 'common.cancel' | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+}
