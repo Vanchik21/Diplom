@@ -35,4 +35,8 @@ public record StudentTimelineDto(
     List<ScorePointDto>         ScoreOverTime,
     Dictionary<string, double?> CategoryMastery);
 
-public record PersonalAnalyticsDto(Dictionary<string, double?> CategoryMastery);
+public record PersonalAnalyticsDto(
+    Dictionary<string, double?> CategoryMastery,
+    int    TotalSubmissions,
+    double? AverageScore,
+    double PassRate);

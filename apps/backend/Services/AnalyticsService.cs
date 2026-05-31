@@ -125,7 +125,11 @@ public class AnalyticsService(AppDbContext db)
             .Include(s => s.Assignment)
             .ToListAsync();
 
-        return new PersonalAnalyticsDto(ComputeMastery(submissions));
+        var scores = submissions.Select(s => s.TeacherScore ?? s.Score).ToList();
+        var avgScore  = scores.Count > 0 ? (double?)scores.Average() : null;
+        var passRate  = scores.Count > 0 ? scores.Count(s => s >= 0.6) / (double)scores.Count : 0.0;
+
+        return new PersonalAnalyticsDto(ComputeMastery(submissions), scores.Count, avgScore, passRate);
     }
 
     private static Dictionary<string, double?> ComputeMastery(List<Submission> submissions)

@@ -1,5 +1,6 @@
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -63,6 +64,7 @@ builder.Services.AddScoped<IEmailService, SmtpEmailService>();
 builder.Services.AddScoped<AssignmentService>();
 builder.Services.AddScoped<AnalyticsService>();
 builder.Services.AddScoped<LabReportService>();
+builder.Services.AddScoped<Physis.Api.Controllers.AdminController>();
 
 if (!builder.Environment.IsDevelopment())
 {
@@ -104,8 +106,10 @@ using (var scope = app.Services.CreateScope())
         if (!await roleManager.RoleExistsAsync(roleName))
             await roleManager.CreateAsync(new IdentityRole(roleName));
 
-    if (app.Environment.IsDevelopment())
     {
+        // Seed admin both in dev and prod when AdminSeed:* are configured. In dev we also
+        // reset the password on every startup so the documented credentials always work;
+        // in prod we only create on first boot and leave further changes to the admin UI.
         var seedEmail    = builder.Configuration["AdminSeed:Email"]    ?? string.Empty;
         var seedUserName = builder.Configuration["AdminSeed:UserName"] ?? string.Empty;
         var seedPassword = builder.Configuration["AdminSeed:Password"] ?? string.Empty;
@@ -127,15 +131,15 @@ using (var scope = app.Services.CreateScope())
                 if (createResult.Succeeded)
                 {
                     await userManager.AddToRoleAsync(adminUser, AdminRole);
-                    app.Logger.LogInformation("Dev admin account created: {Email}", seedEmail);
+                    app.Logger.LogInformation("Admin account created: {Email}", seedEmail);
                 }
                 else
                 {
                     var errors = string.Join(", ", createResult.Errors.Select(e => e.Description));
-                    app.Logger.LogWarning("Dev admin seed failed: {Errors}", errors);
+                    app.Logger.LogWarning("Admin seed failed: {Errors}", errors);
                 }
             }
-            else
+            else if (app.Environment.IsDevelopment())
             {
                 // Reset password for existing admin account on every dev startup
                 var resetToken = await userManager.GeneratePasswordResetTokenAsync(existing);
@@ -144,11 +148,16 @@ using (var scope = app.Services.CreateScope())
                     await userManager.AddToRoleAsync(existing, AdminRole);
                 app.Logger.LogInformation("Dev admin password reset for: {Email}", seedEmail);
             }
+            else
+            {
+                if (!await userManager.IsInRoleAsync(existing, AdminRole))
+                    await userManager.AddToRoleAsync(existing, AdminRole);
+            }
         }
         else
         {
             app.Logger.LogInformation(
-                "AdminSeed:Password not set — skipping dev admin seed. " +
+                "AdminSeed:Password not set — skipping admin seed. " +
                 "Set the AdminSeed__Password environment variable to enable it.");
         }
     }
@@ -157,6 +166,17 @@ using (var scope = app.Services.CreateScope())
         ?? Path.Combine(app.Environment.ContentRootPath, "wwwroot");
     Directory.CreateDirectory(Path.Combine(webRoot, "uploads", "avatars"));
 }
+
+// Honour X-Forwarded-* from the platform proxy (Railway, Azure App Service, etc.)
+// so that Request.IsHttps and Request.Scheme reflect the original client request,
+// not the internal http hop inside the container.
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto,
+    // The platform's reverse proxy is the only hop; trust any source.
+    KnownNetworks = { },
+    KnownProxies = { },
+});
 
 app.Use(async (context, next) =>
 {
@@ -182,6 +202,15 @@ app.UseMiddleware<TokenVersionMiddleware>();
 app.UseAuthorization();
 app.MapControllers();
 app.MapHealthEndpoints();
+
+// Platforms like Railway pass the listen port in $PORT instead of $ASPNETCORE_URLS.
+// Honour it when present so the same image works locally (5000) and in the cloud (random).
+var port = Environment.GetEnvironmentVariable("PORT");
+if (!string.IsNullOrWhiteSpace(port))
+{
+    app.Urls.Clear();
+    app.Urls.Add($"http://0.0.0.0:{port}");
+}
 
 app.Run();
 

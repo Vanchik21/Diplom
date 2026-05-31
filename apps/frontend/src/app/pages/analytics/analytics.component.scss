@@ -62,6 +62,37 @@
   }
 }
 
+.score-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+  margin-bottom: 2rem;
+}
+
+.score-stat {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 0.625rem;
+  padding: 1rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+
+  &__label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-text-muted);
+    font-weight: 500;
+  }
+
+  &__value {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--color-text);
+  }
+}
+
 .heatmap {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -133,11 +164,12 @@
 
 .chart-wrap {
   position: relative;
-  max-height: 300px;
+  height: 360px;
   margin-bottom: 1.5rem;
 
   canvas {
-    max-height: 300px;
+    width: 100% !important;
+    height: 100% !important;
   }
 }
 

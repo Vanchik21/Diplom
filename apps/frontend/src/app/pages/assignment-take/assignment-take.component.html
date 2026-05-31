@@ -155,7 +155,7 @@
                 @if (field.unit) { <span class="problem-field__unit">({{ field.unit }})</span> }
               </label>
               <input class="at-input problem-field__input" type="number" step="any"
-                [value]="problemInputs()[field.label] ?? 0"
+                [value]="problemInputs()[field.label]"
                 (input)="updateProblemInput(field.label, $any($event.target).value)" />
             </div>
           }

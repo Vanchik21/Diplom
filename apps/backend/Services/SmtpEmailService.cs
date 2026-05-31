@@ -12,6 +12,7 @@ public class SmtpEmailService(IConfiguration config, ILogger<SmtpEmailService> l
         var portStr  = config["Email:SmtpPort"];
         var from     = config["Email:From"];
         var password = config["Email:Password"];
+        var username = config["Email:Username"] ?? from;
 
         if (string.IsNullOrWhiteSpace(host) || string.IsNullOrWhiteSpace(from))
         {
@@ -26,7 +27,7 @@ public class SmtpEmailService(IConfiguration config, ILogger<SmtpEmailService> l
             using var client = new SmtpClient(host, port)
             {
                 EnableSsl   = true,
-                Credentials = new NetworkCredential(from, password),
+                Credentials = new NetworkCredential(username, password),
             };
 
             var msg = new MailMessage(from, to, subject, body) { IsBodyHtml = false };

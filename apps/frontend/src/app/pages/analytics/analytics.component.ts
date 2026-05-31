@@ -162,8 +162,33 @@ export class AnalyticsComponent implements OnDestroy {
       },
       options: {
         responsive: true,
+        maintainAspectRatio: false,
         plugins: { legend: { display: false } },
-        scales:  { y: { beginAtZero: true, max: 100, title: { display: true, text: '%' } } },
+        scales: {
+          y: { beginAtZero: true, max: 100, title: { display: true, text: '%' } },
+          x: {
+            ticks: {
+              maxRotation: 0,
+              minRotation: 0,
+              callback(value) {
+                const label = this.getLabelForValue(value as number);
+                const words = label.split(' ');
+                const lines: string[] = [];
+                let current = '';
+                for (const word of words) {
+                  if ((current + ' ' + word).trim().length > 14) {
+                    if (current) lines.push(current);
+                    current = word;
+                  } else {
+                    current = (current + ' ' + word).trim();
+                  }
+                }
+                if (current) lines.push(current);
+                return lines;
+              },
+            },
+          },
+        },
       },
     });
   }

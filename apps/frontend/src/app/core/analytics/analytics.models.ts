@@ -47,4 +47,7 @@ export interface StudentTimelineDto {
 
 export interface PersonalAnalyticsDto {
   categoryMastery: Record<string, number | null>;
+  totalSubmissions: number;
+  averageScore: number | null;
+  passRate: number;
 }

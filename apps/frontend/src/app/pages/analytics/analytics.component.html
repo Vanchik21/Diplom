@@ -23,13 +23,33 @@
 
   @if (mode() === 'personal') {
     <section class="analytics__section">
-      <h2 class="analytics__section-title">{{ 'analytics.masteryTitle' | translate }}</h2>
-
       @if (personalLoading()) {
         <p class="analytics__loading">{{ 'common.loading' | translate }}</p>
       } @else if (personalError()) {
         <p class="analytics__loading analytics__loading--error">{{ 'common.error' | translate }}</p>
       } @else {
+        <div class="score-stats">
+          <div class="score-stat">
+            <span class="score-stat__label">{{ 'analytics.totalSubmissions' | translate }}</span>
+            <span class="score-stat__value">{{ personalData()!.totalSubmissions }}</span>
+          </div>
+          <div class="score-stat">
+            <span class="score-stat__label">{{ 'analytics.avgScore' | translate }}</span>
+            <span class="score-stat__value">
+              @if (personalData()!.averageScore != null) {
+                {{ personalData()!.averageScore! * 100 | number: '1.0-0' }}%
+              } @else {
+                —
+              }
+            </span>
+          </div>
+          <div class="score-stat">
+            <span class="score-stat__label">{{ 'analytics.passRate' | translate }}</span>
+            <span class="score-stat__value">{{ personalData()!.passRate * 100 | number: '1.0-0' }}%</span>
+          </div>
+        </div>
+
+        <h2 class="analytics__section-title">{{ 'analytics.masteryTitle' | translate }}</h2>
         <div class="heatmap">
           @for (cat of categories; track cat.key) {
             <div

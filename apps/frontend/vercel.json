@@ -1,0 +1,21 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "version": 2,
+  "buildCommand": "npx ng build --configuration production",
+  "outputDirectory": "dist/frontend/browser",
+  "framework": null,
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "https://REPLACE-WITH-RAILWAY-URL.up.railway.app/api/:path*"
+    },
+    {
+      "source": "/uploads/:path*",
+      "destination": "https://REPLACE-WITH-RAILWAY-URL.up.railway.app/uploads/:path*"
+    },
+    {
+      "source": "/((?!api|uploads|assets).*)",
+      "destination": "/index.html"
+    }
+  ]
+}
