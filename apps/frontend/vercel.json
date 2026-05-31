@@ -7,11 +7,11 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "https://REPLACE-WITH-RAILWAY-URL.up.railway.app/api/:path*"
+      "destination": "https://diplom-production-cba6.up.railway.app/api/:path*"
     },
     {
       "source": "/uploads/:path*",
-      "destination": "https://REPLACE-WITH-RAILWAY-URL.up.railway.app/uploads/:path*"
+      "destination": "https://diplom-production-cba6.up.railway.app/uploads/:path*"
     },
     {
       "source": "/((?!api|uploads|assets).*)",
