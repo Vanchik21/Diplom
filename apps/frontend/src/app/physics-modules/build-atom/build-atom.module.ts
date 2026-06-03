@@ -183,12 +183,15 @@ export class BuildAtomModule
   babylonSetup(scene: Scene): void {
     const camera = scene.activeCamera as ArcRotateCamera | null;
     if (camera) {
-      camera.target = new Vector3(0, -0.5, 0);
+      camera.target = new Vector3(0, -1.0, 0);
       camera.alpha  = -Math.PI / 2;
       camera.beta   = Math.PI / 2;
-      camera.radius = 16;
-      camera.lowerRadiusLimit = 10;
-      camera.upperRadiusLimit = 24;
+      camera.radius = 14;
+      camera.lowerRadiusLimit = 14;
+      camera.upperRadiusLimit = 14;
+      camera.lowerBetaLimit   = Math.PI / 2;
+      camera.upperBetaLimit   = Math.PI / 2;
+      camera.inputs.clear();
     }
     this.meshes = setupBuildAtomScene(scene);
   }

@@ -294,7 +294,7 @@ export function setupBuildAtomScene(scene: Scene): BuildAtomMeshes {
 
   const labelPlane = MeshBuilder.CreatePlane('ba_label', { width: 4.0, height: 2.0 }, scene);
   labelPlane.material = labelMat;
-  labelPlane.position.set(0, -5.2, 0);
+  labelPlane.position.set(0, -4.5, 0);
   labelPlane.isPickable = false;
 
   meshes.labelTexture = labelTex;

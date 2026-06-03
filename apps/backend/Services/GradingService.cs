@@ -8,7 +8,6 @@ public static class GradingService
     private static readonly JsonSerializerOptions JsonOpts =
         new() { PropertyNameCaseInsensitive = true };
 
-    /// <summary>Grades POE/Scenario: compares observed vs expected metrics by relative error.</summary>
     public static (double Score, List<ComparisonRowDto> Rows) Grade(
         Dictionary<string, double> expected,
         Dictionary<string, double> observed)
@@ -38,10 +37,6 @@ public static class GradingService
         return (score, rows);
     }
 
-    /// <summary>
-    /// Grades Problem type: each answer field is correct if |student - correct| &lt;= tolerance.
-    /// Score = correct_count / total_count.
-    /// </summary>
     public static (double Score, List<ComparisonRowDto> Rows) GradeProblem(
         List<AnswerFieldDto> fields,
         Dictionary<string, double> studentAnswers)
