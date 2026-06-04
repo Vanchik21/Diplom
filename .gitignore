@@ -6,12 +6,13 @@ dist/
 npm-debug.log*
 
 # .NET
-apps/backend/bin/
-apps/backend/obj/
+**/bin/
+**/obj/
 apps/backend/*.user
 apps/backend/*.suo
 apps/backend/.vs/
 *.nupkg
+TestResults/
 
 # Environment — never commit real secrets
 .env

@@ -1,5 +1,7 @@
 # Physis™
 
+[![CI](https://github.com/Vanchik21/Diplom/actions/workflows/ci.yml/badge.svg)](https://github.com/Vanchik21/Diplom/actions/workflows/ci.yml)
+
 > Interactive physics simulations based on the Predict–Observe–Explain methodology
 
 **Repository:** [github.com/Vanchik21/Diplom](https://github.com/Vanchik21/Diplom)
