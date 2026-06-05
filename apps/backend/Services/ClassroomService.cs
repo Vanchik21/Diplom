@@ -1,4 +1,3 @@
-using System.Security.Cryptography;
 using Microsoft.EntityFrameworkCore;
 using Physis.Api.Data;
 using Physis.Api.DTOs;
@@ -8,8 +7,6 @@ namespace Physis.Api.Services;
 
 public class ClassroomService(AppDbContext db, Microsoft.AspNetCore.Identity.UserManager<ApplicationUser> userManager)
 {
-    private const string InviteCodeChars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-
     public async Task<ClassroomSummaryDto> CreateAsync(string userId, ClassroomCreateDto dto)
     {
         var code = await GenerateUniqueCodeAsync();
@@ -184,16 +181,10 @@ public class ClassroomService(AppDbContext db, Microsoft.AspNetCore.Identity.Use
     {
         while (true)
         {
-            var code = GenerateCode();
+            var code = InviteCodeGenerator.Generate();
             var exists = await db.Classrooms.AnyAsync(c => c.InviteCode == code);
             if (!exists) return code;
         }
-    }
-
-    private static string GenerateCode()
-    {
-        var bytes = RandomNumberGenerator.GetBytes(8);
-        return new string(bytes.Select(b => InviteCodeChars[b % InviteCodeChars.Length]).ToArray());
     }
 
     private static ClassroomSummaryDto ToSummary(
