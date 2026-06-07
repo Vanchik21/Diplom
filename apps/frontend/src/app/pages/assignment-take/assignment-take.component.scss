@@ -455,7 +455,13 @@
   border-top: 1px solid var(--color-border);
 
   &__score { flex-shrink: 0; }
-  &__info { flex: 1; }
+  &__info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
 }
 
 /* Teacher panel */
