@@ -294,7 +294,7 @@ export function setupBuildAtomScene(scene: Scene): BuildAtomMeshes {
 
   const labelPlane = MeshBuilder.CreatePlane('ba_label', { width: 4.0, height: 2.0 }, scene);
   labelPlane.material = labelMat;
-  labelPlane.position.set(0, -4.5, 0);
+  labelPlane.position.set(0, -5.3, 0);
   labelPlane.isPickable = false;
 
   meshes.labelTexture = labelTex;
@@ -355,7 +355,7 @@ export function updateLabel(meshes: BuildAtomMeshes): void {
   if (protons > 0) {
     ctx.font = 'bold 20px sans-serif';
     ctx.fillStyle = stable ? '#44ff88' : '#ff4444';
-    ctx.fillText(stable ? '✓ Стабільний ізотоп' : '✗ Нестабільний', 30, 200);
+    ctx.fillText(stable ? '✓ Стабільний ізотоп' : '✗ Нестабільний ізотоп', 30, 235);
   }
 
   meshes.labelTexture.update();
